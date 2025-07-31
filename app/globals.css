@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: #151723;
+    --background-secondary: #1e202f;
+    --background-darker: #0d0d18;
+    --foreground: #e6e6ee;
+    --muted: #75787f;
+    --card: #27283a;
+    --card-foreground: #e6e6ee;
+    /* --popover: #242424;
+    --popover-foreground: #E6E6EE; */
+    --accent: #fade58;
+    --accent-foreground: #0d0d15;
+    --accent-gradient-1: #f7bf48;
+    --accent-gradient-2: #ffe95c;
+    --border: #2e2e2e;
+    --input: #2e2e2e;
+    --destructive: #c3423f;
+  }
+  .dark {
+    --background: #151723;
+    --background-secondary: #1e202f;
+    --background-darker: #0d0d18;
+    --foreground: #e6e6ee;
+    --muted: #75787f;
+    --card: #27283a;
+    --card-foreground: #e6e6ee;
+    /* --popover: #242424;
+    --popover-foreground: #E6E6EE; */
+    --accent: #fade58;
+    --accent-foreground: #0d0d15;
+    --accent-gradient-1: #f7bf48;
+    --accent-gradient-2: #ffe95c;
+    --border: #2e2e2e;
+    --input: #2e2e2e;
+    --destructive: #c3423f;
+  }
+}
+
+@layer base {
+  * {
+    @apply font-sans border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .btn-accent {
+    @apply bg-gradient-to-br from-accent-gradient-1 to-accent-gradient-2 text-sm text-accent-foreground font-semibold py-2 px-8 rounded transition-all duration-300;
+  }
+
+  .btn-accent:hover {
+    @apply brightness-90;
+  }
+}
+
+
+.data-\[state\=open\]\:text-accent-foreground[data-state="open"] {
+  color: white !important;
+}
