@@ -1,5 +1,5 @@
 import { DkSlate } from '@/types/DkSlate'
-import { Slate, SlateMatchups } from '@/types/Slate'
+import { Slate } from '@/types/Slate'
 
 import { baseApi } from './baseApi'
 
@@ -8,13 +8,6 @@ export const slatesApi = baseApi.injectEndpoints({
     getSlates: builder.query<Slate[], void>({
       query: () => '/api/slates',
       providesTags: ['Slates'],
-    }),
-    getSlate: builder.query<SlateMatchups, string>({
-      query: id => ({
-        url: `${process.env.NEXT_PUBLIC_API_URL}/api/slates/${id}`,
-        method: 'GET',
-      }),
-      providesTags: ['Slate'],
     }),
     addSlate: builder.mutation<DkSlate, Partial<DkSlate>>({
       query: slate => ({
@@ -34,4 +27,4 @@ export const slatesApi = baseApi.injectEndpoints({
   }),
 })
 
-export const { useGetSlatesQuery, useGetSlateQuery, useAddSlateMutation, useDeleteSlateMutation } = slatesApi
+export const { useGetSlatesQuery, useAddSlateMutation, useDeleteSlateMutation } = slatesApi

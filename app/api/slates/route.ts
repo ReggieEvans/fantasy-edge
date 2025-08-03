@@ -68,7 +68,7 @@ export async function GET() {
   }
 
   const { data: games } = await supabase
-    .from('slate_games')
+    .from('slate_matchups')
     .select('slate_id') // only need slate_id
     .in('slate_id', slateIds)
 
@@ -112,7 +112,7 @@ export async function POST(req: Request) {
 
   const { draftGroup, players, games, sport, gameType } = parsed.data
 
-  // 1. Insert user_slates
+  // // 1. Insert user_slates
   const { data: slateRow, error: slateError } = await supabase
     .from('user_slates')
     .insert({
@@ -135,22 +135,42 @@ export async function POST(req: Request) {
   const teamNames = extractUniqueTeamNames(games)
   const teamIdMap = await getTeamIdMap(teamNames, supabase)
 
-  // 2. Insert slate_games (map teams to team_ids later)
-  const gameInserts = parsed.data.games.map(game => ({
+  // // 2. Insert slate_matchups (map teams to team_ids later)
+  const gameInserts = games.map(game => ({
     slate_id: slateId,
-    game_id: game.competitionId,
-    start_time: game.startTime,
+    sport: game.sport,
+    sport_id: game.sportId,
     home_team_id: teamIdMap.get(normalizeKey(game.homeTeam.teamName)),
-    away_team_id: teamIdMap.get(normalizeKey(game.awayTeam.teamName)),
     home_team_name: game.homeTeam.teamName,
+    home_team_abbr: game.homeTeam.abbreviation,
+    home_team_city: game.homeTeam.city,
+    home_team_logo: game.homeTeam.logo,
+    away_team_id: teamIdMap.get(normalizeKey(game.awayTeam.teamName)),
     away_team_name: game.awayTeam.teamName,
+    away_team_abbr: game.awayTeam.abbreviation,
+    away_team_city: game.awayTeam.city,
+    away_team_logo: game.awayTeam.logo,
+    start_time: game.startTime,
+    name: game.name,
     venue: game.venue,
-    tv_network: game.broadcast?.network,
-    spread: game.odds,
-    over_under: game.odds?.total,
+    starting_lineups_available: game.startingLineupsAvailable,
+    depth_charts_available: game.depthChartsAvailable,
+    competition_state: game.competitionState,
+    competition_state_detail: game.competitionStateDetail,
+    competition_started_early: game.competitionStartedEarly,
+    home_team_spread: game.homeTeamSpread,
+    away_team_spread: game.awayTeamSpread,
+    home_team_total: game.homeTeamTotal,
+    away_team_total: game.awayTeamTotal,
+    game_total: game.gameTotal,
   }))
 
-  await supabase.from('slate_games').insert(gameInserts)
+  const { error: matchupsError } = await supabase.from('slate_matchups').insert(gameInserts)
+
+  if (matchupsError) {
+    console.error('❌ Supabase insert error:', matchupsError.message)
+    return NextResponse.json({ error: 'Failed to insert matchups' }, { status: 500 })
+  }
 
   const teamIdToName = new Map<number, string>()
   parsed.data.games.forEach(game => {
@@ -158,7 +178,7 @@ export async function POST(req: Request) {
     teamIdToName.set(game.awayTeam.teamId, game.awayTeam.teamName)
   })
 
-  // 3. Insert slate_players (no team_id mapped yet)
+  // // 3. Insert slate_players (no team_id mapped yet)
   const playerInserts = players.map(player => {
     const teamName = teamIdToName.get(player.teamId) || 'Unknown'
     return {

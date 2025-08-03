@@ -5,6 +5,6 @@ export const baseApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.NEXT_PUBLIC_API_URL,
   }),
-  tagTypes: ['Slates', 'Slate', 'DkSlates'],
+  tagTypes: ['Slates', 'Slate', 'DkSlates', 'Matchups'],
   endpoints: () => ({}),
 })

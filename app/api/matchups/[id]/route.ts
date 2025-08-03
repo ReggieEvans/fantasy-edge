@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
-// @desc    Delete User Slate
-// @route   DELETE /api/slates/:id
+// @desc    Get Matchups by slateId
+// @route   GET /api/matchups/:id
 import { NextResponse } from 'next/server'
 
 import { createServerSupabaseClient } from '@/libs/supabase/server'
 
-export const DELETE = async (_req: Request, context: any) => {
+export const GET = async (_req: Request, context: any) => {
   const supabase = await createServerSupabaseClient()
   const params = await context.params
 
@@ -21,11 +20,9 @@ export const DELETE = async (_req: Request, context: any) => {
   const slateId = params.id
 
   try {
-    await supabase.from('slate_games').delete().eq('slate_id', slateId)
-    await supabase.from('slate_players').delete().eq('slate_id', slateId)
-    await supabase.from('user_slates').delete().eq('id', slateId)
+    const { data: matchups } = await supabase.from('slate_matchups').select('*').eq('slate_id', slateId)
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json(matchups)
   } catch (error) {
     const message = error instanceof Error ? error.message : 'An unknown error occurred'
     return NextResponse.json({ error: message }, { status: 500 })
