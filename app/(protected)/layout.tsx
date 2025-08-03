@@ -15,7 +15,7 @@ export default async function ProtectedLayout({ children }: { children: React.Re
   return (
     <>
       <Header />
-      <main className="max-w-[1440px] mx-auto">{children}</main>
+      <main>{children}</main>
     </>
   )
 }
