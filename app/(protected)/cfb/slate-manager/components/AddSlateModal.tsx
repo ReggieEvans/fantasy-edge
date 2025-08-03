@@ -62,8 +62,11 @@ export default function AddSlateModal({ open, onClose }: { open: boolean; onClos
 
         <div className="min-h-[300px] overflow-y-auto py-2 px-3">
           {loading ? (
-            <div className="h-full flex justify-center items-center">
-              <Loader size={16} className="animate-spin" />
+            <div className="h-full flex flex-col pt-8 items-center">
+              <div className="mb-4">
+                <Loader size={24} className="animate-spin" />
+              </div>
+              <p>Loading Draftkings slates...</p>
             </div>
           ) : (
             demoSlate.map((slate: any) => (
@@ -85,6 +88,13 @@ export default function AddSlateModal({ open, onClose }: { open: boolean; onClos
                 </button>
               </div>
             ))
+          )}
+
+          {isAdding && (
+            <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-center items-center bg-[rgba(0,0,0,0.4)] backdrop-blur-[1px]">
+              <p className="uppercase font-bold">One moment</p>
+              <p className="opacity-70 text-sm">We&apos;re adding data to your slates.</p>
+            </div>
           )}
         </div>
       </DialogContent>

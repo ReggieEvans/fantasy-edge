@@ -3,6 +3,7 @@
 import { List, Plus } from 'lucide-react'
 import { useState } from 'react'
 
+import { Skeleton } from '@/components/ui/skeleton'
 import { useGetSlatesQuery } from '@/store/api/slatesApi'
 import { Slate as SlateType } from '@/types/Slate'
 
@@ -16,8 +17,7 @@ export default function SlateManagerPage() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [slateToDelete, setSlateToDelete] = useState<SlateType | null>(null)
 
-  // if (isLoading) return <p className="p-4">Loading slates...</p>
-  // if (isError) return <p className="p-4 text-red-500">Failed to load slates.</p>
+  if (isError) return <p className="p-4 text-red-500">Failed to load slates.</p>
 
   const onDeleteSlate = (slate: SlateType) => {
     setSlateToDelete(slate)
@@ -43,15 +43,21 @@ export default function SlateManagerPage() {
       </div>
 
       <div className="space-y-4">
-        {slates?.map((slate: SlateType, i: number) => (
-          <Slate
-            key={i}
-            slate={slate}
-            onAddProjections={() => {}}
-            onDeleteSlate={onDeleteSlate}
-            manageSlate={() => {}}
-          />
-        ))}
+        {isLoading ? (
+          [...Array(3)].map((_, i) => <Skeleton key={i} className="h-32 w-full bg-card rounded animate-pulse" />)
+        ) : isError ? (
+          <p className="text-red-500">Failed to load slates.</p>
+        ) : (
+          slates?.map((slate: SlateType, i: number) => (
+            <Slate
+              key={i}
+              slate={slate}
+              onAddProjections={() => {}}
+              onDeleteSlate={onDeleteSlate}
+              manageSlate={() => {}}
+            />
+          ))
+        )}
       </div>
 
       {/* Modals */}

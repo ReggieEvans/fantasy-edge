@@ -92,7 +92,7 @@ export default function Slate({ slate, onAddProjections, onDeleteSlate }: SlateP
 
         {/* Mobile Manage Button */}
         <div className="md:hidden mt-4">
-          <Link href={`/slate-manager/${slate.id}`}>
+          <Link href={`slate-manager/${slate.id}`}>
             <button className="btn-accent flex justify-center items-center gap-2 w-full">
               <span className="mr-2 py-1 px-2 text-primary">Manage Slate</span>
               <ArrowRightCircle size={16} />
@@ -103,7 +103,7 @@ export default function Slate({ slate, onAddProjections, onDeleteSlate }: SlateP
 
       {/* Desktop Manage Section */}
       <div className="hidden md:flex flex-col justify-around w-[250px] px-6 border-l border-border">
-        <Link href={`/slate-manager/${slate.id}`}>
+        <Link href={`slate-manager/${slate.id}`}>
           <button className="btn-accent flex items-center gap-2">
             <span className="mr-2 py-1 px-2 text-primary">Manage Slate</span>
             <ArrowRightCircle size={16} />
