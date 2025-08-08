@@ -21,7 +21,7 @@ export default function MatchupsPage() {
   return (
     <div className="flex flex-col">
       <div className="flex flex-col py-4 px-6 text-muted">
-        <div className="text-sm text-accent mb-6">
+        <div className="text-sm text-accent mb-4">
           <div className="flex items-center gap-2 uppercase font-bold text-xs">
             <ArrowLeft size={16} />
             <Link href="/cfb/slate-manager">All Slates</Link>

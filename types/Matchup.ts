@@ -1,3 +1,33 @@
+export type MatchupResponse = {
+  awayRoster: Record<string, any[]>
+  homeRoster: Record<string, any[]>
+  matchup: Matchup
+  passingRate: {
+    home: Record<string, any>
+    away: Record<string, any>
+  }
+  rushingRate: {
+    home: Record<string, any>
+    away: Record<string, any>
+  }
+  teamPassing: {
+    home: Record<string, any>
+    away: Record<string, any>
+  }
+  teamRushing: {
+    home: Record<string, any>
+    away: Record<string, any>
+  }
+  passingDefense: {
+    home: Record<string, any>
+    away: Record<string, any>
+  }
+  rushingDefense: {
+    home: Record<string, any>
+    away: Record<string, any>
+  }
+}
+
 export type Matchup = {
   away_team_abbr: string
   away_team_city: string
@@ -9,6 +39,7 @@ export type Matchup = {
   competition_started_early: boolean
   competition_state: string
   competition_state_detail: string
+  competitionAttributes: CompetitionAttributes[]
   depth_charts_available: boolean
   game_total: number
   home_team_abbr: string
@@ -27,4 +58,9 @@ export type Matchup = {
   starting_lineups_available: boolean
   tv_network: string | null
   venue: string
+}
+
+export type CompetitionAttributes = {
+  typeId: number
+  value: string
 }

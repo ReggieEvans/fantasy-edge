@@ -35,7 +35,6 @@ export default function AddSlateModal({ open, onClose }: { open: boolean; onClos
   }, [])
 
   const onAddSlate = async (slate: DkSlate) => {
-    console.log(slate)
     try {
       await addSlate(slate).unwrap()
       toast({

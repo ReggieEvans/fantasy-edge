@@ -4,6 +4,7 @@ import { z } from 'zod'
 
 import { createServerSupabaseClient } from '@/libs/supabase/server'
 import { DkSlate } from '@/types/DkSlate'
+import { Player } from '@/types/Player'
 
 const slateSchema = z.object({
   draftGroup: z.object({
@@ -132,20 +133,22 @@ export async function POST(req: Request) {
   }
 
   const slateId = slateRow.id
-  const teamNames = extractUniqueTeamNames(games)
-  const teamIdMap = await getTeamIdMap(teamNames, supabase)
+  const cityNames = extractUniqueCityNames(games)
+  const teamAbbr = extractUniqueTeamAbbr(players)
+  const teamIdMap = await getTeamIdMap(cityNames, supabase)
+  const teamAbbrMap = await getTeamAbbrMap(teamAbbr, supabase)
 
   // // 2. Insert slate_matchups (map teams to team_ids later)
   const gameInserts = games.map(game => ({
     slate_id: slateId,
     sport: game.sport,
     sport_id: game.sportId,
-    home_team_id: teamIdMap.get(normalizeKey(game.homeTeam.teamName)),
+    home_team_id: teamIdMap.get(normalizeKey(game.homeTeam.city)),
     home_team_name: game.homeTeam.teamName,
     home_team_abbr: game.homeTeam.abbreviation,
     home_team_city: game.homeTeam.city,
     home_team_logo: game.homeTeam.logo,
-    away_team_id: teamIdMap.get(normalizeKey(game.awayTeam.teamName)),
+    away_team_id: teamIdMap.get(normalizeKey(game.awayTeam.city)),
     away_team_name: game.awayTeam.teamName,
     away_team_abbr: game.awayTeam.abbreviation,
     away_team_city: game.awayTeam.city,
@@ -174,20 +177,20 @@ export async function POST(req: Request) {
 
   const teamIdToName = new Map<number, string>()
   parsed.data.games.forEach(game => {
-    teamIdToName.set(game.homeTeam.teamId, game.homeTeam.teamName)
-    teamIdToName.set(game.awayTeam.teamId, game.awayTeam.teamName)
+    teamIdToName.set(game.homeTeam.abbreviation, game.homeTeam.teamName)
+    teamIdToName.set(game.awayTeam.abbreviation, game.awayTeam.teamName)
   })
 
   // // 3. Insert slate_players (no team_id mapped yet)
   const playerInserts = players.map(player => {
-    const teamName = teamIdToName.get(player.teamId) || 'Unknown'
+    const teamName = teamIdToName.get(player.teamAbbreviation) || 'Unknown'
     return {
       slate_id: slateId,
       player_id: player.draftableId,
       draftable_id: player.draftableId,
       first_name: player.firstName,
       last_name: player.lastName,
-      team_id: teamIdMap.get(normalizeKey(teamName)) ?? null,
+      team_id: teamAbbrMap.get(normalizeKey(player.teamAbbreviation)) ?? null,
       team_name: teamName,
       position: player.position,
       salary: player.salary,
@@ -205,14 +208,36 @@ function normalizeKey(name: string) {
   return name.trim().toUpperCase()
 }
 
-function extractUniqueTeamNames(games: Game[]): string[] {
-  const allNames = games.flatMap(game => [game.homeTeam.teamName, game.awayTeam.teamName])
+function extractUniqueCityNames(games: Game[]): string[] {
+  const allNames = games.flatMap(game => [game.homeTeam.city, game.awayTeam.city])
 
   return [...new Set(allNames.map(name => name.trim()))]
 }
 
-async function getTeamIdMap(teamNames: string[], supabase: SupabaseClient) {
-  const { data, error } = await supabase.from('teams').select('id, draftkings').in('draftkings', teamNames)
+function extractUniqueTeamAbbr(players: Player[]): string[] {
+  const allAbbr = players.flatMap(player => [player.teamAbbreviation, player.teamAbbreviation])
+
+  return [...new Set(allAbbr.map(abbr => abbr.trim()))]
+}
+
+async function getTeamAbbrMap(teamAbbr: string[], supabase: SupabaseClient) {
+  const { data, error } = await supabase
+    .from('teams')
+    .select('id, draftkings_abbreviation')
+    .in('draftkings_abbreviation', teamAbbr)
+
+  if (error) throw new Error('Failed to fetch team IDs')
+
+  const map = new Map<string, number>()
+  for (const row of data) {
+    map.set(normalizeKey(row.draftkings_abbreviation), row.id)
+  }
+
+  return map
+}
+
+async function getTeamIdMap(cityNames: string[], supabase: SupabaseClient) {
+  const { data, error } = await supabase.from('teams').select('id, draftkings').in('draftkings', cityNames)
 
   if (error) throw new Error('Failed to fetch team IDs')
 
