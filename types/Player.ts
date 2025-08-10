@@ -1,13 +1,14 @@
-import { PassingStats } from './PassingStats'
-import { ReceivingStats } from './ReceivingStats'
-import { RushingStats } from './RushingStats'
+import { Passing } from './Passing'
+import { Receiving } from './Receiving'
+import { Rushing } from './Rushing'
 
 export interface Player {
   altPlayerImage50: string
   altPlayerImage160: string
   competition: Competition
   competitions: Competition[]
-  displayName: string
+  first_name: string
+  last_name: string
   draftAlerts: DraftAlert[]
   draftStatAttributes: DraftStatAttribute[]
   draftableId: number
@@ -27,7 +28,9 @@ export interface Player {
   rosterSlotId: number
   salary: number
   shortName: string
-  stats: StatPositions
+  passing: Passing
+  rushing: Rushing
+  receiving: Receiving
   status: string
   teamAbbreviation: string
   teamId: number
@@ -75,10 +78,4 @@ export interface PlayerGameAttribute {
 export interface TeamLeagueSeasonAttribute {
   id: number
   value: string
-}
-
-export interface StatPositions {
-  passing: PassingStats
-  rushing: RushingStats
-  receiving: ReceivingStats
 }

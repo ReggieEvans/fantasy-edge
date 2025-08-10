@@ -79,7 +79,7 @@ export const mktShareConfig: ColorConfig = {
     positive: [
       'bg-cyan-800/60 text-foreground border border-cyan-700',
       'bg-green-800/60 text-foreground border border-green-700',
-      'bg-yellow-500/60 text-foreground border border-yellow-400',
+      'bg-lime-800/60 text-foreground border border-lime-700',
       'bg-transparent text-foreground',
     ],
     neutral: 'bg-grade-neutral', // Non-applicable

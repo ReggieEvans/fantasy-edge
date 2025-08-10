@@ -1,4 +1,4 @@
-export interface ReceivingStats {
+export interface Receiving {
   avg_depth_of_target: number
   avoided_tackles: number
   caught_percent: number
@@ -46,6 +46,8 @@ export interface ReceivingStats {
   yards_after_catch_per_reception: number
   yards_per_reception: number
   yprr: number
+  rb_target_share: number
+  wr_target_share: number
   __v: number
   _id: string
 }

@@ -1,4 +1,4 @@
-export interface PassingStats {
+export interface Passing {
   accuracy_percent: number
   aimed_passes: number
   attempts: number

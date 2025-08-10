@@ -4,12 +4,13 @@ import { Player } from '@/types/Player'
 import { getColorByValue, mktShareConfig, pffGradeConfig } from '@/utils/color-coding'
 import { getLetterGrade } from '@/utils/letter-grade'
 
-export const baseColumns: ColumnDef<any>[] = [
+export const baseColumns: ColumnDef<Player>[] = [
   {
     id: 'displayName',
     header: 'PLAYER',
     meta: 'Player',
     cell: ({ row }) => {
+      console.log(row)
       const name = row.original.first_name + ' ' + row.original.last_name
       return <div className="text-left">{name ?? '-'}</div>
     },
@@ -52,47 +53,13 @@ export const quarterbackColumns: ColumnDef<Player>[] = [
     },
   },
   {
-    id: 'att_g',
-    header: 'ATT/G',
-    meta: 'Attempts per game',
+    id: 'scrambles_g',
+    header: 'SCR/G',
+    meta: 'Scrambles per game',
     cell: ({ row }) => {
-      const attempts = row.original.passing?.attempts
-      const player_game_count = row.original.passing?.player_game_count
-      const val = attempts && player_game_count ? (attempts / player_game_count).toFixed(1) : '-'
-      return <div>{val}</div>
-    },
-  },
-  {
-    id: 'comp_g',
-    header: 'CMP/G',
-    meta: 'Completions per game',
-    cell: ({ row }) => {
-      const completions = row.original.passing?.completions
-      const player_game_count = row.original.passing?.player_game_count
-      const val = completions && player_game_count ? (completions / player_game_count).toFixed(1) : '-'
-      return <div>{val}</div>
-    },
-  },
-  {
-    id: 'td_g',
-    header: 'TD/G',
-    meta: 'Touchdowns per game',
-    cell: ({ row }) => {
-      const touchdowns = row.original.passing?.touchdowns
-      const player_game_count = row.original.passing?.player_game_count
-      const val = touchdowns && player_game_count ? (touchdowns / player_game_count).toFixed(1) : '-'
-      return <div>{val}</div>
-    },
-  },
-  {
-    id: 'yds_g',
-    header: 'YDS/G',
-    meta: 'Yards per game',
-    cell: ({ row }) => {
-      const yards = row.original.passing?.yards
-      const player_game_count = row.original.passing?.player_game_count
-      const val = yards && player_game_count ? (yards / player_game_count).toFixed(1) : '-'
-      return <div>{val}</div>
+      const s = row.original.passing?.scrambles
+      const g = row.original.passing?.player_game_count
+      return <div>{s && g ? (s / g).toFixed(1) : '-'}</div>
     },
   },
   {
@@ -103,26 +70,6 @@ export const quarterbackColumns: ColumnDef<Player>[] = [
       const attempts = row.original.rushing?.attempts
       const player_game_count = row.original.rushing?.player_game_count
       const val = attempts && player_game_count ? (attempts / player_game_count).toFixed(1) : '-'
-      return <div>{val}</div>
-    },
-  },
-  {
-    id: 'ryds_g',
-    header: 'RYDS/G',
-    meta: 'Rush yards per game',
-    cell: ({ row }) => {
-      const yards = row.original.rushing?.yards
-      const player_game_count = row.original.rushing?.player_game_count
-      const val = yards && player_game_count ? (yards / player_game_count).toFixed(1) : '-'
-      return <div>{val}</div>
-    },
-  },
-  {
-    id: 'elusiveness',
-    header: 'ELUS',
-    meta: 'Elusiveness rating',
-    cell: ({ row }) => {
-      const val = row.original.rushing?.elusive_rating ?? '-'
       return <div>{val}</div>
     },
   },
@@ -141,17 +88,55 @@ export const quarterbackColumns: ColumnDef<Player>[] = [
     },
   },
   {
-    id: 'off',
-    header: 'OFF',
-    meta: 'Offense grade',
+    id: 'td_g',
+    header: 'TD/G',
+    meta: 'Touchdowns per game',
     cell: ({ row }) => {
-      const val = row.original.passing?.grades_offense ?? '-'
-      const letterGrade = getLetterGrade(val)
-      return (
-        <div className={`flex items-center justify-center rounded w-9 ${getColorByValue(val, pffGradeConfig)}`}>
-          {letterGrade}
-        </div>
-      )
+      const touchdowns = row.original.passing?.touchdowns
+      const player_game_count = row.original.passing?.player_game_count
+      const val = touchdowns && player_game_count ? (touchdowns / player_game_count).toFixed(1) : '-'
+      return <div>{val}</div>
+    },
+  },
+  {
+    id: 'ypa',
+    header: 'YPA',
+    meta: 'Yards per attempt',
+    cell: ({ row }) => {
+      const ypa = row.original.passing?.ypa ? row.original.passing?.ypa : '-'
+      return <div>{ypa}</div>
+    },
+  },
+  {
+    id: 'yds_g',
+    header: 'YDS/G',
+    meta: 'Yards per game',
+    cell: ({ row }) => {
+      const yards = row.original.passing?.yards
+      const player_game_count = row.original.passing?.player_game_count
+      const val = yards && player_game_count ? (yards / player_game_count).toFixed(1) : '-'
+      return <div>{val}</div>
+    },
+  },
+
+  {
+    id: 'avg_depth_of_target',
+    header: 'ADOT',
+    meta: 'Average depth of target',
+    cell: ({ row }) => {
+      const avg_depth_of_target = row.original.passing?.avg_depth_of_target
+        ? row.original.passing?.avg_depth_of_target
+        : '-'
+      return <div>{avg_depth_of_target}</div>
+    },
+  },
+  {
+    id: 'big_time_throws',
+    header: 'BTT',
+    meta: 'Big time throws',
+    cell: ({ row }) => {
+      const big_time_throws = row.original.passing?.big_time_throws ? row.original.passing?.big_time_throws : '-'
+      return <div>{big_time_throws}</div>
     },
   },
   {
@@ -183,17 +168,67 @@ export const quarterbackColumns: ColumnDef<Player>[] = [
     },
   },
   {
-    id: 'hands',
-    header: 'HANDS',
-    meta: 'Hands grade',
+    id: 'first_downs',
+    header: '1D',
+    meta: 'First Downs Per Game',
     cell: ({ row }) => {
-      const val = row.original.passing?.grades_hands_fumble ?? '-'
-      const letterGrade = getLetterGrade(val)
-      return (
-        <div className={`flex items-center justify-center rounded w-9 ${getColorByValue(val, pffGradeConfig)}`}>
-          {letterGrade}
-        </div>
-      )
+      const first_downs = row.original.passing?.first_downs
+      const player_game_count = row.original.passing?.player_game_count
+      const val = first_downs && player_game_count ? (first_downs / player_game_count).toFixed(1) : '-'
+      return <div>{val}</div>
+    },
+  },
+  {
+    id: 'interceptions',
+    header: 'INT',
+    meta: 'Interceptions Per Game',
+    cell: ({ row }) => {
+      const interceptions = row.original.passing?.interceptions
+      const player_game_count = row.original.passing?.player_game_count
+      const val = interceptions && player_game_count ? (interceptions / player_game_count).toFixed(1) : '-'
+      return <div>{val}</div>
+    },
+  },
+  {
+    id: 'turnover_worthy_plays',
+    header: 'TWP',
+    meta: 'Turnover Worthy Plays Per Game',
+    cell: ({ row }) => {
+      const turnover_worthy_plays = row.original.passing?.turnover_worthy_plays
+      const player_game_count = row.original.passing?.player_game_count
+      const val =
+        turnover_worthy_plays && player_game_count ? (turnover_worthy_plays / player_game_count).toFixed(1) : '-'
+      return <div>{val}</div>
+    },
+  },
+  {
+    id: 'drop_rate',
+    header: 'DR',
+    meta: 'Drop Rate',
+    cell: ({ row }) => {
+      const drop_rate = row.original.passing?.drop_rate
+      const val = drop_rate ? drop_rate : '-'
+      return <div>{val}</div>
+    },
+  },
+  {
+    id: 'avg_time_to_throw',
+    header: 'ATtT',
+    meta: 'Average Time to Throw',
+    cell: ({ row }) => {
+      const avg_time_to_throw = row.original.passing?.avg_time_to_throw
+      const val = avg_time_to_throw ? avg_time_to_throw : '-'
+      return <div>{val}</div>
+    },
+  },
+  {
+    id: 'qb_rating',
+    header: 'QBR',
+    meta: 'QB Rating',
+    cell: ({ row }) => {
+      const qb_rating = row.original.passing?.qb_rating
+      const val = qb_rating ? qb_rating : '-'
+      return <div>{val}</div>
     },
   },
 ]

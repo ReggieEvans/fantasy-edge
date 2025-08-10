@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowLeft, CloudSun, GitCompareArrows, UserCheck } from 'lucide-react'
+import { ArrowLeft, CloudSun, GitCompareArrows, Loader, UserCheck } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
@@ -42,7 +42,13 @@ export default function MatchupPage() {
     return url.split('&')[0]
   }, [])
 
-  if (isLoading) return <p className="p-4">Loading matchup...</p>
+  if (isLoading)
+    return (
+      <div className="flex flex-col items-center justify-center pt-40 space-y-4">
+        <Loader size={40} className="text-accent animate-spin" />
+        <p className="text-lg opacity-70">Loading Matchup</p>
+      </div>
+    )
   if (isError) return <p className="p-4 text-red-500">Failed to load matchup.</p>
   if (!data) return <p className="p-4">Matchup not found.</p>
 

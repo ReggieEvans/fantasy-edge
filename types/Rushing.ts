@@ -1,4 +1,4 @@
-export interface RushingStats {
+export interface Rushing {
   attempts: number
   avoided_tackles: number
   breakaway_attempts: number
@@ -48,6 +48,7 @@ export interface RushingStats {
   ypa: number
   yprr: number
   zone_attempts: number
+  rushing_share: number
   __v: number
   _id: string
 }
