@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowLeft, Bolt } from 'lucide-react'
+import { ArrowLeft, Bolt, Loader } from 'lucide-react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import React from 'react'
@@ -14,14 +14,20 @@ export default function MatchupsPage() {
   const { id } = useParams() as { id: string }
   const { data: matchups, isLoading, isError } = useGetMatchupsQuery(id)
 
-  if (isLoading) return <p className="p-4">Loading slate...</p>
+  if (isLoading)
+    return (
+      <div className="flex flex-col items-center justify-center pt-40 space-y-4">
+        <Loader size={40} className="text-accent animate-spin" />
+        <p className="text-lg opacity-70">Loading Slates</p>
+      </div>
+    )
   if (isError) return <p className="p-4 text-red-500">Failed to load slate.</p>
   if (!matchups) return <p className="p-4">No games found.</p>
 
   return (
     <div className="flex flex-col">
       <div className="flex flex-col py-4 px-6 text-muted">
-        <div className="text-sm text-accent mb-6">
+        <div className="text-sm text-accent mb-4">
           <div className="flex items-center gap-2 uppercase font-bold text-xs">
             <ArrowLeft size={16} />
             <Link href="/cfb/slate-manager">All Slates</Link>

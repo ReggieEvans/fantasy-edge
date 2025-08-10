@@ -27,7 +27,7 @@ export default function Slate({ slate, onAddProjections, onDeleteSlate }: SlateP
 
       <div className="flex-grow flex flex-col p-4">
         <div className="flex justify-between border-b py-2 uppercase">
-          <h4 className="flex items-end text-transparent bg-clip-text font-black bg-gradient-to-br from-accent-gradient-1 to-accent-gradient-2 text-2xl">
+          <h4 className="text-foreground font-black text-2xl">
             <span className="truncate">
               {formatDateTime(slate.min_start_time)} {slate.draftGroup?.startTimeSuffix}
             </span>

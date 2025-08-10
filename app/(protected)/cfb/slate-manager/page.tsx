@@ -24,6 +24,8 @@ export default function SlateManagerPage() {
     setDeleteModalOpen(true)
   }
 
+  if (isError) return <p className="p-4 text-red-500">Failed to load slates</p>
+
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-4 px-2">
@@ -43,8 +45,8 @@ export default function SlateManagerPage() {
       <div className="space-y-4">
         {isLoading ? (
           [...Array(3)].map((_, i) => <Skeleton key={i} className="h-32 w-full bg-card rounded animate-pulse" />)
-        ) : isError ? (
-          <p className="text-red-500">Failed to load slates.</p>
+        ) : !slates ? (
+          <p className="p-4">No Slates Found.</p>
         ) : (
           slates?.map((slate: SlateType, i: number) => (
             <Slate
