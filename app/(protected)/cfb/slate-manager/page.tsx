@@ -3,21 +3,19 @@
 import { List, Plus } from 'lucide-react'
 import { useState } from 'react'
 
+import { useGetSlatesQuery } from '@/app/(protected)/cfb/slate-manager/_api/slates.api'
+import { Slate as SlateType } from '@/app/(protected)/cfb/slate-manager/_types/slate'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useGetSlatesQuery } from '@/store/api/slatesApi'
-import { Slate as SlateType } from '@/types/Slate'
 
-import AddSlateModal from './components/AddSlateModal'
-import DeleteSlateModal from './components/DeleteSlateModal'
-import Slate from './components/Slate'
+import AddSlateModal from './_components/AddSlateModal'
+import DeleteSlateModal from './_components/DeleteSlateModal'
+import Slate from './_components/Slate'
 
 export default function SlateManagerPage() {
   const { data: slates, isLoading, isError } = useGetSlatesQuery()
   const [open, setOpen] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [slateToDelete, setSlateToDelete] = useState<SlateType | null>(null)
-
-  if (isError) return <p className="p-4 text-red-500">Failed to load slates.</p>
 
   const onDeleteSlate = (slate: SlateType) => {
     setSlateToDelete(slate)
@@ -45,16 +43,12 @@ export default function SlateManagerPage() {
       <div className="space-y-4">
         {isLoading ? (
           [...Array(3)].map((_, i) => <Skeleton key={i} className="h-32 w-full bg-card rounded animate-pulse" />)
-        ) : !slates ? (
-          <p className="p-4">No Slates Found.</p>
-        ) : (
-          slates?.map((slate: SlateType, i: number) => (
+        ) : slates?.length === 0 ? <p>No slates found.</p> : (
+          slates?.map((slate: SlateType) => (
             <Slate
-              key={i}
+              key={slate.id}
               slate={slate}
-              onAddProjections={() => {}}
               onDeleteSlate={onDeleteSlate}
-              manageSlate={() => {}}
             />
           ))
         )}

@@ -1,13 +1,12 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 // @desc    Get Matchups by slateId
 // @route   GET /api/matchups/:id
 import { NextResponse } from 'next/server'
 
 import { createServerSupabaseClient } from '@/libs/supabase/server'
 
-export const GET = async (_req: Request, context: any) => {
+export const GET = async (_req: Request, { params }: { params: Promise<{ id: string }> }) => {
   const supabase = await createServerSupabaseClient()
-  const params = await context.params
+  const { id: slateId } = await params;
 
   const {
     data: { user },
@@ -17,7 +16,6 @@ export const GET = async (_req: Request, context: any) => {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const slateId = params.id
 
   try {
     const { data: matchups } = await supabase.from('slate_matchups').select('*').eq('slate_id', slateId)

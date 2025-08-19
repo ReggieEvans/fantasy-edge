@@ -96,8 +96,20 @@ function NavMenu() {
       <NavigationMenuList>
         <NavigationMenuItem>
           <NavigationMenuLink asChild className="text-xs uppercase font-bold px-4">
-            <Link href="/docs">Home</Link>
+            <Link href="/">Home</Link>
           </NavigationMenuLink>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+          <NavigationMenuTrigger className="bg-transparent text-xs uppercase font-bold">CFB</NavigationMenuTrigger>
+          <NavigationMenuContent>
+            <ul className="grid w-[400px] gap-2 md:w-[500px] md:grid-cols-2 lg:w-[600px] p-2 bg-card">
+              {cfbLinks.map(link => (
+                <ListItem key={link.title} title={link.title} href={link.href}>
+                  {link.description}
+                </ListItem>
+              ))}
+            </ul>
+          </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
           <NavigationMenuTrigger disabled className="bg-transparent text-xs uppercase font-bold">
@@ -114,26 +126,14 @@ function NavMenu() {
           </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <NavigationMenuTrigger className="bg-transparent text-xs uppercase font-bold">CFB</NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <ul className="grid w-[400px] gap-2 md:w-[500px] md:grid-cols-2 lg:w-[600px] p-2 bg-card">
-              {cfbLinks.map(link => (
-                <ListItem key={link.title} title={link.title} href={link.href}>
-                  {link.description}
-                </ListItem>
-              ))}
-            </ul>
-          </NavigationMenuContent>
+        <NavigationMenuTrigger disabled className="bg-transparent text-xs uppercase font-bold">
+            BANKROLL TRACKER
+          </NavigationMenuTrigger>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <NavigationMenuLink asChild className="text-xs uppercase font-bold px-4">
-            <Link href="/docs">BANKROLL TRACKER</Link>
-          </NavigationMenuLink>
-        </NavigationMenuItem>
-        <NavigationMenuItem>
-          <NavigationMenuLink asChild className="text-xs uppercase font-bold px-4">
-            <Link href="/docs">Pickem</Link>
-          </NavigationMenuLink>
+        <NavigationMenuTrigger disabled className="bg-transparent text-xs uppercase font-bold">
+            PICKEM
+          </NavigationMenuTrigger>
         </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationMenu>

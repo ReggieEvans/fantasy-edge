@@ -1,13 +1,15 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 // @desc    Get Matchup by slateId and matchupId
 // @route   GET /api/matchups/:id/:matchupId
 import { NextResponse } from 'next/server'
 
+import { Player } from '@/app/(protected)/cfb/slate-manager/_types/player';
+import { PassingStats, ReceivingStats, RushingStats } from '@/app/(protected)/cfb/slate-manager/_types/stats';
 import { createServerSupabaseClient } from '@/libs/supabase/server'
 
-export const GET = async (_req: Request, context: any) => {
+export const GET = async (_req: Request, { params }: { params: Promise<{ id: string; matchupId: string }> }) => {
   const supabase = await createServerSupabaseClient()
-  const params = await context.params
+  const { id: slateId, matchupId } = await params;
 
   const {
     data: { user },
@@ -16,9 +18,6 @@ export const GET = async (_req: Request, context: any) => {
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
-
-  const slateId = params.id
-  const matchupId = params.matchupId
 
   try {
     const { data: matchup } = await supabase
@@ -100,7 +99,7 @@ export const GET = async (_req: Request, context: any) => {
     const homeRoster = groupByPosition(enrichedHome)
     const awayRoster = groupByPosition(enrichedAway)
 
-    const teamStatById = (array: any[] = []) => {
+    const teamStatById = (array: { team_id: string }[] = []) => {
       return {
         home: array.find(row => row.team_id === home_team_id) ?? null,
         away: array.find(row => row.team_id === away_team_id) ?? null,
@@ -136,7 +135,7 @@ function fullName(player: { first_name: string; last_name: string }) {
   return normalizeName(`${player.first_name}${player.last_name}`)
 }
 
-function enrichPlayers(players: any[], statMaps: { passing: any; rushing: any; receiving: any }) {
+function enrichPlayers(players: Player[], statMaps: { passing: Map<string, PassingStats>; rushing: Map<string, RushingStats>; receiving: Map<string, ReceivingStats> }) {
   return players.map(p => {
     const key = fullName(p)
 
@@ -149,8 +148,8 @@ function enrichPlayers(players: any[], statMaps: { passing: any; rushing: any; r
   })
 }
 
-function groupByPosition(players: any[]) {
-  return players.reduce((acc: { [x: string]: any[] }, player: { position: string }) => {
+function groupByPosition(players: Player[]) {
+  return players.reduce((acc: { [x: string]: Player[] }, player: Player) => {
     const pos = player.position || 'OTHER'
     acc[pos] = acc[pos] || []
     acc[pos].push(player)
@@ -158,9 +157,9 @@ function groupByPosition(players: any[]) {
   }, {})
 }
 
-function dedupePlayers(players: any[]) {
+function dedupePlayers(players: Player[]) {
   const seen = new Set<string>()
-  const deduped: any[] = []
+  const deduped: Player[] = []
 
   for (const player of players) {
     const key = `${player.team_id}:${normalizeName(`${player.first_name} ${player.last_name}`)}`

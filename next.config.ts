@@ -8,6 +8,14 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'a.espncdn.com',
       },
+      {
+        protocol: 'http',
+        hostname: 'a.espncdn.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.draftkings.com',
+      },
     ],
   },
 }

@@ -6,14 +6,14 @@ import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import React, { useState } from 'react'
 
+import { useGetMatchupQuery } from '@/app/(protected)/cfb/slate-manager/_api/matchups.api'
+import { NestedStatKey, StatGroupKey, TeamSide } from '@/app/(protected)/cfb/slate-manager/_types/diffRow'
 import { Switch } from '@/components/ui/switch'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-import { useGetMatchupQuery } from '@/store/api/matchupsApi'
-import { NestedStatKey, StatGroupKey, TeamSide } from '@/types/DiffRow'
 
-import { DiffRow } from '../../components/DiffRow'
-import PlayerTable from '../../components/PlayerTable'
-import TeamStatRow from '../../components/TeamStatsRow'
+import { DiffRow } from '../../_components/DiffRow'
+import PlayerTable from '../../_components/PlayerTable'
+import TeamStatRow from '../../_components/TeamStatsRow'
 
 // import PlayerTable from '../../components/PlayerTable'
 
@@ -82,7 +82,7 @@ export default function MatchupPage() {
             <div>{data.matchup.venue}</div>
             <div>
               {formatDateTime(data.matchup.start_time)}{' '}
-              {data.matchup.competitionAttributes ? `- ${data.matchup.competitionAttributes[4].value}` : ''}
+              {data.matchup.tv_network ? `- ${data.matchup.tv_network}` : ''}
             </div>
           </div>
           <div>
@@ -110,7 +110,7 @@ export default function MatchupPage() {
 
           <div className="text-center px-3 py-2 border-l border-r border-border">
             <div className="flex justify-center w-full py-4">
-              <Image src="/vs-80-79.png" alt="CFB Logo" width={60} height={60} />
+              <Image src="/vs-80-79.png" alt="versus image" width={60} height={60} />
             </div>
 
             <div className="py-4">
