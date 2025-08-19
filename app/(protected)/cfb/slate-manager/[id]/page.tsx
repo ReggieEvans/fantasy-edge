@@ -25,7 +25,7 @@ export default function MatchupsPage() {
   if (!matchups) return <p className="p-4">No games found.</p>
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col bg-background pt-3 rounded-tl-[40px] min-h-[calc(100vh-90px)] overflow-y-auto">
       <div className="flex flex-col py-4 px-6 text-muted">
         <div className="text-sm text-accent mb-4">
           <div className="flex items-center gap-2 uppercase font-bold text-xs">

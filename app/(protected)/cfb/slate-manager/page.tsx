@@ -25,7 +25,7 @@ export default function SlateManagerPage() {
   if (isError) return <p className="p-4 text-red-500">Failed to load slates</p>
 
   return (
-    <div className="p-6">
+    <div className="px-6 bg-background pt-8 min-h-[calc(100vh-90px)] overflow-y-auto">
       <div className="flex items-center justify-between mb-4 px-2">
         <div className="flex items-center gap-2">
           <span>
