@@ -1,4 +1,5 @@
-export function getLetterGrade(value: number): string {
+export function getLetterGrade(value: number | "-"): string {
+  if (value === "-") return "-"
   if (value >= 97) return 'A+'
   if (value >= 93) return 'A'
   if (value >= 90) return 'A-'

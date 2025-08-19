@@ -5,10 +5,10 @@ import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import React from 'react'
 
-import { useGetMatchupsQuery } from '@/store/api/matchupsApi'
-import { Matchup } from '@/types/Matchup'
+import { useGetMatchupsQuery } from '@/app/(protected)/cfb/slate-manager/_api/matchups.api'
+import { Matchup } from '@/app/(protected)/cfb/slate-manager/_types/matchup'
 
-import MatchupCard from '../components/MatchupCard'
+import MatchupCard from '../_components/MatchupCard'
 
 export default function MatchupsPage() {
   const { id } = useParams() as { id: string }
@@ -41,7 +41,7 @@ export default function MatchupsPage() {
             <h1 className="text-xl font-bold uppercase">Slate Manager</h1>
           </div>
           <p className="text-muted text-sm">
-            Choose a slate to get matchup breakdowns, players stats and target players for your player pool.
+            Choose a matchup, target players for your player pool, create rosters, view and export to draftkings.
           </p>
         </div>
       </div>

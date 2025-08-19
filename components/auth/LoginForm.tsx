@@ -97,7 +97,7 @@ export default function LoginForm() {
       description: `Logged in as ${profile?.display_name ?? user.email}`,
     })
 
-    router.push('/dashboard')
+    router.push('/')
     setLoading(false)
   }
 

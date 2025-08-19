@@ -1,7 +1,7 @@
 import { ColumnDef } from '@tanstack/react-table'
 
-import { Player } from '@/types/Player'
-import { getColorByValue, mktShareConfig, pffGradeConfig } from '@/utils/color-coding'
+import { Player } from '@/app/(protected)/cfb/slate-manager/_types/player'
+import { getColorByValue, pffGradeConfig } from '@/utils/color-coding'
 import { getLetterGrade } from '@/utils/letter-grade'
 
 export const baseColumns: ColumnDef<Player>[] = [
@@ -10,7 +10,6 @@ export const baseColumns: ColumnDef<Player>[] = [
     header: 'PLAYER',
     meta: 'Player',
     cell: ({ row }) => {
-      console.log(row)
       const name = row.original.first_name + ' ' + row.original.last_name
       return <div className="text-left">{name ?? '-'}</div>
     },
@@ -21,23 +20,23 @@ export const baseColumns: ColumnDef<Player>[] = [
     meta: 'Salary',
     accessorFn: row => row.salary ?? '-',
   },
-  {
-    id: '_projection',
-    header: 'PROJ',
-    meta: 'Projected points',
-    accessorFn: row => row._projection ?? '-',
-  },
-  {
-    id: 'roi',
-    header: 'ROI',
-    meta: 'FPTS/Salary',
-    cell: ({ row }) => {
-      const salary = row.original.salary
-      const projection = row.original._projection
-      const val = salary && projection ? (projection / salary).toFixed(2) : '-'
-      return <div>{val}</div>
-    },
-  },
+  // {
+  //   id: '_projection',
+  //   header: 'PROJ',
+  //   meta: 'Projected points',
+  //   accessorFn: row => row._projection ?? '-',
+  // },
+  // {
+  //   id: 'roi',
+  //   header: 'ROI',
+  //   meta: 'FPTS/Salary',
+  //   cell: ({ row }) => {
+  //     const salary = row.original.salary
+  //     const projection = row.original._projection
+  //     const val = salary && projection ? (projection / salary).toFixed(2) : '-'
+  //     return <div>{val}</div>
+  //   },
+  // },
 ]
 
 export const quarterbackColumns: ColumnDef<Player>[] = [
@@ -80,11 +79,7 @@ export const quarterbackColumns: ColumnDef<Player>[] = [
     cell: ({ row }) => {
       const mkt = row.original.rushing?.rushing_share
       const val = mkt ? (mkt * 100).toFixed() + '%' : '-'
-      return (
-        <div className={`flex items-center justify-center rounded w-9 ${getColorByValue(mkt, mktShareConfig)}`}>
-          {val}
-        </div>
-      )
+      return <div className={`flex items-center justify-center rounded w-9`}>{val}</div>
     },
   },
   {

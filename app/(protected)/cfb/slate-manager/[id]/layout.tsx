@@ -15,22 +15,22 @@ const NAVIGATION_LINKS: NavLink[] = [
   {
     href: '',
     label: 'Matchups',
-    icon: <Target size={16} />,
+    icon: <Target size={22} />,
   },
   {
     href: '/player-pool',
-    label: 'Player Pool',
-    icon: <LayoutList size={16} />,
+    label: 'Pool',
+    icon: <LayoutList size={22} />,
   },
   {
     href: '/roster-creation',
-    label: 'Create Rosters',
-    icon: <Users size={16} />,
+    label: 'Create',
+    icon: <Users size={22} />,
   },
   {
     href: '/roster-view',
-    label: 'View Rosters',
-    icon: <Grid2X2 size={16} />,
+    label: 'View',
+    icon: <Grid2X2 size={22} />,
   },
 ]
 
@@ -54,21 +54,25 @@ export default function SlateLayout({ children }: { children: React.ReactNode })
     <Link
       key={label}
       href={`/cfb/slate-manager/${id}/${href}`}
-      className={`flex items-center md:w-full gap-3 px-5 py-4 border-l-[4px] transition-all duration-300 ${
+      className={`flex justify-center items-center gap-3 w-full px-8 py-4 border-l-[4px] transition-all duration-300 ${
         isLinkActive(href)
-          ? 'bg-[#0a0a13] text-foreground border-accent'
-          : 'text-muted border-transparent hover:bg-aside-active hover:text-foreground hover:border-accent'
+          ? 'text-foreground border-accent'
+          : 'text-muted border-transparent hover:bg-background hover:text-foreground hover:border-accent'
       }`}
     >
-      {icon} <span className="hidden md:block">{label}</span>
+      <div className={`flex flex-col items-center space-y-2 ${
+        isLinkActive(href)
+          ? 'text-accent'
+          : 'text-muted'
+      }`}>{icon} <span className="text-xs text-foreground">{label}</span></div>
     </Link>
   )
 
   return (
     <div>
       <div className="flex">
-        <aside className="md:w-64 bg-background-darker border-r border-border min-h-[calc(100vh-70px)]">
-          <nav className="flex flex-col items-center md:items-start">
+        <aside className="bg-background-darker border-r border-border min-h-[calc(100vh-70px)]">
+          <nav className="flex flex-col items-center">
             {NAVIGATION_LINKS.map(link => renderNavLink(link.href, link.label, link.icon))}
           </nav>
         </aside>

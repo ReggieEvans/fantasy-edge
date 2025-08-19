@@ -1,0 +1,656 @@
+[{
+  "draftGroup": {
+    "draftGroupId": 93373,
+    "contestType": {
+      "contestTypeId": 94,
+      "sport": "CFB",
+      "gameType": "SalaryCap",
+      "allowLateSwap": true
+    },
+    "sportId": 5,
+    "startTimeType": "Normal",
+    "minStartTime": "2023-10-07T16:00:00.0000000Z",
+    "maxStartTime": "2023-10-07T20:00:00.0000000Z",
+    "draftGroupState": "Historical",
+    "allowUgc": true,
+    "leagues": [
+      {
+        "leagueId": 5,
+        "leagueName": "College Football",
+        "leagueAbbreviation": "CFB"
+      }
+    ],
+    "games": [
+      {
+        "gameId": 5930582,
+        "awayTeamId": 3415,
+        "homeTeamId": 3407,
+        "startDate": "2023-10-07T19:30:00.0000000Z",
+        "location": "Memorial Stadium",
+        "timeRemainingStatus": "Final",
+        "sport": "CFB",
+        "status": "Final",
+        "description": "WAKE @ CLEM",
+        "sportSpecificData": {
+          "timeRemaining": "Final",
+          "homeTeamScore": "17",
+          "awayTeamScore": "12",
+          "quarter": "4"
+        },
+        "league": "CFB",
+        "competitionStatus": "ScoresOfficial",
+        "competitionStatusDetail": "",
+        "gameAttributes": [
+          {
+            "typeId": 2,
+            "value": "1"
+          },
+          {
+            "typeId": 8,
+            "value": "4"
+          },
+          {
+            "typeId": 9,
+            "value": "Final"
+          },
+          {
+            "typeId": 22,
+            "value": "6"
+          },
+          {
+            "typeId": 23,
+            "value": "2"
+          },
+          {
+            "typeId": 27,
+            "value": "False"
+          },
+          {
+            "typeId": 32,
+            "value": "ACCN"
+          }
+        ]
+      },
+      {
+        "gameId": 5930583,
+        "awayTeamId": 3422,
+        "homeTeamId": 3409,
+        "startDate": "2023-10-07T19:30:00.0000000Z",
+        "location": "Bobby Bowden Field at Doak Campbell Stadium",
+        "timeRemainingStatus": "Final",
+        "sport": "CFB",
+        "status": "Final",
+        "description": "VT @ FSU",
+        "sportSpecificData": {
+          "timeRemaining": "Final",
+          "homeTeamScore": "39",
+          "awayTeamScore": "17",
+          "quarter": "4"
+        },
+        "league": "CFB",
+        "competitionStatus": "ScoresOfficial",
+        "competitionStatusDetail": "",
+        "gameAttributes": [
+          {
+            "typeId": 2,
+            "value": "1"
+          },
+          {
+            "typeId": 8,
+            "value": "4"
+          },
+          {
+            "typeId": 9,
+            "value": "Final"
+          },
+          {
+            "typeId": 22,
+            "value": "6"
+          },
+          {
+            "typeId": 23,
+            "value": "2"
+          },
+          {
+            "typeId": 27,
+            "value": "False"
+          },
+          {
+            "typeId": 32,
+            "value": "ABC"
+          }
+        ]
+      },
+      {
+        "gameId": 5930586,
+        "awayTeamId": 3420,
+        "homeTeamId": 3412,
+        "startDate": "2023-10-07T19:30:00.0000000Z",
+        "location": "Kenan Memorial Stadium",
+        "timeRemainingStatus": "Final",
+        "sport": "CFB",
+        "status": "Final",
+        "description": "SYR @ UNC",
+        "sportSpecificData": {
+          "timeRemaining": "Final",
+          "homeTeamScore": "40",
+          "awayTeamScore": "7",
+          "quarter": "4"
+        },
+        "league": "CFB",
+        "competitionStatus": "ScoresOfficial",
+        "competitionStatusDetail": "",
+        "gameAttributes": [
+          {
+            "typeId": 2,
+            "value": "1"
+          },
+          {
+            "typeId": 8,
+            "value": "4"
+          },
+          {
+            "typeId": 9,
+            "value": "Final"
+          },
+          {
+            "typeId": 22,
+            "value": "6"
+          },
+          {
+            "typeId": 23,
+            "value": "2"
+          },
+          {
+            "typeId": 27,
+            "value": "False"
+          },
+          {
+            "typeId": 32,
+            "value": "ESPN"
+          }
+        ]
+      },
+      {
+        "gameId": 5930693,
+        "awayTeamId": 3430,
+        "homeTeamId": 3488,
+        "startDate": "2023-10-07T16:00:00.0000000Z",
+        "location": "Cotton Bowl",
+        "timeRemainingStatus": "Final",
+        "sport": "CFB",
+        "status": "Final",
+        "description": "OU @ TEX",
+        "sportSpecificData": {
+          "timeRemaining": "Final",
+          "homeTeamScore": "30",
+          "awayTeamScore": "34",
+          "quarter": "4"
+        },
+        "league": "CFB",
+        "competitionStatus": "ScoresOfficial",
+        "competitionStatusDetail": "",
+        "gameAttributes": [
+          {
+            "typeId": 2,
+            "value": "1"
+          },
+          {
+            "typeId": 8,
+            "value": "4"
+          },
+          {
+            "typeId": 9,
+            "value": "Final"
+          },
+          {
+            "typeId": 22,
+            "value": "6"
+          },
+          {
+            "typeId": 23,
+            "value": "2"
+          },
+          {
+            "typeId": 27,
+            "value": "False"
+          },
+          {
+            "typeId": 32,
+            "value": "ABC"
+          }
+        ]
+      },
+      {
+        "gameId": 5930694,
+        "awayTeamId": 3615,
+        "homeTeamId": 3426,
+        "startDate": "2023-10-07T20:00:00.0000000Z",
+        "location": "Kivisto Field at Memorial Stadium",
+        "timeRemainingStatus": "Final",
+        "sport": "CFB",
+        "status": "Final",
+        "description": "UCF @ KU",
+        "sportSpecificData": {
+          "timeRemaining": "Final",
+          "homeTeamScore": "51",
+          "awayTeamScore": "22",
+          "quarter": "4"
+        },
+        "league": "CFB",
+        "competitionStatus": "ScoresOfficial",
+        "competitionStatusDetail": "",
+        "gameAttributes": [
+          {
+            "typeId": 2,
+            "value": "1"
+          },
+          {
+            "typeId": 8,
+            "value": "4"
+          },
+          {
+            "typeId": 9,
+            "value": "Final"
+          },
+          {
+            "typeId": 22,
+            "value": "6"
+          },
+          {
+            "typeId": 23,
+            "value": "2"
+          },
+          {
+            "typeId": 27,
+            "value": "False"
+          },
+          {
+            "typeId": 32,
+            "value": "FOX"
+          }
+        ]
+      },
+      {
+        "gameId": 5930785,
+        "awayTeamId": 3471,
+        "homeTeamId": 3469,
+        "startDate": "2023-10-07T19:00:00.0000000Z",
+        "location": "Rose Bowl",
+        "timeRemainingStatus": "Final",
+        "sport": "CFB",
+        "status": "Final",
+        "description": "WSU @ UCLA",
+        "sportSpecificData": {
+          "timeRemaining": "Final",
+          "homeTeamScore": "25",
+          "awayTeamScore": "17",
+          "quarter": "4"
+        },
+        "league": "CFB",
+        "competitionStatus": "ScoresOfficial",
+        "competitionStatusDetail": "",
+        "gameAttributes": [
+          {
+            "typeId": 2,
+            "value": "1"
+          },
+          {
+            "typeId": 8,
+            "value": "4"
+          },
+          {
+            "typeId": 9,
+            "value": "Final"
+          },
+          {
+            "typeId": 22,
+            "value": "6"
+          },
+          {
+            "typeId": 23,
+            "value": "2"
+          },
+          {
+            "typeId": 27,
+            "value": "False"
+          },
+          {
+            "typeId": 32,
+            "value": "PACN"
+          }
+        ]
+      },
+      {
+        "gameId": 5930872,
+        "awayTeamId": 3481,
+        "homeTeamId": 3428,
+        "startDate": "2023-10-07T16:00:00.0000000Z",
+        "location": "Memorial Stadium at Faurot Field",
+        "timeRemainingStatus": "Final",
+        "sport": "CFB",
+        "status": "Final",
+        "description": "LSU @ MIZZ",
+        "sportSpecificData": {
+          "timeRemaining": "Final",
+          "homeTeamScore": "39",
+          "awayTeamScore": "49",
+          "quarter": "0"
+        },
+        "league": "CFB",
+        "competitionStatus": "ScoresOfficial",
+        "competitionStatusDetail": "",
+        "gameAttributes": [
+          {
+            "typeId": 2,
+            "value": "1"
+          },
+          {
+            "typeId": 5,
+            "value": "2"
+          },
+          {
+            "typeId": 6,
+            "value": "11"
+          },
+          {
+            "typeId": 9,
+            "value": "Final"
+          },
+          {
+            "typeId": 12,
+            "value": "64"
+          },
+          {
+            "typeId": 13,
+            "value": "End Game"
+          },
+          {
+            "typeId": 14,
+            "value": "away"
+          },
+          {
+            "typeId": 22,
+            "value": "6"
+          },
+          {
+            "typeId": 23,
+            "value": "2"
+          },
+          {
+            "typeId": 27,
+            "value": "False"
+          },
+          {
+            "typeId": 32,
+            "value": "ESPN"
+          },
+          {
+            "typeId": 83,
+            "value": "1"
+          }
+        ]
+      },
+      {
+        "gameId": 5930874,
+        "awayTeamId": 3477,
+        "homeTeamId": 3472,
+        "startDate": "2023-10-07T20:00:00.0000000Z",
+        "location": "Ben Hill Griffin Stadium at Florida Field",
+        "timeRemainingStatus": "Final",
+        "sport": "CFB",
+        "status": "Final",
+        "description": "VAND @ UF",
+        "sportSpecificData": {
+          "timeRemaining": "Final",
+          "homeTeamScore": "38",
+          "awayTeamScore": "14",
+          "quarter": "4"
+        },
+        "league": "CFB",
+        "competitionStatus": "ScoresOfficial",
+        "competitionStatusDetail": "",
+        "gameAttributes": [
+          {
+            "typeId": 2,
+            "value": "1"
+          },
+          {
+            "typeId": 8,
+            "value": "4"
+          },
+          {
+            "typeId": 9,
+            "value": "Final"
+          },
+          {
+            "typeId": 22,
+            "value": "6"
+          },
+          {
+            "typeId": 23,
+            "value": "2"
+          },
+          {
+            "typeId": 27,
+            "value": "False"
+          },
+          {
+            "typeId": 32,
+            "value": "SECN"
+          }
+        ]
+      },
+      {
+        "gameId": 5930876,
+        "awayTeamId": 3478,
+        "homeTeamId": 3489,
+        "startDate": "2023-10-07T19:30:00.0000000Z",
+        "location": "Kyle Field",
+        "timeRemainingStatus": "Final",
+        "sport": "CFB",
+        "status": "Final",
+        "description": "BAMA @ TA&M",
+        "sportSpecificData": {
+          "timeRemaining": "Final",
+          "homeTeamScore": "20",
+          "awayTeamScore": "26",
+          "quarter": "4"
+        },
+        "league": "CFB",
+        "competitionStatus": "ScoresOfficial",
+        "competitionStatusDetail": "",
+        "gameAttributes": [
+          {
+            "typeId": 2,
+            "value": "1"
+          },
+          {
+            "typeId": 8,
+            "value": "4"
+          },
+          {
+            "typeId": 9,
+            "value": "Final"
+          },
+          {
+            "typeId": 22,
+            "value": "6"
+          },
+          {
+            "typeId": 23,
+            "value": "2"
+          },
+          {
+            "typeId": 27,
+            "value": "False"
+          },
+          {
+            "typeId": 32,
+            "value": "CBS"
+          }
+        ]
+      },
+      {
+        "gameId": 5931004,
+        "awayTeamId": 3441,
+        "homeTeamId": 3434,
+        "startDate": "2023-10-07T19:33:00.0000000Z",
+        "location": "Kinnick Stadium",
+        "timeRemainingStatus": "Final",
+        "sport": "CFB",
+        "status": "Final",
+        "description": "PUR @ IOWA",
+        "sportSpecificData": {
+          "timeRemaining": "Final",
+          "homeTeamScore": "20",
+          "awayTeamScore": "14",
+          "quarter": "4"
+        },
+        "league": "CFB",
+        "competitionStatus": "ScoresOfficial",
+        "competitionStatusDetail": "",
+        "gameAttributes": [
+          {
+            "typeId": 2,
+            "value": "1"
+          },
+          {
+            "typeId": 8,
+            "value": "4"
+          },
+          {
+            "typeId": 9,
+            "value": "Final"
+          },
+          {
+            "typeId": 22,
+            "value": "6"
+          },
+          {
+            "typeId": 23,
+            "value": "2"
+          },
+          {
+            "typeId": 27,
+            "value": "False"
+          },
+          {
+            "typeId": 32,
+            "value": "PEAC"
+          }
+        ]
+      },
+      {
+        "gameId": 5931048,
+        "awayTeamId": 3411,
+        "homeTeamId": 3439,
+        "startDate": "2023-10-07T16:00:00.0000000Z",
+        "location": "Ohio Stadium",
+        "timeRemainingStatus": "Final",
+        "sport": "CFB",
+        "status": "Final",
+        "description": "UMD @ OSU",
+        "sportSpecificData": {
+          "timeRemaining": "Final",
+          "homeTeamScore": "37",
+          "awayTeamScore": "17",
+          "quarter": "4"
+        },
+        "league": "CFB",
+        "competitionStatus": "ScoresOfficial",
+        "competitionStatusDetail": "",
+        "gameAttributes": [
+          {
+            "typeId": 2,
+            "value": "1"
+          },
+          {
+            "typeId": 8,
+            "value": "4"
+          },
+          {
+            "typeId": 9,
+            "value": "Final"
+          },
+          {
+            "typeId": 22,
+            "value": "6"
+          },
+          {
+            "typeId": 23,
+            "value": "2"
+          },
+          {
+            "typeId": 27,
+            "value": "False"
+          },
+          {
+            "typeId": 32,
+            "value": "FOX"
+          }
+        ]
+      },
+      {
+        "gameId": 5931072,
+        "awayTeamId": 3419,
+        "homeTeamId": 3442,
+        "startDate": "2023-10-07T16:00:00.0000000Z",
+        "location": "Camp Randall Stadium",
+        "timeRemainingStatus": "Final",
+        "sport": "CFB",
+        "status": "Final",
+        "description": "RU @ WISC",
+        "sportSpecificData": {
+          "timeRemaining": "Final",
+          "homeTeamScore": "24",
+          "awayTeamScore": "13",
+          "quarter": "4"
+        },
+        "league": "CFB",
+        "competitionStatus": "ScoresOfficial",
+        "competitionStatusDetail": "",
+        "gameAttributes": [
+          {
+            "typeId": 2,
+            "value": "1"
+          },
+          {
+            "typeId": 8,
+            "value": "4"
+          },
+          {
+            "typeId": 9,
+            "value": "Final"
+          },
+          {
+            "typeId": 22,
+            "value": "6"
+          },
+          {
+            "typeId": 23,
+            "value": "2"
+          },
+          {
+            "typeId": 27,
+            "value": "False"
+          },
+          {
+            "typeId": 32,
+            "value": "PEAC"
+          }
+        ]
+      }
+    ],
+    "gameTypeId": 94,
+    "allTags": [
+      "Featured"
+    ]
+  },
+  "responseStatus": {
+
+  },
+  "errorStatus": {
+
+  }
+}]

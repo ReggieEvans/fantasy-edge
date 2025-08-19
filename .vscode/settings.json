@@ -2,6 +2,7 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
+  "workbench.tree.indent": 16,
   "eslint.useFlatConfig": true,
   "eslint.validate": [
     "typescript",

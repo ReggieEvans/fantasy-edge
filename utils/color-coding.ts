@@ -8,7 +8,9 @@ interface ColorConfig {
   isReversed?: boolean
 }
 
-export const getColorByValue = (value: number, config: ColorConfig) => {
+export const getColorByValue = (value: number | "-", config: ColorConfig) => {
+  if (value === "-") return "bg-grade-neutral"
+  
   const { thresholds, colors, isReversed = false } = config
 
   // Sort thresholds in descending order

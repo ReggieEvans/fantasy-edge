@@ -1,14 +1,12 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 // @desc    Delete User Slate
 // @route   DELETE /api/slates/:id
 import { NextResponse } from 'next/server'
 
 import { createServerSupabaseClient } from '@/libs/supabase/server'
 
-export const DELETE = async (_req: Request, context: any) => {
+export const DELETE = async (_req: Request, { params }: { params: Promise<{ id: string }> }) => {
   const supabase = await createServerSupabaseClient()
-  const params = await context.params
+  const { id: slateId } = await params;
 
   const {
     data: { user },
@@ -17,8 +15,6 @@ export const DELETE = async (_req: Request, context: any) => {
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
-
-  const slateId = params.id
 
   try {
     await supabase.from('slate_games').delete().eq('slate_id', slateId)
