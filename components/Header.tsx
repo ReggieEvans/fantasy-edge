@@ -71,7 +71,7 @@ export default function Header() {
   }
 
   return (
-    <header className="flex items-center justify-center md:justify-between w-full px-12 py-1 bg-background-darker">
+    <header className="flex items-center justify-center md:justify-between w-full px-12 py-3 bg-background-darker">
       <div className="flex items-center gap-4">
         {/* Brand */}
         <Link href="/">

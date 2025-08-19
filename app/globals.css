@@ -46,7 +46,7 @@
     @apply font-sans border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background-darker text-foreground;
   }
 }
 

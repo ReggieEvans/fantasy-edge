@@ -41,8 +41,6 @@ export default function PlayerTable({ data, position, showPlayersWithNoStats }: 
 
   const columns: ColumnDef<Player>[] = [...baseColumns, ...positionCols]
 
-  console.log(data)
-
   const hasStats = (player: Player): boolean => {
     if (position === 'QB') return !!player.passing
     if (position === 'RB') return !!player.rushing

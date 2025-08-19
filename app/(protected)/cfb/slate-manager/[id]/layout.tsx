@@ -71,7 +71,7 @@ export default function SlateLayout({ children }: { children: React.ReactNode })
   return (
     <div>
       <div className="flex">
-        <aside className="bg-background-darker border-r border-border min-h-[calc(100vh-70px)]">
+        <aside className="bg-background-darker border-r border-border min-h-[calc(100vh-100px)] pt-3">
           <nav className="flex flex-col items-center">
             {NAVIGATION_LINKS.map(link => renderNavLink(link.href, link.label, link.icon))}
           </nav>
