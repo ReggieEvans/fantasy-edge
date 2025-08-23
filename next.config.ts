@@ -16,6 +16,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'cdn.draftkings.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'dkn.gs',
+      },
     ],
   },
 }

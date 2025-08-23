@@ -38,6 +38,7 @@ export async function buildSlatePlayers(
         team_id: teamId,
         position: p.position ?? null,
         salary: p.salary ?? null,
+        player_image: p.playerImage160 ?? null,
       })
     }
 

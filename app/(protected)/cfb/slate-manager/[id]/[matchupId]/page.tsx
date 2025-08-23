@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowLeft, CloudSun, GitCompareArrows, Loader, UserCheck } from 'lucide-react'
+import { ArrowLeft, CloudSun, GitCompareArrows, UserCheck } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
@@ -8,14 +8,13 @@ import React, { useState } from 'react'
 
 import { useGetMatchupQuery } from '@/app/(protected)/cfb/slate-manager/_api/matchups.api'
 import { NestedStatKey, StatGroupKey, TeamSide } from '@/app/(protected)/cfb/slate-manager/_types/diffRow'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Switch } from '@/components/ui/switch'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
 import { DiffRow } from '../../_components/DiffRow'
 import PlayerTable from '../../_components/PlayerTable'
 import TeamStatRow from '../../_components/TeamStatsRow'
-
-// import PlayerTable from '../../components/PlayerTable'
 
 export default function MatchupPage() {
   const [value, setValue] = useState('both')
@@ -42,16 +41,6 @@ export default function MatchupPage() {
     return url.split('&')[0]
   }, [])
 
-  if (isLoading)
-    return (
-      <div className="flex flex-col items-center justify-center pt-40 space-y-4">
-        <Loader size={40} className="text-accent animate-spin" />
-        <p className="text-lg opacity-70">Loading Matchup</p>
-      </div>
-    )
-  if (isError) return <p className="p-4 text-red-500">Failed to load matchup.</p>
-  if (!data) return <p className="p-4">Matchup not found.</p>
-
   return (
     <div className="bg-background px-6 pt-3 rounded-tl-[40px]">
       <div className="flex flex-col text-muted mb-4">
@@ -76,245 +65,261 @@ export default function MatchupPage() {
         </p>
       </div>
 
-      <div className="relative max-h-[calc(100vh-254px)] overflow-y-auto max-w-[1400px] pb-20">
-        <section className="flex flex-col max-w-[1400px] bg-background-secondary rounded shadow-md">
-          <div className="flex justify-between items-center p-4 bg-card border-b border-border rounded-t text-xs">
-            <div className="flex flex-col space-y-1">
-              <div>{data.matchup.venue}</div>
-              <div>
-                {formatDateTime(data.matchup.start_time)}{' '}
-                {data.matchup.tv_network ? `- ${data.matchup.tv_network}` : ''}
-              </div>
-            </div>
-            <div>
-              <CloudSun size={40} />
-            </div>
-          </div>
-          <div className="flex justify-between py-4 px-4">
-            <div className="p-2">
-              <div className="flex items-center gap-4 mb-8">
+      <div className="flex flex-col gap-8 py-4">
+        {isLoading ? (
+          // Loading skeletons
+          [...Array(2)].map((_, i) => (
+            <Skeleton key={i} className="h-[800px] w-[1400px] bg-card rounded animate-pulse" />
+          ))
+        ) : isError ? (
+          // Error state
+          <p className="text-red-500">Something went wrong while loading matchup.</p>
+        ) : !data ? (
+          // Empty state
+          <p>No matchup found.</p>
+        ) : (
+          // Success state
+          <div className="relative max-h-[calc(100vh-300px)] overflow-y-auto max-w-[1400px] pb-20">
+            <section className="flex flex-col max-w-[1400px] bg-background-secondary rounded shadow-md">
+              <div className="flex justify-between items-center p-4 bg-card border-b border-border rounded-t text-xs">
+                <div className="flex flex-col space-y-1">
+                  <div>{data.matchup.venue}</div>
+                  <div>
+                    {formatDateTime(data.matchup.start_time)}{' '}
+                    {data.matchup.tv_network ? `- ${data.matchup.tv_network}` : ''}
+                  </div>
+                </div>
                 <div>
-                  <Image src={getTeamLogo(data.matchup.away_team_logo)} alt="Team Logo" width={80} height={80} />
-                </div>
-                <div className="flex flex-col">
-                  <div className="text-xl font-bold uppercase">{data.matchup.away_team_city}</div>
-                  <div className="text-3xl font-black uppercase">{data.matchup.away_team_name}</div>
+                  <CloudSun size={40} />
                 </div>
               </div>
-              <TeamStatRow stats={data.teamPassing.away} label="PASSING" />
-              <TeamStatRow stats={data.teamRushing.away} label="RUSHING" />
-              <TeamStatRow stats={data.passingRate.away} label="PASS RATE" isPercent={true} />
-              <TeamStatRow stats={data.rushingRate.away} label="RUSH RATE" isPercent={true} />
-              <TeamStatRow stats={data.passingDefense.away} label="PASS DEF" />
-              <TeamStatRow stats={data.rushingDefense.away} label="RUSH DEF" />
-            </div>
-
-            <div className="text-center px-3 py-2 border-l border-r border-border">
-              <div className="flex justify-center w-full py-4">
-                <Image src="/vs-80-79.png" alt="versus image" width={60} height={60} />
-              </div>
-
-              <div className="py-4">
-                <h3 className="font-bold uppercase mb-2">Matchups</h3>
-              </div>
-
-              {[
-                {
-                  label: 'PASSING',
-                  homeOffense: createStatKey('teamPassing', 'home'),
-                  homeDefense: createStatKey('passingDefense', 'home'),
-                  awayOffense: createStatKey('teamPassing', 'away'),
-                  awayDefense: createStatKey('passingDefense', 'away'),
-                },
-                {
-                  label: 'RUSHING',
-                  homeOffense: createStatKey('teamRushing', 'home'),
-                  homeDefense: createStatKey('rushingDefense', 'home'),
-                  awayOffense: createStatKey('teamRushing', 'away'),
-                  awayDefense: createStatKey('rushingDefense', 'away'),
-                },
-              ].map(config => (
-                <DiffRow key={config.label} data={data} {...config} />
-              ))}
-            </div>
-
-            <div className="p-2">
-              <div className="flex flex-row-reverse items-center gap-4 mb-8">
-                <div>
-                  <Image src={getTeamLogo(data.matchup.home_team_logo)} alt="Team Logo" width={80} height={80} />
+              <div className="flex justify-between py-4 px-4">
+                <div className="p-2">
+                  <div className="flex items-center gap-4 mb-8">
+                    <div>
+                      <Image src={getTeamLogo(data.matchup.away_team_logo)} alt="Team Logo" width={80} height={80} />
+                    </div>
+                    <div className="flex flex-col">
+                      <div className="text-xl font-bold uppercase">{data.matchup.away_team_city}</div>
+                      <div className="text-3xl font-black uppercase">{data.matchup.away_team_name}</div>
+                    </div>
+                  </div>
+                  <TeamStatRow stats={data.teamPassing.away} label="PASSING" />
+                  <TeamStatRow stats={data.teamRushing.away} label="RUSHING" />
+                  <TeamStatRow stats={data.passingRate.away} label="PASS RATE" isPercent={true} />
+                  <TeamStatRow stats={data.rushingRate.away} label="RUSH RATE" isPercent={true} />
+                  <TeamStatRow stats={data.passingDefense.away} label="PASS DEF" />
+                  <TeamStatRow stats={data.rushingDefense.away} label="RUSH DEF" />
                 </div>
-                <div className="flex flex-col items-end">
-                  <div className="text-xl uppercase font-bold">{data.matchup.home_team_city}</div>
-                  <div className="text-3xl font-black uppercase">{data.matchup.home_team_name}</div>
+
+                <div className="text-center px-3 py-2 border-l border-r border-border">
+                  <div className="flex justify-center w-full py-4">
+                    <Image src="/vs-80-79.png" alt="versus image" width={60} height={60} />
+                  </div>
+
+                  <div className="py-4">
+                    <h3 className="font-bold uppercase mb-2">Matchups</h3>
+                  </div>
+
+                  {[
+                    {
+                      label: 'PASSING',
+                      homeOffense: createStatKey('teamPassing', 'home'),
+                      homeDefense: createStatKey('passingDefense', 'home'),
+                      awayOffense: createStatKey('teamPassing', 'away'),
+                      awayDefense: createStatKey('passingDefense', 'away'),
+                    },
+                    {
+                      label: 'RUSHING',
+                      homeOffense: createStatKey('teamRushing', 'home'),
+                      homeDefense: createStatKey('rushingDefense', 'home'),
+                      awayOffense: createStatKey('teamRushing', 'away'),
+                      awayDefense: createStatKey('rushingDefense', 'away'),
+                    },
+                  ].map(config => (
+                    <DiffRow key={config.label} data={data} {...config} />
+                  ))}
+                </div>
+
+                <div className="p-2">
+                  <div className="flex flex-row-reverse items-center gap-4 mb-8">
+                    <div>
+                      <Image src={getTeamLogo(data.matchup.home_team_logo)} alt="Team Logo" width={80} height={80} />
+                    </div>
+                    <div className="flex flex-col items-end">
+                      <div className="text-xl uppercase font-bold">{data.matchup.home_team_city}</div>
+                      <div className="text-3xl font-black uppercase">{data.matchup.home_team_name}</div>
+                    </div>
+                  </div>
+                  <TeamStatRow stats={data.teamPassing.home} label="PASSING" isReverse={true} />
+                  <TeamStatRow stats={data.teamRushing.home} label="RUSHING" isReverse={true} />
+                  <TeamStatRow stats={data.passingRate.home} label="PASS RATE" isPercent={true} isReverse={true} />
+                  <TeamStatRow stats={data.rushingRate.home} label="RUSH RATE" isPercent={true} isReverse={true} />
+                  <TeamStatRow stats={data.passingDefense.home} label="PASS DEF" isReverse={true} />
+                  <TeamStatRow stats={data.rushingDefense.home} label="RUSH DEF" isReverse={true} />
                 </div>
               </div>
-              <TeamStatRow stats={data.teamPassing.home} label="PASSING" isReverse={true} />
-              <TeamStatRow stats={data.teamRushing.home} label="RUSHING" isReverse={true} />
-              <TeamStatRow stats={data.passingRate.home} label="PASS RATE" isPercent={true} isReverse={true} />
-              <TeamStatRow stats={data.rushingRate.home} label="RUSH RATE" isPercent={true} isReverse={true} />
-              <TeamStatRow stats={data.passingDefense.home} label="PASS DEF" isReverse={true} />
-              <TeamStatRow stats={data.rushingDefense.home} label="RUSH DEF" isReverse={true} />
-            </div>
-          </div>
-          <div className="flex justify-center gap-24 bg-card pb-2 pt-6 border-t border-border">
-            <div className="flex flex-col items-center justify-center">
-              <div className="uppercase text-xs font-bold">Team Total</div>
-              <div className="text-3xl font-black py-2">{data.matchup.away_team_total}</div>
-            </div>
-            <div className="flex flex-col items-center justify-center">
-              <div className="uppercase text-xs font-bold">Game Total</div>
-              <div className="text-3xl font-black py-2">{data.matchup.game_total}</div>
-            </div>
-            <div className="flex flex-col items-center justify-center">
-              <div className="uppercase text-xs font-bold">Team Total</div>
-              <div className="text-3xl font-black py-2">{data.matchup.home_team_total}</div>
-            </div>
-          </div>
-        </section>
+              <div className="flex justify-center gap-24 bg-card pb-2 pt-6 border-t border-border">
+                <div className="flex flex-col items-center justify-center">
+                  <div className="uppercase text-xs font-bold">Team Total</div>
+                  <div className="text-3xl font-black py-2">{data.matchup.away_team_total}</div>
+                </div>
+                <div className="flex flex-col items-center justify-center">
+                  <div className="uppercase text-xs font-bold">Game Total</div>
+                  <div className="text-3xl font-black py-2">{data.matchup.game_total}</div>
+                </div>
+                <div className="flex flex-col items-center justify-center">
+                  <div className="uppercase text-xs font-bold">Team Total</div>
+                  <div className="text-3xl font-black py-2">{data.matchup.home_team_total}</div>
+                </div>
+              </div>
+            </section>
 
-        <section className="mt-10 max-w-[1400px]">
-          <div className="flex items-end justify-between mb-4 px-2">
-            <div className="flex items-center gap-2">
-              <UserCheck size={20} />
-              <h2 className="text-xl uppercase font-bold">Target Players</h2>
-            </div>
-            <div className="flex items-center gap-8">
-              <div className="flex items-center justify-end gap-2">
-                <span className="text-sm text-foreground">Show all players</span>
-                <Switch
-                  className="data-[state=checked]:bg-accent data-[state=unchecked]:bg-[#525361]"
-                  checked={showPlayersWithNoStats}
-                  onCheckedChange={setShowPlayersWithNoStats}
-                />
+            <section className="mt-10 max-w-[1400px]">
+              <div className="flex items-end justify-between mb-4 px-2">
+                <div className="flex items-center gap-2">
+                  <UserCheck size={20} />
+                  <h2 className="text-xl uppercase font-bold">Target Players</h2>
+                </div>
+                <div className="flex items-center gap-8">
+                  <div className="flex items-center justify-end gap-2">
+                    <span className="text-sm text-foreground">Show all players</span>
+                    <Switch
+                      className="data-[state=checked]:bg-accent data-[state=unchecked]:bg-[#525361]"
+                      checked={showPlayersWithNoStats}
+                      onCheckedChange={setShowPlayersWithNoStats}
+                    />
+                  </div>
+                  <div>
+                    <ToggleGroup
+                      variant="outline"
+                      type="single"
+                      size="lg"
+                      value={value}
+                      onValueChange={value => {
+                        if (value) setValue(value)
+                      }}
+                    >
+                      <ToggleGroupItem
+                        className={`min-w-[100px] ${value === 'away_team' ? 'bg-blue text-foreground' : ''}`}
+                        value="away_team"
+                        aria-label="Toggle bold"
+                      >
+                        {data.matchup.away_team_city}
+                      </ToggleGroupItem>
+                      <ToggleGroupItem
+                        className={`min-w-[100px] ${value === 'both' ? 'bg-blue text-foreground' : ''}`}
+                        value="both"
+                        aria-label="Toggle italic"
+                      >
+                        Both
+                      </ToggleGroupItem>
+                      <ToggleGroupItem
+                        className={`min-w-[100px] ${value === 'home_team' ? 'bg-blue text-foreground' : ''}`}
+                        value="home_team"
+                        aria-label="Toggle strikethrough"
+                      >
+                        {data.matchup.home_team_city}
+                      </ToggleGroupItem>
+                    </ToggleGroup>
+                  </div>
+                </div>
               </div>
-              <div>
-                <ToggleGroup
-                  variant="outline"
-                  type="single"
-                  size="lg"
-                  value={value}
-                  onValueChange={value => {
-                    if (value) setValue(value)
-                  }}
-                >
-                  <ToggleGroupItem
-                    className={`min-w-[100px] ${value === 'away_team' ? 'bg-blue text-foreground' : ''}`}
-                    value="away_team"
-                    aria-label="Toggle bold"
-                  >
-                    {data.matchup.away_team_city}
-                  </ToggleGroupItem>
-                  <ToggleGroupItem
-                    className={`min-w-[100px] ${value === 'both' ? 'bg-blue text-foreground' : ''}`}
-                    value="both"
-                    aria-label="Toggle italic"
-                  >
-                    Both
-                  </ToggleGroupItem>
-                  <ToggleGroupItem
-                    className={`min-w-[100px] ${value === 'home_team' ? 'bg-blue text-foreground' : ''}`}
-                    value="home_team"
-                    aria-label="Toggle strikethrough"
-                  >
-                    {data.matchup.home_team_city}
-                  </ToggleGroupItem>
-                </ToggleGroup>
+
+              <div className="flex flex-col gap-8">
+                <div className="flex flex-col bg-card rounded">
+                  <div className="px-4 py-3">
+                    <h5 className="uppercase text-sm font-bold">Quarterbacks</h5>
+                  </div>
+                  <div className="flex flex-row bg-background-secondary rounded pb-4">
+                    {(value === 'both' || value === 'away_team') && (
+                      <div className={`flex flex-col ${value === 'both' ? 'w-1/2' : 'w-full'} px-2`}>
+                        <section>
+                          <PlayerTable
+                            data={data.awayRoster.QB}
+                            position="QB"
+                            showPlayersWithNoStats={showPlayersWithNoStats}
+                          />
+                        </section>
+                      </div>
+                    )}
+                    {(value === 'both' || value === 'home_team') && (
+                      <div className={`flex flex-col ${value === 'both' ? 'w-1/2' : 'w-full'} px-2`}>
+                        <section>
+                          <PlayerTable
+                            data={data.homeRoster.QB}
+                            position="QB"
+                            showPlayersWithNoStats={showPlayersWithNoStats}
+                          />
+                        </section>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex flex-col bg-card rounded">
+                  <div className="px-4 py-3">
+                    <h5 className="uppercase text-sm font-bold">Running Backs</h5>
+                  </div>
+                  <div className="flex flex-row bg-background-secondary rounded pb-8">
+                    {(value === 'both' || value === 'away_team') && (
+                      <div className={`flex flex-col ${value === 'both' ? 'w-1/2' : 'w-full'} px-2`}>
+                        <section>
+                          <PlayerTable
+                            data={data.awayRoster.RB}
+                            position="RB"
+                            showPlayersWithNoStats={showPlayersWithNoStats}
+                          />
+                        </section>
+                      </div>
+                    )}
+                    {(value === 'both' || value === 'home_team') && (
+                      <div className={`flex flex-col ${value === 'both' ? 'w-1/2' : 'w-full'} px-2`}>
+                        <section>
+                          <PlayerTable
+                            data={data.homeRoster.RB}
+                            position="RB"
+                            showPlayersWithNoStats={showPlayersWithNoStats}
+                          />
+                        </section>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex flex-col bg-card rounded">
+                  <div className="px-4 py-3">
+                    <h5 className="uppercase text-sm font-bold">Wide Receivers</h5>
+                  </div>
+                  <div className="flex flex-row bg-background-secondary rounded pb-8">
+                    {(value === 'both' || value === 'away_team') && (
+                      <div className={`flex flex-col ${value === 'both' ? 'w-1/2' : 'w-full'} px-2`}>
+                        <section>
+                          <PlayerTable
+                            data={data.awayRoster.WR}
+                            position="WR"
+                            showPlayersWithNoStats={showPlayersWithNoStats}
+                          />
+                        </section>
+                      </div>
+                    )}
+                    {(value === 'both' || value === 'home_team') && (
+                      <div className={`flex flex-col ${value === 'both' ? 'w-1/2' : 'w-full'} px-2`}>
+                        <section>
+                          <PlayerTable
+                            data={data.homeRoster.WR}
+                            position="WR"
+                            showPlayersWithNoStats={showPlayersWithNoStats}
+                          />
+                        </section>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
+            </section>
           </div>
-
-          <div className="flex flex-col gap-8">
-            <div className="flex flex-col bg-card rounded">
-              <div className="px-4 py-3">
-                <h5 className="uppercase text-sm font-bold">Quarterbacks</h5>
-              </div>
-              <div className="flex flex-row bg-background-secondary rounded pb-4">
-                {(value === 'both' || value === 'away_team') && (
-                  <div className={`flex flex-col ${value === 'both' ? 'w-1/2' : 'w-full'} px-2`}>
-                    <section>
-                      <PlayerTable
-                        data={data.awayRoster.QB}
-                        position="QB"
-                        showPlayersWithNoStats={showPlayersWithNoStats}
-                      />
-                    </section>
-                  </div>
-                )}
-                {(value === 'both' || value === 'home_team') && (
-                  <div className={`flex flex-col ${value === 'both' ? 'w-1/2' : 'w-full'} px-2`}>
-                    <section>
-                      <PlayerTable
-                        data={data.homeRoster.QB}
-                        position="QB"
-                        showPlayersWithNoStats={showPlayersWithNoStats}
-                      />
-                    </section>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="flex flex-col bg-card rounded">
-              <div className="px-4 py-3">
-                <h5 className="uppercase text-sm font-bold">Running Backs</h5>
-              </div>
-              <div className="flex flex-row bg-background-secondary rounded pb-8">
-                {(value === 'both' || value === 'away_team') && (
-                  <div className={`flex flex-col ${value === 'both' ? 'w-1/2' : 'w-full'} px-2`}>
-                    <section>
-                      <PlayerTable
-                        data={data.awayRoster.RB}
-                        position="RB"
-                        showPlayersWithNoStats={showPlayersWithNoStats}
-                      />
-                    </section>
-                  </div>
-                )}
-                {(value === 'both' || value === 'home_team') && (
-                  <div className={`flex flex-col ${value === 'both' ? 'w-1/2' : 'w-full'} px-2`}>
-                    <section>
-                      <PlayerTable
-                        data={data.homeRoster.RB}
-                        position="RB"
-                        showPlayersWithNoStats={showPlayersWithNoStats}
-                      />
-                    </section>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="flex flex-col bg-card rounded">
-              <div className="px-4 py-3">
-                <h5 className="uppercase text-sm font-bold">Wide Receivers</h5>
-              </div>
-              <div className="flex flex-row bg-background-secondary rounded pb-8">
-                {(value === 'both' || value === 'away_team') && (
-                  <div className={`flex flex-col ${value === 'both' ? 'w-1/2' : 'w-full'} px-2`}>
-                    <section>
-                      <PlayerTable
-                        data={data.awayRoster.WR}
-                        position="WR"
-                        showPlayersWithNoStats={showPlayersWithNoStats}
-                      />
-                    </section>
-                  </div>
-                )}
-                {(value === 'both' || value === 'home_team') && (
-                  <div className={`flex flex-col ${value === 'both' ? 'w-1/2' : 'w-full'} px-2`}>
-                    <section>
-                      <PlayerTable
-                        data={data.homeRoster.WR}
-                        position="WR"
-                        showPlayersWithNoStats={showPlayersWithNoStats}
-                      />
-                    </section>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </section>
+        )}
       </div>
     </div>
   )

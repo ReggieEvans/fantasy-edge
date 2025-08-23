@@ -352,20 +352,6 @@ export const runningbackColumns: ColumnDef<Player>[] = [
     },
   },
   {
-    id: 'off',
-    header: 'OFF',
-    meta: 'Offense grade',
-    cell: ({ row }) => {
-      const val = row.original.rushing?.grades_offense ?? '-'
-      const letterGrade = getLetterGrade(val)
-      return (
-        <div className={`flex items-center justify-center rounded w-9 ${getColorByValue(val, pffGradeConfig)}`}>
-          {letterGrade}
-        </div>
-      )
-    },
-  },
-  {
     id: 'rush',
     header: 'RUSH',
     meta: 'Rushing grade',
@@ -373,8 +359,10 @@ export const runningbackColumns: ColumnDef<Player>[] = [
       const val = row.original.rushing?.grades_run ?? '-'
       const letterGrade = getLetterGrade(val)
       return (
-        <div className={`flex items-center justify-center rounded w-9 ${getColorByValue(val, pffGradeConfig)}`}>
-          {letterGrade}
+        <div className="flex justify-center">
+          <div className={`flex items-center justify-center rounded w-9 ${getColorByValue(val, pffGradeConfig)}`}>
+            {letterGrade}
+          </div>
         </div>
       )
     },
@@ -387,8 +375,10 @@ export const runningbackColumns: ColumnDef<Player>[] = [
       const val = row.original.receiving?.grades_hands_fumble ?? '-'
       const letterGrade = getLetterGrade(val)
       return (
-        <div className={`flex items-center justify-center rounded w-9 ${getColorByValue(val, pffGradeConfig)}`}>
-          {letterGrade}
+        <div className="flex justify-center">
+          <div className={`flex items-center justify-center rounded w-9 ${getColorByValue(val, pffGradeConfig)}`}>
+            {letterGrade}
+          </div>
         </div>
       )
     },
@@ -480,20 +470,6 @@ export const widereceiverColumns: ColumnDef<Player>[] = [
     },
   },
   {
-    id: 'off',
-    header: 'OFF',
-    meta: 'Offense grade',
-    cell: ({ row }) => {
-      const val = row.original.receiving?.grades_offense ?? '-'
-      const letterGrade = getLetterGrade(val)
-      return (
-        <div className={`flex items-center justify-center rounded w-9 ${getColorByValue(val, pffGradeConfig)}`}>
-          {letterGrade}
-        </div>
-      )
-    },
-  },
-  {
     id: 'hands',
     header: 'HANDS',
     meta: 'Hands grade',
@@ -501,8 +477,10 @@ export const widereceiverColumns: ColumnDef<Player>[] = [
       const val = row.original.receiving?.grades_hands_drop ?? '-'
       const letterGrade = getLetterGrade(val)
       return (
-        <div className={`flex items-center justify-center rounded w-9 ${getColorByValue(val, pffGradeConfig)}`}>
-          {letterGrade}
+        <div className="flex justify-center">
+          <div className={`flex items-center justify-center rounded w-9 ${getColorByValue(val, pffGradeConfig)}`}>
+            {letterGrade}
+          </div>
         </div>
       )
     },

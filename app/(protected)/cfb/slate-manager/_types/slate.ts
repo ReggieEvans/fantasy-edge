@@ -11,5 +11,6 @@ export interface Slate {
   sport: string
   user_id: string
   targetCount: number
-  projectionsSubmitted: boolean
+  playerCount: number
+  hasProjections: boolean
 }
