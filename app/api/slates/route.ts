@@ -5,7 +5,6 @@ import { buildSlateMatchups } from '@/libs/slates/buildSlateMatchups'
 import { buildSlatePlayers } from '@/libs/slates/buildSlatePlayers'
 import { saveSlateMetadata } from '@/libs/slates/saveSlateMetadata'
 import { createServerSupabaseClient } from '@/libs/supabase/server'
-import { countBySlate } from '@/libs/utils'
 
 // @desc    Get all slates by user
 // @route   GET /slates
@@ -32,33 +31,38 @@ export async function GET() {
     return NextResponse.json({ error: userSlatesError.message }, { status: 500 })
   }
 
-  const slateIds = userSlates.map(row => row.id)
+  const slateIds = (userSlates ?? []).map(r => r.id)
+  if (slateIds.length === 0) return NextResponse.json([])
 
-  // Get slate metadata
-  const { data: slates, error: slatesError } = await supabase.from('user_slates').select('*').in('id', slateIds)
+  // Fetch the rest in parallel
+  const [{ data: slates, error: slatesError }, { data: games }, { data: players }, { data: targets }] =
+    await Promise.all([
+      supabase.from('user_slates').select('*').in('id', slateIds),
+      supabase.from('slate_matchups').select('slate_id').in('slate_id', slateIds),
+      supabase.from('slate_players').select('slate_id').in('slate_id', slateIds),
+      supabase.from('user_targeted_players').select('slate_id').in('slate_id', slateIds),
+    ])
 
-  if (slatesError) {
-    return NextResponse.json({ error: 'Error fetching slate data' }, { status: 500 })
-  }
+  if (slatesError) return NextResponse.json({ error: 'Error fetching slate data' }, { status: 500 })
 
-  const { data: games } = await supabase
-    .from('slate_matchups')
-    .select('slate_id') // only need slate_id
-    .in('slate_id', slateIds)
+  const countBySlate = (rows: { slate_id: string }[] | null) =>
+    (rows ?? []).reduce((acc: { [key: string]: number }, { slate_id }) => {
+      acc[slate_id] = (acc[slate_id] ?? 0) + 1
+      return acc
+    }, {})
 
-  // const { data: players } = await supabase.from('slate_players').select('slate_id').in('slate_id', slateIds)
+  const gameCounts = countBySlate(games)
+  const playerCounts = countBySlate(players)
+  const targetCounts = countBySlate(targets)
 
-  const gameCountsMap = countBySlate(games ?? [])
-  // const playerCountsMap = countBySlate(players ?? [])
-
-  // Enrich slates with games and players
-  const enrichedSlates = slates.map(slate => ({
-    ...slate,
-    gameCount: gameCountsMap[slate.id] || 0,
-    // playerCount: playerCountsMap[slate.id] || 0,
+  const enriched = (slates ?? []).map(s => ({
+    ...s,
+    gameCount: gameCounts[s.id] ?? 0,
+    playerCount: playerCounts[s.id] ?? 0,
+    targetCount: targetCounts[s.id] ?? 0,
   }))
 
-  return NextResponse.json(enrichedSlates)
+  return NextResponse.json(enriched)
 }
 
 // @desc    Save slate

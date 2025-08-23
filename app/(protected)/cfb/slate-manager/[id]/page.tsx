@@ -1,28 +1,19 @@
 'use client'
 
-import { ArrowLeft, Bolt, Loader } from 'lucide-react'
+import { ArrowLeft, Bolt } from 'lucide-react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import React from 'react'
 
 import { useGetMatchupsQuery } from '@/app/(protected)/cfb/slate-manager/_api/matchups.api'
 import { Matchup } from '@/app/(protected)/cfb/slate-manager/_types/matchup'
+import { Skeleton } from '@/components/ui/skeleton'
 
 import MatchupCard from '../_components/MatchupCard'
 
 export default function MatchupsPage() {
   const { id } = useParams() as { id: string }
   const { data: matchups, isLoading, isError } = useGetMatchupsQuery(id)
-
-  if (isLoading)
-    return (
-      <div className="flex flex-col items-center justify-center pt-40 space-y-4">
-        <Loader size={40} className="text-accent animate-spin" />
-        <p className="text-lg opacity-70">Loading Slates</p>
-      </div>
-    )
-  if (isError) return <p className="p-4 text-red-500">Failed to load slate.</p>
-  if (!matchups) return <p className="p-4">No games found.</p>
 
   return (
     <div className="flex flex-col bg-background pt-3 rounded-tl-[40px] min-h-[calc(100vh-90px)] overflow-y-auto">
@@ -45,8 +36,21 @@ export default function MatchupsPage() {
           </p>
         </div>
       </div>
-      <div className="flex flex-col gap-8 px-8 py-4">
-        {matchups?.map((matchup: Matchup) => <MatchupCard key={matchup.id} matchup={matchup} />)}
+
+      <div className="flex flex-col gap-8 px-6 py-4">
+        {isLoading ? (
+          // Loading skeletons
+          [...Array(3)].map((_, i) => <Skeleton key={i} className="h-48 w-full bg-card rounded animate-pulse" />)
+        ) : isError ? (
+          // Error state
+          <p className="text-red-500">Something went wrong while loading matchups.</p>
+        ) : matchups?.length === 0 ? (
+          // Empty state
+          <p>No matchups found.</p>
+        ) : (
+          // Success state
+          matchups?.map((matchup: Matchup) => <MatchupCard key={matchup.id} matchup={matchup} />)
+        )}
       </div>
     </div>
   )

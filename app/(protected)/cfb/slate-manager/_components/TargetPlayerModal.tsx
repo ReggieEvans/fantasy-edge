@@ -2,6 +2,7 @@ import { Player } from '@/app/(protected)/cfb/slate-manager/_types/player'
 import { Target, TargetType } from '@/app/(protected)/cfb/slate-manager/_types/target'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
+import { TargetPool } from '../_types/targetPool'
 import TargetPlayerForm from './TargetPlayerForm'
 
 export default function TargetPlayerModal({
@@ -17,10 +18,10 @@ export default function TargetPlayerModal({
 }: {
   open: boolean
   onClose: () => void
-  selectedPlayer: Player | null
-  existingTarget: Target | null
+  selectedPlayer?: Player | TargetPool | null
+  existingTarget: Target | TargetPool  | null
   handleSubmitTarget: (values: { target_type?: TargetType | null; stack_candidate: boolean; target_notes?: string }) => void
-  isSaving: boolean
+  isSaving?: boolean
   isUpdating: boolean
   isRemoving: boolean
   handleRemoveTarget: () => void

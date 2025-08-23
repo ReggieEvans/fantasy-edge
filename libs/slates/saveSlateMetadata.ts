@@ -1,12 +1,8 @@
-import { SupabaseClient } from "@supabase/supabase-js"
+import { SupabaseClient } from '@supabase/supabase-js'
 
-import { DkSlateSelection } from "@/app/(protected)/cfb/slate-manager/_types/dkSlate"
+import { DkSlateSelection } from '@/app/(protected)/cfb/slate-manager/_types/dkSlate'
 
-export async function saveSlateMetadata(
-  supabase: SupabaseClient,
-  userId: string,
-  slateSelection: DkSlateSelection
-) {
+export async function saveSlateMetadata(supabase: SupabaseClient, userId: string, slateSelection: DkSlateSelection) {
   const { draftGroupId, sport, gameType, minStartTime, maxStartTime } = slateSelection
 
   const { data, error } = await supabase

@@ -11,6 +11,7 @@ export async function POST(req: Request) {
   const supabase = await createServerSupabaseClient()
 
   const target: Target = await req.json()
+  console.log(target)
 
   const {
     data: { user },

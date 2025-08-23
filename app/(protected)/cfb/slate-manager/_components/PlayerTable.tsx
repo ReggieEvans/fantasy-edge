@@ -135,7 +135,7 @@ export default function PlayerTable({ data, position, showPlayersWithNoStats }: 
               <TableHead
                 title={col.meta as string}
                 key={col.id}
-                className={`text-[12px] text-muted font-bold text-xs  ${col.id === 'displayName' ? 'text-left min-w-[150px]' : 'text-center'}`}
+                className={`text-[12px] text-muted text-center font-bold text-xs  ${col.id === 'displayName' ? 'text-left min-w-[150px]' : 'text-center'}`}
               >
                 {col.header as string}
               </TableHead>

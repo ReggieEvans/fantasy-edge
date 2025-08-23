@@ -16,7 +16,9 @@ const formatDateTime = (dateString: string, timeZone?: string) => {
   const date = new Date(dateString)
   const day = new Intl.DateTimeFormat('en-US', { weekday: 'long', timeZone }).format(date)
   const md = new Intl.DateTimeFormat('en-US', { month: 'numeric', day: 'numeric', timeZone }).format(date)
-  const time = new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone }).format(date)
+  const time = new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone }).format(
+    date,
+  )
   return `${day}, ${md}, ${time}`
 }
 
@@ -71,11 +73,12 @@ export default function Slate({ slate, onDeleteSlate }: SlateProps) {
 
         <div className="grid grid-cols-2 md:flex md:flex-row gap-4 md:gap-10 pt-4 text-xs uppercase">
           <Count label="Games" value={slate.gameCount} />
-          <Count label="Players Targeted" value={0} />
+          <Count label="Total Players" value={slate.playerCount} />
+          <Count label="Targeted Players" value={slate.targetCount} />
           <div>
-            <div className="text-muted-foreground">Projections</div>
-            <div className="mt-1">
-              {slate.projectionsSubmitted ? (
+            <div className="text-muted text-xs uppercase text-center font-bold">Projections</div>
+            <div className="mt-2 flex justify-center">
+              {slate.hasProjections ? (
                 <CheckCircle size={16} className="text-green-500" />
               ) : (
                 <XCircle size={16} className="text-destructive" />
@@ -104,14 +107,14 @@ export default function Slate({ slate, onDeleteSlate }: SlateProps) {
           </button>
         </Link>
         <div>
-          <div className="text-muted text-sm">Last Updated</div>
+          <div className="text-muted text-sm font-bold">Last Updated</div>
           <div className="text-sm">{formatDateTime(slate.min_start_time)}</div>
         </div>
       </div>
 
       {/* Mobile Last Updated */}
       <div className="md:hidden px-4 pb-4 text-xs">
-        <div className="text-muted">Last Updated</div>
+        <div className="text-muted font-bold">Last Updated</div>
         <div>{formatDateTime(slate.min_start_time)}</div>
       </div>
     </div>
@@ -121,8 +124,8 @@ export default function Slate({ slate, onDeleteSlate }: SlateProps) {
 function Count({ label, value }: { label: string; value: number | string }) {
   return (
     <div>
-      <div className="text-muted-foreground">{label}</div>
-      <div className="font-bold text-primary text-base">{value}</div>
+      <div className="text-muted text-xs uppercase text-center font-bold">{label}</div>
+      <div className="font-bold text-primary text-center text-lg">{value}</div>
     </div>
   )
 }

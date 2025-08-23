@@ -21,7 +21,7 @@ export interface TargetPlayerFormProps {
   existingTarget: Target | null
   onClose: () => void
   isUpdating: boolean
-  isSaving: boolean
+  isSaving?: boolean
   isRemoving: boolean
   handleRemoveTarget: () => void
 }
