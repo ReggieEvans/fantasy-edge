@@ -63,7 +63,6 @@ export default function PlayerPoolPage() {
   }
 
   const handleSubmitTarget = async (values: TargetPlayerFormValues) => {
-    console.log('values', values)
     try {
       const payload = {
         id: existingTarget?.id,
