@@ -1,23 +1,23 @@
-import { SupabaseClient } from "@supabase/supabase-js"
+import { SupabaseClient } from '@supabase/supabase-js'
 
-import { DkSlateSelection } from "@/app/(protected)/cfb/slate-manager/_types/dkSlate"
+import { DkSlateSelection } from '@/app/(protected)/cfb/slate-manager/_types/dkSlate'
 
 export async function buildSlatePlayers(
   supabase: SupabaseClient,
   slate: { id: string },
-  slateSelection: DkSlateSelection
+  slateSelection: DkSlateSelection,
 ) {
   try {
     const draftablesRes = await fetch(
-      `https://api.draftkings.com/draftgroups/v1/draftgroups/${slateSelection.draftGroupId}/draftables`
+      `https://api.draftkings.com/draftgroups/v1/draftgroups/${slateSelection.draftGroupId}/draftables`,
     )
     const draftables = await draftablesRes.json()
     const players = draftables.draftables
 
-    const { data: teams, error: teamErr } = await supabase.from('cfb_team_flat').select('id, abbreviation')
+    const { data: teams, error: teamErr } = await supabase.from('cfb_team_flat').select('id, draftkings_abbreviation')
     if (teamErr || !teams) throw new Error(`Failed to fetch teams: ${teamErr.message}`)
 
-    const teamMap = new Map(teams.map(t => [t.abbreviation.toUpperCase(), t.id]))
+    const teamMap = new Map(teams.map(t => [t.draftkings_abbreviation.toUpperCase(), t.id]))
 
     const playerRows = []
 

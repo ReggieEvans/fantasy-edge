@@ -1,12 +1,11 @@
-import { Edit, Layers, Trophy } from "lucide-react";
-import Image from "next/image";
+import { Edit, Layers } from 'lucide-react'
+import Image from 'next/image'
 
-import { TargetPool } from "../_types/targetPool";
-
+import { TargetPool } from '../../../_types/targetPool'
 
 interface Props {
-  target: TargetPool;
-  handleTargetingPlayer: (target: TargetPool) => void;
+  target: TargetPool
+  handleTargetingPlayer: (target: TargetPool) => void
 }
 
 export function TargetCard({ target, handleTargetingPlayer }: Props) {
@@ -14,7 +13,7 @@ export function TargetCard({ target, handleTargetingPlayer }: Props) {
     <div className="flex bg-card rounded-lg overflow-hidden">
       <div className="relative p-4">
         <Image
-          src={target.player_image || "/player.png"}
+          src={target.player_image || '/player.png'}
           width={100}
           height={100}
           alt="Player"
@@ -31,8 +30,7 @@ export function TargetCard({ target, handleTargetingPlayer }: Props) {
       <div className="w-[550px] pr-2 flex flex-col">
         <div className="flex justify-between items-end border-b border-background pt-4">
           <div className="text-2xl font-black uppercase text-foreground">
-            {target.first_name} {target.last_name}{" "}
-            <small className="text-muted">({target.team_abbreviation})</small>
+            {target.first_name} {target.last_name} <small className="text-muted">({target.team_abbreviation})</small>
           </div>
           <div className="flex">
             <button
@@ -48,7 +46,7 @@ export function TargetCard({ target, handleTargetingPlayer }: Props) {
           <div className="mr-5">
             <div className="text-[11px] uppercase text-muted">Salary</div>
             <div className="text-lg font-bold text-foreground">
-              ${target.salary.toLocaleString("en-US", { maximumFractionDigits: 0 })}
+              ${target.salary.toLocaleString('en-US', { maximumFractionDigits: 0 })}
             </div>
           </div>
           <div className="mr-5">
@@ -63,11 +61,9 @@ export function TargetCard({ target, handleTargetingPlayer }: Props) {
       </div>
 
       <div className="relative p-2 border-l-4 border-background flex flex-col justify-start">
-        <div className="text-sm font-bold text-foreground opacity-50 uppercase">
-          Notes
-        </div>
+        <div className="text-sm font-bold text-foreground opacity-50 uppercase">Notes</div>
         <div className="text-foreground">{target.target_notes}</div>
       </div>
     </div>
-  );
+  )
 }

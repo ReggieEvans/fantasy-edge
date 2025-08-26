@@ -1,6 +1,6 @@
 'use client'
 
-import { LayoutList } from 'lucide-react'
+import { Users } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
 
@@ -12,10 +12,10 @@ import { toast } from '@/hooks/use-toast'
 import { useGetTargetPoolQuery } from '../../_api/target-pool.api'
 import { useUpdateTargetMutation } from '../../_api/targets.api'
 import { useRemoveTargetMutation } from '../../_api/targets.api'
-import { TargetCard } from '../../_components/TargetCard'
 import TargetPlayerModal from '../../_components/TargetPlayerModal'
 import { TargetPlayerFormValues } from '../../_schema/targetForm.schema'
 import { TargetPool } from '../../_types/targetPool'
+import { TargetCard } from './components/TargetCard'
 
 type SortKey = 'target_type' | 'position' | 'salary' | 'projection'
 
@@ -63,7 +63,6 @@ export default function PlayerPoolPage() {
   }
 
   const handleSubmitTarget = async (values: TargetPlayerFormValues) => {
-    console.log('values', values)
     try {
       const payload = {
         id: existingTarget?.id,
@@ -96,7 +95,7 @@ export default function PlayerPoolPage() {
         <div className="flex flex-col justify-between mb-2 text-foreground">
           <div className="flex items-center gap-2 mb-2">
             <span>
-              <LayoutList size={20} />
+              <Users size={20} />
             </span>
             <h1 className="text-xl font-bold uppercase">Player Pool</h1>
           </div>
@@ -142,9 +141,9 @@ export default function PlayerPoolPage() {
           {isLoading ? (
             [...Array(3)].map((_, i) => <Skeleton key={i} className="h-32 w-full bg-card rounded animate-pulse" />)
           ) : targets?.length === 0 ? (
-            <div className="flex flex-col items-center justify-center max-w-[500px] mx-auto pt-10 space-y-2">
-              <h2 className="text-muted text-center text-lg font-bold">No targets found</h2>
-              <p className="text-muted text-center text-sm">
+            <div className="flex flex-col items-center justify-center max-w-[350px] mx-auto pt-24 space-y-2">
+              <h2 className="text-muted text-center text-lg font-bold opacity-70">No targets found</h2>
+              <p className="text-muted text-center text-sm opacity-50">
                 You currently have no targets in your player pool. You can add targets by clicking the target icon next
                 to a player on the matchup page.
               </p>

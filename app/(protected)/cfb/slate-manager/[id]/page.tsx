@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowLeft, Bolt } from 'lucide-react'
+import { ArrowLeft, Binoculars } from 'lucide-react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import React from 'react'
@@ -27,17 +27,17 @@ export default function MatchupsPage() {
         <div className="flex flex-col justify-between mb-2 text-foreground">
           <div className="flex items-center gap-2 mb-2">
             <span>
-              <Bolt size={20} />
+              <Binoculars size={20} />
             </span>
-            <h1 className="text-xl font-bold uppercase">Slate Manager</h1>
+            <h1 className="text-xl font-bold uppercase">Scouting Matchups</h1>
           </div>
           <p className="text-muted text-sm">
-            Choose a matchup, target players for your player pool, create rosters, view and export to draftkings.
+            Choose a game to scout the matchup and target players for your player pool.
           </p>
         </div>
       </div>
 
-      <div className="flex flex-col gap-8 px-6 py-4">
+      <div className="flex flex-col gap-8 px-6 py-4 max-h-[calc(100vh-300px)] overflow-y-auto">
         {isLoading ? (
           // Loading skeletons
           [...Array(3)].map((_, i) => <Skeleton key={i} className="h-48 w-full bg-card rounded animate-pulse" />)

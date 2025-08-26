@@ -12,9 +12,9 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Switch } from '@/components/ui/switch'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
-import { DiffRow } from '../../_components/DiffRow'
-import PlayerTable from '../../_components/PlayerTable'
-import TeamStatRow from '../../_components/TeamStatsRow'
+import { DiffRow } from './components/DiffRow'
+import PlayerTable from './components/PlayerTable'
+import TeamStatRow from './components/TeamStatsRow'
 
 export default function MatchupPage() {
   const [value, setValue] = useState('both')
@@ -58,7 +58,7 @@ export default function MatchupPage() {
             <h1 className="text-xl font-bold uppercase">Matchup</h1>
           </div>
         </div>
-        <p className="max-w-[1200px]">
+        <p className="max-w-[1200px] text-sm">
           The following stat breakdown provides insights into team performance and can help you identify key players for
           your lineup. See a good matchup? Scroll down and click the target icon next to a player to add them to your
           player pool.
@@ -68,7 +68,7 @@ export default function MatchupPage() {
       <div className="flex flex-col gap-8 py-4">
         {isLoading ? (
           // Loading skeletons
-          [...Array(2)].map((_, i) => (
+          [...Array(1)].map((_, i) => (
             <Skeleton key={i} className="h-[800px] w-[1400px] bg-card rounded animate-pulse" />
           ))
         ) : isError ? (

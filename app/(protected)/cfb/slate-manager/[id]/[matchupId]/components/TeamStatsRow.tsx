@@ -1,6 +1,6 @@
 import { getDefensiveDeltaGrade, getOffensiveDeltaGrade } from '@/utils/delta-grade'
 
-import { TeamStats } from '../_types/stats'
+import { TeamStats } from '../../../_types/stats'
 
 const TeamStatRow = ({
   stats,
