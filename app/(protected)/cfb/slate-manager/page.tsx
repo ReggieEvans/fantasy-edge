@@ -1,6 +1,6 @@
 'use client'
 
-import { List, Plus } from 'lucide-react'
+import { Bolt, Plus } from 'lucide-react'
 import { useState } from 'react'
 
 import { useGetSlatesQuery } from '@/app/(protected)/cfb/slate-manager/_api/slates.api'
@@ -27,11 +27,17 @@ export default function SlateManagerPage() {
   return (
     <div className="px-6 bg-background pt-8 min-h-[calc(100vh-90px)] overflow-y-auto">
       <div className="flex items-center justify-between mb-4 px-2">
-        <div className="flex items-center gap-2">
-          <span>
-            <List size={20} />
-          </span>
-          <h1 className="text-xl font-bold uppercase">Slates</h1>
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <span>
+              <Bolt size={20} />
+            </span>
+            <h1 className="text-xl font-bold uppercase">Slate Manager</h1>
+          </div>
+          <p className="text-muted text-sm">
+            Scout matchups and target players, refine your player pool, build optimized rosters, and export your final
+            lineups — all in one streamlined workflow.
+          </p>
         </div>
         <div>
           <button className="btn-accent flex items-center gap-2 rounded-full" onClick={() => setOpen(true)}>
@@ -43,14 +49,15 @@ export default function SlateManagerPage() {
       <div className="space-y-4">
         {isLoading ? (
           [...Array(3)].map((_, i) => <Skeleton key={i} className="h-32 w-full bg-card rounded animate-pulse" />)
-        ) : slates?.length === 0 ? <p>No slates found.</p> : (
-          slates?.map((slate: SlateType) => (
-            <Slate
-              key={slate.id}
-              slate={slate}
-              onDeleteSlate={onDeleteSlate}
-            />
-          ))
+        ) : slates?.length === 0 ? (
+          <div className="flex flex-col items-center justify-center max-w-[350px] mx-auto pt-24 space-y-2">
+            <h2 className="text-muted text-center text-lg font-bold opacity-70">No slates found</h2>
+            <p className="text-muted text-center text-sm opacity-50">
+              You currently have no slates. You can add slates by clicking the add slate button above.
+            </p>
+          </div>
+        ) : (
+          slates?.map((slate: SlateType) => <Slate key={slate.id} slate={slate} onDeleteSlate={onDeleteSlate} />)
         )}
       </div>
 

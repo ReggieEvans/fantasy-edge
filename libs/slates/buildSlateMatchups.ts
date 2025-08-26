@@ -1,7 +1,7 @@
-import { SupabaseClient } from "@supabase/supabase-js"
+import { SupabaseClient } from '@supabase/supabase-js'
 
-import { DkSlateSelection } from "@/app/(protected)/cfb/slate-manager/_types/dkSlate"
-import { getMarket,impliedTotals, norm, parseAbbrs, pickBook } from '@/libs/utils'
+import { DkSlateSelection } from '@/app/(protected)/cfb/slate-manager/_types/dkSlate'
+import { getMarket, impliedTotals, norm, parseAbbrs, pickBook } from '@/libs/utils'
 import { OddsGame } from '@/types/odds'
 
 const CFB_ODDS_API = `https://api.the-odds-api.com/v4/sports/americanfootball_ncaaf/odds/?apiKey=${process.env.ODDS_API_KEY}&regions=us&markets=spreads,totals&oddsFormat=american`
@@ -9,7 +9,7 @@ const CFB_ODDS_API = `https://api.the-odds-api.com/v4/sports/americanfootball_nc
 export async function buildSlateMatchups(
   supabase: SupabaseClient,
   slate: { id: string },
-  slateSelection: DkSlateSelection
+  slateSelection: DkSlateSelection,
 ) {
   try {
     const contestRes = await fetch(`https://api.draftkings.com/draftgroups/v1/${slateSelection.draftGroupId}`)
@@ -29,15 +29,30 @@ export async function buildSlateMatchups(
 
     for (const g of games) {
       const abbrs = parseAbbrs(g.description)
-      if (!abbrs) continue
+      if (!abbrs) {
+        console.log('Skipping game, could not parse abbrs:', g.description)
+        continue
+      }
 
       const home = teamByDkAbbr.get(abbrs.home)
       const away = teamByDkAbbr.get(abbrs.away)
-      if (!home || !away) continue
+      if (!home || !away) {
+        console.log('Skipping game, missing team mapping:', {
+          home: abbrs.home,
+          homeFound: !!home,
+          away: abbrs.away,
+          awayFound: !!away,
+        })
+        continue
+      }
 
       const oddsKey = `${norm(home.full_name)}__${norm(away.full_name)}`
       const og = oddsByMatch.get(oddsKey)
-      let home_team_spread = null, away_team_spread = null, game_total = null, home_team_total = null, away_team_total = null
+      let home_team_spread = null,
+        away_team_spread = null,
+        game_total = null,
+        home_team_total = null,
+        away_team_total = null
 
       if (og) {
         const book = pickBook(og)

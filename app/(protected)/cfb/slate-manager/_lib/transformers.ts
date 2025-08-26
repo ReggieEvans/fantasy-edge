@@ -1,4 +1,4 @@
-import { DkSlateDTO } from '../_dto/dkSlate.dto';
+import { DkSlateDTO } from '../_dto/dkSlate.dto'
 import { DkSlateSelection } from '../_types/dkSlate'
 
 export function toDkSlate(dkSlates: DkSlateDTO[]): DkSlateSelection[] {
@@ -6,13 +6,20 @@ export function toDkSlate(dkSlates: DkSlateDTO[]): DkSlateSelection[] {
 }
 
 export function transformSlate(dkSlate: DkSlateDTO): DkSlateSelection {
-    return {
-        draftGroupId: dkSlate.draftGroup.draftGroupId,
-        contestTypeId: dkSlate.draftGroup.contestType.contestTypeId,
-        sport: dkSlate.draftGroup.contestType.sport,
-        gameType: dkSlate.draftGroup.contestType.gameType,
-        minStartTime: dkSlate.draftGroup.minStartTime,
-        maxStartTime: dkSlate.draftGroup.maxStartTime,
-        startTimeSuffix: dkSlate.draftGroup.startTimeSuffix,
-    }
+  return {
+    draftGroupId: dkSlate.draftGroup.draftGroupId,
+    contestTypeId: dkSlate.draftGroup.contestType.contestTypeId,
+    sport: dkSlate.draftGroup.contestType.sport,
+    gameType: dkSlate.draftGroup.contestType.gameType,
+    minStartTime: dkSlate.draftGroup.minStartTime,
+    maxStartTime: dkSlate.draftGroup.maxStartTime,
+    startTimeSuffix: dkSlate.draftGroup.startTimeSuffix,
+    leagues: dkSlate.draftGroup.leagues.map(league => ({
+      leagueName: league.leagueName,
+    })),
+    allTags: dkSlate.draftGroup.allTags,
+    games: dkSlate.draftGroup.games.map(game => ({
+      gameId: game.gameId,
+    })),
+  }
 }

@@ -16,10 +16,10 @@ import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { toast } from '@/hooks/use-toast'
 
-import { TargetPlayerFormValues } from '../_schema/targetForm.schema'
-import { Target } from '../_types/target'
-import { baseColumns, quarterbackColumns, runningbackColumns, widereceiverColumns } from '../[id]/[matchupId]/columns'
-import TargetPlayerModal from './TargetPlayerModal'
+import TargetPlayerModal from '../../../_components/TargetPlayerModal'
+import { TargetPlayerFormValues } from '../../../_schema/targetForm.schema'
+import { Target } from '../../../_types/target'
+import { baseColumns, quarterbackColumns, runningbackColumns, widereceiverColumns } from '../columns'
 
 interface Props {
   data: Player[]

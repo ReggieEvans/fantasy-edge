@@ -27,7 +27,7 @@ const roboto = localFont({
       style: 'normal',
     },
     {
-      path: './fonts/roboto-semibold.ttf',
+      path: './fonts/roboto-bold.ttf',
       weight: '600',
       style: 'bold',
     },

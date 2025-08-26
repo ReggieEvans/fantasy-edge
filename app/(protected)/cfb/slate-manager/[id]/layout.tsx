@@ -1,6 +1,6 @@
 'use client'
 
-import { Grid2X2, LayoutList, Target, Users } from 'lucide-react'
+import { Binoculars, ClipboardCheck, Hammer, Users } from 'lucide-react'
 import Link from 'next/link'
 import { useParams, usePathname } from 'next/navigation'
 import { ReactNode } from 'react'
@@ -14,23 +14,23 @@ interface NavLink {
 const NAVIGATION_LINKS: NavLink[] = [
   {
     href: '',
-    label: 'Matchups',
-    icon: <Target size={22} />,
+    label: 'Scout',
+    icon: <Binoculars size={22} />,
   },
   {
     href: '/player-pool',
     label: 'Pool',
-    icon: <LayoutList size={22} />,
-  },
-  {
-    href: '/roster-creation',
-    label: 'Create',
     icon: <Users size={22} />,
   },
   {
+    href: '/roster-creation',
+    label: 'Build',
+    icon: <Hammer size={22} />,
+  },
+  {
     href: '/roster-view',
-    label: 'View',
-    icon: <Grid2X2 size={22} />,
+    label: 'Export',
+    icon: <ClipboardCheck size={22} />,
   },
 ]
 
@@ -60,11 +60,9 @@ export default function SlateLayout({ children }: { children: React.ReactNode })
           : 'text-muted border-transparent hover:bg-background hover:text-foreground hover:border-accent'
       }`}
     >
-      <div className={`flex flex-col items-center space-y-2 ${
-        isLinkActive(href)
-          ? 'text-accent'
-          : 'text-muted'
-      }`}>{icon} <span className="text-xs text-foreground">{label}</span></div>
+      <div className={`flex flex-col items-center space-y-2 ${isLinkActive(href) ? 'text-accent' : 'text-muted'}`}>
+        {icon} <span className="text-xs text-foreground">{label}</span>
+      </div>
     </Link>
   )
 

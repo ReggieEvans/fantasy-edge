@@ -8,7 +8,7 @@ export const dkApi = baseApi.injectEndpoints({
     getDkSlates: builder.query<DkSlateSelection[], void>({
       query: () => '/api/dkSlates',
       transformResponse: (res: DkSlateDTO[]) => toDkSlate(res),
-      providesTags: ['DkSlates'],
+      providesTags: ['Slates'],
     }),
   }),
 })

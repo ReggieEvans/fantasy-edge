@@ -18,26 +18,31 @@ export const GET = async () => {
   }
 
   // Get all DK contest by sport
-  const contestsResponse = await fetch(
-    'https://www.draftkings.com/lobby/getcontests?sport=CFB'
-  )
-  const contests: DkContestsResponseDTO = await contestsResponse.json();
+  const contestsResponse = await fetch('https://www.draftkings.com/lobby/getcontests?sport=CFB')
+  const contests: DkContestsResponseDTO = await contestsResponse.json()
 
   // Get all slateIds (groupIds) by gameType
-  const groupIdList: number[] = [];
+  const groupIdList: number[] = []
   contests['Contests'].forEach((contest: DkContestDTO) => {
-    if (!groupIdList.includes(contest['dg']) && contest['gameType'] === "Classic") {
-      groupIdList.push(contest['dg']);
+    if (!groupIdList.includes(contest['dg']) && contest['gameType'] === 'Classic') {
+      groupIdList.push(contest['dg'])
     }
-  });
+  })
 
-   // Get each slate by slateId
-   const slates: DkSlateDTO[] = await Promise.all(
-    groupIdList.map(async (id) => {
-      const res = await fetch(`https://api.draftkings.com/draftgroups/v1/${id}`);
-      return (await res.json()) as DkSlateDTO;
-    })
-  );
+  // Get all DK group IDs the user already has
+  const { data: existingSlates } = await supabase.from('user_slates').select('dk_draft_group_id').eq('user_id', user.id)
 
-  return NextResponse.json(slates);
+  const existingIds = new Set(existingSlates?.map(s => s.dk_draft_group_id) ?? [])
+
+  //Only fetch slates the user doesn’t already have
+  const newGroupIds = groupIdList.filter(id => !existingIds.has(id))
+
+  const slates: DkSlateDTO[] = await Promise.all(
+    newGroupIds.map(async id => {
+      const res = await fetch(`https://api.draftkings.com/draftgroups/v1/${id}`)
+      return (await res.json()) as DkSlateDTO
+    }),
+  )
+
+  return NextResponse.json(slates)
 }

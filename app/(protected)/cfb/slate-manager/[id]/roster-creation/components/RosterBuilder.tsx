@@ -1,0 +1,170 @@
+import { Hammer, Lock, X } from 'lucide-react'
+import React, { useEffect } from 'react'
+import { Controller, useForm } from 'react-hook-form'
+
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Separator } from '@/components/ui/separator'
+import { ROSTER_SLOTS } from '@/constants/slots'
+
+import { TargetPool } from '../../../_types/targetPool'
+
+const SALARY_CAP = 50000
+
+interface RosterBuilderProps {
+  showProjections: boolean
+  roster: Record<string, TargetPool | null>
+  setRoster: React.Dispatch<React.SetStateAction<Record<string, TargetPool | null>>>
+  restorePlayerToPool: (player: TargetPool) => void
+  userTargets: TargetPool[]
+  setPlayerPool: (playerPool: TargetPool[]) => void
+}
+
+export default function RosterBuilder({
+  showProjections,
+  roster,
+  setRoster,
+  restorePlayerToPool,
+  userTargets,
+  setPlayerPool,
+}: RosterBuilderProps) {
+  const slots = ROSTER_SLOTS['CFB'] || []
+
+  const { control, reset, handleSubmit, watch, setValue } = useForm<Record<string, TargetPool | null>>({
+    defaultValues: Object.fromEntries(slots?.map(s => [s.key, null]) ?? []),
+  })
+
+  const values = watch()
+
+  useEffect(() => {
+    if (!roster || Object.keys(roster).length === 0) return
+    Object.entries(roster).forEach(([key, player]) => {
+      setValue(key, player as TargetPool | null)
+    })
+  }, [roster, setValue])
+
+  const onSubmit = (data: Record<string, TargetPool | null>) => {
+    console.log('Submit Roster', data)
+  }
+
+  const getName = (first_name: string, last_name: string) => {
+    if (!first_name || !last_name) return ''
+    return first_name + ' ' + last_name
+  }
+
+  const totalSalary = Object.values(values).reduce((sum, player) => sum + (player?.salary || 0), 0)
+  const totalProjection = Object.values(values).reduce((sum, player) => sum + (player?.projection || 0), 0)
+  const isOverCap = totalSalary > SALARY_CAP
+  const isIncomplete = Object.values(values).some(player => player == null)
+
+  return (
+    <div className="py-4">
+      <h4 className="uppercase font-semibold mb-2 flex items-center text-sm">
+        <Hammer className="w-4 h-4 mr-2" /> Roster Construction
+      </h4>
+      <Separator className="bg-accent mb-4" />
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div className="mb-8">
+          <p className="text-[11px] text-muted uppercase font-bold mb-1">Roster Name</p>
+          <Input type="text" placeholder="e.g. Cash game roster (optional)" className="text-xs my-2" />
+        </div>
+        <div className="space-y-2">
+          {slots?.map(slot => (
+            <Controller
+              key={slot.key}
+              name={slot.key}
+              control={control}
+              render={({ field }) => (
+                <div className="flex items-center bg-background-secondary px-3 rounded text-sm">
+                  <div className="w-20 font-bold text-center">{slot.position}</div>
+                  <div className="w-[4px] h-[56px] bg-background mx-2" />
+                  <div className="flex flex-col w-full">
+                    <input
+                      type="text"
+                      value={getName(field.value?.first_name || '', field.value?.last_name || '')}
+                      readOnly
+                      className="bg-transparent border-none w-full text-foreground px-2 pointer-events-none"
+                    />
+                    {field.value && (
+                      <p className="px-2 text-xs text-muted">
+                        {field.value?.position} — {field.value?.team_name}
+                      </p>
+                    )}
+                  </div>
+                  <div className="w-14 text-center pr-4">
+                    {showProjections && field.value ? (
+                      (field.value?.projection ?? '-')
+                    ) : !showProjections && field.value ? (
+                      <Lock className="w-3 h-3 mx-auto text-muted" />
+                    ) : null}
+                  </div>
+                  <div className="w-24 text-center">
+                    {field.value?.salary ? `$${field.value.salary.toLocaleString('en-US')}` : null}
+                  </div>
+                  <div className="w-24 text-center">
+                    {field.value && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setValue(slot.key, null)
+                          setRoster(prev => {
+                            const copy = { ...prev }
+                            delete copy[slot.key]
+                            return copy
+                          })
+                          if (field.value) {
+                            restorePlayerToPool(field.value)
+                          }
+                        }}
+                        className="bg-background-darker border border-destructive opacity-80 font-black py-1.5 px-2.5 rounded transition-all duration-300 hover:opacity-100"
+                      >
+                        <X className="w-4 h-4 text-destructive" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+            />
+          ))}
+        </div>
+
+        <div className="flex justify-between gap-4 mt-6 items-center">
+          <div className={`px-2 text-sm font-bold ${isOverCap ? 'text-destructive' : 'text-foreground'}`}>
+            <div className="flex flex-col items-start gap-1">
+              <div className="text-lg">Total Salary: ${totalSalary.toLocaleString('en-US')}</div>
+              <div className="text-sm text-muted">Remaining: ${(SALARY_CAP - totalSalary).toLocaleString('en-US')}</div>
+            </div>
+          </div>
+          <div className="flex gap-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                reset()
+                setRoster({})
+                setPlayerPool(userTargets)
+              }}
+              className="hover:bg-background hover:text-destructive"
+            >
+              Clear Roster
+            </Button>
+            <Button className="btn-accent" type="submit" disabled={isOverCap || isIncomplete}>
+              Save Roster
+            </Button>
+          </div>
+        </div>
+
+        <div className="mt-4 text-xs flex justify-end gap-6 text-muted-foreground">
+          <div className="flex items-center gap-1">
+            <span className="text-muted font-bold">Ownership:</span>{' '}
+            {showProjections ? 'N/A' : <Lock className="inline w-3 h-3" />}
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="text-muted font-bold">Projection:</span>{' '}
+            {showProjections ? totalProjection.toFixed(1) : <Lock className="inline w-3 h-3" />}
+          </div>
+        </div>
+      </form>
+    </div>
+  )
+}
