@@ -48,7 +48,20 @@ export default function PlayerTable({ data, position, showPlayersWithNoStats }: 
     return true
   }
 
-  const filteredData = showPlayersWithNoStats ? data : data.filter(hasStats)
+  const withStats = data.filter(hasStats)
+
+  // Return atleast 2 players even if they have no stats
+  const filteredData = showPlayersWithNoStats
+    ? data
+    : withStats.length >= 2
+      ? withStats
+      : [
+          ...withStats,
+          ...data
+            .filter(p => !withStats.includes(p))
+            .sort((a, b) => (b.salary ?? 0) - (a.salary ?? 0))
+            .slice(0, 2 - withStats.length),
+        ]
 
   const handleTargetingPlayer = (player: Player) => {
     setSelectedPlayer(player)

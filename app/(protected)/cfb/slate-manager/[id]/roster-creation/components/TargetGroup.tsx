@@ -51,8 +51,11 @@ export default function TargetGroup({
   showGroups,
   addPlayerToRoster,
 }: TargetGroupProps) {
-  const Icon = ICONS[icon] || Zap
-  const filteredTargets = targets.filter(t => t.target_type === type)
+  const Icon = ICONS[icon]
+  const filteredTargets =
+    type === 'none'
+      ? targets.filter(t => !t.target_type) // catches null, undefined, ''
+      : targets.filter(t => t.target_type === type)
 
   if (!filteredTargets.length) return null
 

@@ -57,8 +57,8 @@ export default function RosterCreation() {
             <h1 className="text-xl font-bold uppercase">Roster Builder</h1>
           </div>
           <p className="text-muted text-sm">
-            The player pool is a list of players that you have targeted for your slate. From here you can filter, sort,
-            edit and delete targets in your pool.
+            The roster builder is a tool that allows you to tinker with roster construction for a the current slate.
+            Using the player pool you assembled, you can create and save rosters to view, compare and export.
           </p>
         </div>
         <div className="lg:flex hidden">
@@ -80,7 +80,7 @@ export default function RosterCreation() {
         </div>
         <div className="lg:hidden">
           <div className="text-lg font-bold text-muted text-center py-24">
-            We recommend building your roster in a desktop browser.
+            We recommend building your rosters in a desktop browser.
           </div>
         </div>
         <QuickTargetModal open={showQuickTargetsModal} onClose={() => setShowQuickTargetsModal(false)} />
