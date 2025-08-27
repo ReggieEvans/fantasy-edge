@@ -112,39 +112,51 @@ export default function TargetPool({
           ))}
         </TabsList>
 
-        {tabs.map(tab => (
-          <TabsContent
-            key={tab.id}
-            value={String(tab.id)}
-            className={`mt-4 ${showGroups ? 'space-y-6' : 'space-y-2'} max-h-[500px] overflow-y-auto`}
-          >
-            {isLoading ? (
-              <div className="flex flex-col gap-2">
-                <p className="flex items-center text-sm text-muted">
-                  <Loader className="w-4 h-4 mr-2 animate-spin" /> Loading player pool...
-                </p>
-                {Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i} className="h-12 bg-background-secondary rounded animate-pulse" />
-                ))}
-              </div>
-            ) : isError ? (
-              <div className="text-sm text-destructive font-semibold p-4 rounded bg-muted">
-                Failed to load player pool. Please try again later.
-              </div>
-            ) : (
-              <>
-                <TargetGroup label="Top Plays" icon="top" type="top" targets={filteredTargets} {...groupProps} />
-                <TargetGroup label="Cash" icon="dollar-sign" type="cash" targets={filteredTargets} {...groupProps} />
-                <TargetGroup label="Lock" icon="lock" type="lock" targets={filteredTargets} {...groupProps} />
-                <TargetGroup label="GPP" icon="trophy" type="gpp" targets={filteredTargets} {...groupProps} />
-                <TargetGroup label="Fade" icon="fade" type="fade" targets={filteredTargets} {...groupProps} />
-                <TargetGroup label="Pivot" icon="pivot" type="pivot" targets={filteredTargets} {...groupProps} />
-                <TargetGroup label="Injury" icon="ambulance" type="injury" targets={filteredTargets} {...groupProps} />
-                <TargetGroup label="No Type" icon="none" type="none" targets={filteredTargets} {...groupProps} />
-              </>
-            )}
-          </TabsContent>
-        ))}
+        {tabs.map(tab => {
+          const tabLabel = tab.label
+          const tabValue = String(tab.id)
+          const targetsForTab =
+            tabValue === '0' ? filteredTargets : filteredTargets.filter(p => p.position === tabLabel)
+
+          return (
+            <TabsContent
+              key={tab.id}
+              value={tabValue}
+              className={`mt-4 ${showGroups ? 'space-y-6' : 'space-y-2'} max-h-[500px] overflow-y-auto`}
+            >
+              {isLoading ? (
+                <div className="flex flex-col gap-2">
+                  <p className="flex items-center text-sm text-muted">
+                    <Loader className="w-4 h-4 mr-2 animate-spin" /> Loading player pool...
+                  </p>
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <div key={i} className="h-12 bg-background-secondary rounded animate-pulse" />
+                  ))}
+                </div>
+              ) : isError ? (
+                <div className="text-sm text-destructive font-semibold p-4 rounded bg-muted">
+                  Failed to load player pool. Please try again later.
+                </div>
+              ) : targetsForTab.length === 0 ? (
+                <div className="text-muted-foreground text-center text-sm py-4">
+                  No players available for this position.
+                </div>
+              ) : (
+                <>
+                  <TargetGroup label="Top Plays" icon="top" type="top" targets={targetsForTab} {...groupProps} />
+                  <TargetGroup label="Cash" icon="dollar-sign" type="cash" targets={targetsForTab} {...groupProps} />
+                  <TargetGroup label="Lock" icon="lock" type="lock" targets={targetsForTab} {...groupProps} />
+                  <TargetGroup label="GPP" icon="trophy" type="gpp" targets={targetsForTab} {...groupProps} />
+                  <TargetGroup label="Fade" icon="fade" type="fade" targets={targetsForTab} {...groupProps} />
+                  <TargetGroup label="Pivot" icon="pivot" type="pivot" targets={targetsForTab} {...groupProps} />
+                  <TargetGroup label="Injury" icon="ambulance" type="injury" targets={targetsForTab} {...groupProps} />
+                  <TargetGroup label="No Type" icon="none" type="none" targets={targetsForTab} {...groupProps} />
+                  <TargetGroup label="Bargain" icon="bargain" type="bargain" targets={targetsForTab} {...groupProps} />
+                </>
+              )}
+            </TabsContent>
+          )
+        })}
       </Tabs>
     </div>
   )
