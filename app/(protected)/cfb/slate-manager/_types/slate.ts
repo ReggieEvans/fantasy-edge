@@ -12,5 +12,5 @@ export interface Slate {
   user_id: string
   targetCount: number
   playerCount: number
-  hasProjections: boolean
+  has_projections: boolean
 }
