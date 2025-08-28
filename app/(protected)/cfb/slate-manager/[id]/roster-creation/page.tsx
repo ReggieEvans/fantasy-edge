@@ -2,7 +2,7 @@
 
 import { Hammer } from 'lucide-react'
 import { useParams } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { toast } from '@/hooks/use-toast'
 
@@ -27,29 +27,45 @@ export default function RosterCreation() {
   const { data: userTargets = [], isLoading, isError } = useGetTargetPoolQuery(id)
   const [addTarget] = useAddTargetMutation()
 
+  const rosteredIds = useMemo(() => {
+    // roster: Record<string, TargetPoolType | null>
+    // If a slot can hold arrays, flatten here.
+    const vals = Object.values(roster).filter(Boolean) as TargetPoolType[]
+    return new Set(vals.map(v => v.player_id))
+  }, [roster])
+
   useEffect(() => {
     if (!userTargets) return
 
     setPlayerPool(prev => {
-      // first load: take server as base
+      // First load: take server as base minus rostered
       if (!hasInitialized.current) {
         hasInitialized.current = true
-        return userTargets
+        return userTargets.filter(t => !rosteredIds.has(t.player_id))
       }
-      // later loads: append only items we don't already have
-      const have = new Set(prev.map(t => t.id ?? t.player_id))
-      const additions = userTargets.filter(t => !have.has(t.id ?? t.player_id))
+
+      // Later loads: append only net-new AND not rostered
+      const have = new Set(prev.map(t => t.player_id))
+      const additions = userTargets.filter(t => !have.has(t.player_id) && !rosteredIds.has(t.player_id))
+
       return additions.length ? [...prev, ...additions] : prev
     })
-  }, [userTargets])
+  }, [userTargets, rosteredIds])
+
+  useEffect(() => {
+    setPlayerPool(prev => prev.filter(p => !rosteredIds.has(p.player_id)))
+  }, [rosteredIds])
 
   const restorePlayerToPool = (player: TargetPoolType) => {
     setPlayerPool(prev => {
-      // Create a new set of IDs
-      const newSet = [...prev, player].map(p => p.player_id)
+      // if userTargets contains the player and they aren't rostered, re-add while preserving order
+      const idSet = new Set(prev.map(p => p.player_id))
+      if (rosteredIds.has(player.player_id) || idSet.has(player.player_id)) return prev
 
-      // Preserve original order
-      return userTargets.filter(p => newSet.includes(p.player_id))
+      const merged = [...prev, player]
+      const order = new Map(userTargets.map((p, i) => [p.player_id, i]))
+      merged.sort((a, b) => (order.get(a.player_id) ?? 1e9) - (order.get(b.player_id) ?? 1e9))
+      return merged
     })
   }
 
