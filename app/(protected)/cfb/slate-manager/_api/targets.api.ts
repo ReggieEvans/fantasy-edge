@@ -13,7 +13,7 @@ export const targetsApi = baseApi.injectEndpoints({
         method: 'POST',
         body: player,
       }),
-      invalidatesTags: ['Targets'],
+      invalidatesTags: ['Targets', 'SlatePlayers'],
     }),
     updateTarget: builder.mutation<Target, Partial<Target>>({
       query: payload => ({
@@ -28,7 +28,7 @@ export const targetsApi = baseApi.injectEndpoints({
         url: `/api/targets/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: ['Targets'],
+      invalidatesTags: ['Targets', 'SlatePlayers'],
     }),
   }),
 })

@@ -4,6 +4,9 @@ import { Hammer } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
+import { toast } from '@/hooks/use-toast'
+
+import { useAddTargetMutation } from '../../_api'
 import { useGetTargetPoolQuery } from '../../_api/target-pool.api'
 import QuickTargetModal from '../../_components/QuickTargetModal'
 import { TargetPool as TargetPoolType } from '../../_types/targetPool'
@@ -19,14 +22,25 @@ export default function RosterCreation() {
   const [roster, setRoster] = useState({})
   const [playerPool, setPlayerPool] = useState<TargetPoolType[]>([])
   const hasInitialized = useRef(false)
+  const [addingIds, setAddingIds] = useState<Set<number>>(new Set())
 
   const { data: userTargets = [], isLoading, isError } = useGetTargetPoolQuery(id)
+  const [addTarget] = useAddTargetMutation()
 
   useEffect(() => {
-    if (!hasInitialized.current && userTargets?.length) {
-      setPlayerPool(userTargets)
-      hasInitialized.current = true
-    }
+    if (!userTargets) return
+
+    setPlayerPool(prev => {
+      // first load: take server as base
+      if (!hasInitialized.current) {
+        hasInitialized.current = true
+        return userTargets
+      }
+      // later loads: append only items we don't already have
+      const have = new Set(prev.map(t => t.id ?? t.player_id))
+      const additions = userTargets.filter(t => !have.has(t.id ?? t.player_id))
+      return additions.length ? [...prev, ...additions] : prev
+    })
   }, [userTargets])
 
   const restorePlayerToPool = (player: TargetPoolType) => {
@@ -37,6 +51,41 @@ export default function RosterCreation() {
       // Preserve original order
       return userTargets.filter(p => newSet.includes(p.player_id))
     })
+  }
+
+  const onTargetPlayer = async player => {
+    const id = player.player_id
+    setAddingIds(prev => new Set(prev).add(id))
+
+    try {
+      const payload = {
+        id: player?.id,
+        player_id: player?.player_id,
+        slate_id: player?.slate_id,
+        target_type: undefined,
+        stack_candidate: false,
+        target_notes: '',
+      }
+
+      await addTarget(payload).unwrap()
+      toast({
+        title: 'Target Added Successfully!',
+        description: `${player?.full_name} has been added to player pool.`,
+        variant: 'default',
+      })
+    } catch {
+      toast({
+        title: 'Error Targeting Player',
+        description: `There was an error targeting the player.`,
+        variant: 'destructive',
+      })
+    } finally {
+      setAddingIds(prev => {
+        const next = new Set(prev)
+        next.delete(id)
+        return next
+      })
+    }
   }
 
   const targetPoolProps = {
@@ -83,7 +132,13 @@ export default function RosterCreation() {
             We recommend building your rosters in a desktop browser.
           </div>
         </div>
-        <QuickTargetModal slateId={id} open={showQuickTargetsModal} onClose={() => setShowQuickTargetsModal(false)} />
+        <QuickTargetModal
+          slateId={id}
+          open={showQuickTargetsModal}
+          onClose={() => setShowQuickTargetsModal(false)}
+          onTargetPlayer={onTargetPlayer}
+          addingIds={addingIds}
+        />
       </div>
     </div>
   )

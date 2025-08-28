@@ -1,4 +1,3 @@
-// GET /api/slates/:id/players?q=&position=&page=&pageSize=&maxSalary=&includeAllSalaries=
 import { NextResponse } from 'next/server'
 
 import { createServerSupabaseClient } from '@/libs/supabase/server'
@@ -36,9 +35,25 @@ export const GET = async (req: Request, { params }: { params: Promise<{ id: stri
   // 2) build base query
   let query = supabase
     .from('slate_players')
-    .select('*', { count: 'exact' }) // returns total count for UI
+    .select(
+      `
+    id,
+    player_id,
+    full_name,
+    position,
+    salary,
+    slate_id,
+    projection,
+    team_id,
+    team:teams!slate_players_team_id_fkey (
+      id,
+      full_name
+    )
+  `,
+      { count: 'exact' },
+    )
     .eq('slate_id', slateId)
-    .order('salary', { ascending: false }) // salary DESC
+    .order('salary', { ascending: false })
 
   // 3) filters
   if (position) query = query.eq('position', position)

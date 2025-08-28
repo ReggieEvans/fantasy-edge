@@ -7,7 +7,8 @@ export const playersApi = baseApi.injectEndpoints({
         url: `/api/players/${id}/quick-targets`,
         method: 'GET',
       }),
-      providesTags: ['QuickTargets'],
+      providesTags: ['SlatePlayers'],
+      keepUnusedDataFor: 0,
     }),
   }),
 })

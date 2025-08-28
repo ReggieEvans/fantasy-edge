@@ -8,21 +8,9 @@ type PlayersResponse = {
   hasMore: boolean
 }
 
-export function useSlatePlayers({
-  slateId,
-  q,
-  position,
-  includeAllSalaries,
-  maxSalary,
-}: {
-  slateId: string
-  q: string
-  position: string
-  includeAllSalaries: boolean
-  maxSalary: number | null
-}) {
+export function useSlatePlayers({ slateId, q, position }: { slateId: string; q: string; position: string }) {
   return useInfiniteQuery({
-    queryKey: ['slatePlayers', slateId, q, position, includeAllSalaries, maxSalary],
+    queryKey: ['slatePlayers', slateId, q, position],
     queryFn: async ({ pageParam = 1 }): Promise<PlayersResponse> => {
       const params = new URLSearchParams({
         page: String(pageParam),
@@ -31,15 +19,15 @@ export function useSlatePlayers({
       if (q) params.set('q', q)
       const positionParam = position === 'all' ? '' : position
       params.set('position', positionParam)
-      params.set('includeAllSalaries', includeAllSalaries ? 'true' : 'false')
-      if (!includeAllSalaries && maxSalary != null) params.set('maxSalary', String(maxSalary))
 
       const res = await fetch(`/api/players/${slateId}/quick-targets?` + params.toString())
       if (!res.ok) throw new Error('Failed to fetch players')
       return res.json()
     },
     getNextPageParam: lastPage => (lastPage.hasMore ? lastPage.page + 1 : undefined),
-    keepPreviousData: true,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
     staleTime: 30_000,
+    initialPageParam: 1,
   })
 }

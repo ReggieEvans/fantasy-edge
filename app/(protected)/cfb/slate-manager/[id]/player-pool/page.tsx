@@ -1,17 +1,19 @@
 'use client'
 
-import { Users } from 'lucide-react'
+import { PlusCircle, Users } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
 
+import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import useTargetPoolControls from '@/hooks/use-target-pool-controls'
 import { toast } from '@/hooks/use-toast'
 
 import { useGetTargetPoolQuery } from '../../_api/target-pool.api'
-import { useUpdateTargetMutation } from '../../_api/targets.api'
+import { useAddTargetMutation, useUpdateTargetMutation } from '../../_api/targets.api'
 import { useRemoveTargetMutation } from '../../_api/targets.api'
+import QuickTargetModal from '../../_components/QuickTargetModal'
 import TargetPlayerModal from '../../_components/TargetPlayerModal'
 import { TargetPlayerFormValues } from '../../_schema/targetForm.schema'
 import { TargetPool } from '../../_types/targetPool'
@@ -26,7 +28,10 @@ export default function PlayerPoolPage() {
   const [existingTarget, setExistingTarget] = useState<TargetPool | null>(null)
   const [updateTarget, { isLoading: isUpdating }] = useUpdateTargetMutation()
   const [removeTarget, { isLoading: isRemoving }] = useRemoveTargetMutation()
+  const [showQuickTargetsModal, setShowQuickTargetsModal] = useState(false)
+  const [addingIds, setAddingIds] = useState<Set<number>>(new Set())
   const { data: targets, isLoading } = useGetTargetPoolQuery(id)
+  const [addTarget] = useAddTargetMutation()
 
   const { filterPosition, setFilterPosition, sortKey, setSortKey, groupedTargets } = useTargetPoolControls(
     targets || [],
@@ -58,6 +63,41 @@ export default function PlayerPoolPage() {
         title: 'Error Removing Target',
         description: `There was an error removing the target.`,
         variant: 'destructive',
+      })
+    }
+  }
+
+  const onTargetPlayer = async player => {
+    const id = player.player_id
+    setAddingIds(prev => new Set(prev).add(id))
+
+    try {
+      const payload = {
+        id: player?.id,
+        player_id: player?.player_id,
+        slate_id: player?.slate_id,
+        target_type: undefined,
+        stack_candidate: false,
+        target_notes: '',
+      }
+
+      await addTarget(payload).unwrap()
+      toast({
+        title: 'Target Added Successfully!',
+        description: `${player?.full_name} has been added to player pool.`,
+        variant: 'default',
+      })
+    } catch {
+      toast({
+        title: 'Error Targeting Player',
+        description: `There was an error targeting the player.`,
+        variant: 'destructive',
+      })
+    } finally {
+      setAddingIds(prev => {
+        const next = new Set(prev)
+        next.delete(id)
+        return next
       })
     }
   }
@@ -105,35 +145,46 @@ export default function PlayerPoolPage() {
           </p>
         </div>
         {/* Filters */}
-        <div className="flex gap-4 my-4">
-          <Select
-            value={filterPosition ?? 'all'}
-            onValueChange={value => setFilterPosition(value === 'all' ? null : value)}
-          >
-            <SelectTrigger className="w-[180px] text-foreground">
-              <SelectValue placeholder="All Positions" />
-            </SelectTrigger>
-            <SelectContent className="bg-background">
-              <SelectItem value="all">All Positions</SelectItem>
-              {[...new Set(targets?.map(t => t.position) ?? [])].map(pos => (
-                <SelectItem key={pos} value={pos}>
-                  {pos}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="flex items-center justify-between">
+          <div className="flex gap-4 my-4">
+            <Select
+              value={filterPosition ?? 'all'}
+              onValueChange={value => setFilterPosition(value === 'all' ? null : value)}
+            >
+              <SelectTrigger className="w-[180px] text-foreground">
+                <SelectValue placeholder="All Positions" />
+              </SelectTrigger>
+              <SelectContent className="bg-background">
+                <SelectItem value="all">All Positions</SelectItem>
+                {[...new Set(targets?.map(t => t.position) ?? [])].map(pos => (
+                  <SelectItem key={pos} value={pos}>
+                    {pos}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-          <Select value={sortKey} onValueChange={value => setSortKey(value as SortKey)}>
-            <SelectTrigger className="w-[180px] text-foreground">
-              <SelectValue placeholder="Sort By" />
-            </SelectTrigger>
-            <SelectContent className="bg-background">
-              <SelectItem value="target_type">Target Type</SelectItem>
-              <SelectItem value="position">Position</SelectItem>
-              <SelectItem value="salary">Salary</SelectItem>
-              <SelectItem value="projection">Projection</SelectItem>
-            </SelectContent>
-          </Select>
+            <Select value={sortKey} onValueChange={value => setSortKey(value as SortKey)}>
+              <SelectTrigger className="w-[180px] text-foreground">
+                <SelectValue placeholder="Sort By" />
+              </SelectTrigger>
+              <SelectContent className="bg-background">
+                <SelectItem value="target_type">Target Type</SelectItem>
+                <SelectItem value="position">Position</SelectItem>
+                <SelectItem value="salary">Salary</SelectItem>
+                <SelectItem value="projection">Projection</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowQuickTargetsModal(true)}
+            className="px-6 py-4 duration-300 text-foreground transition-colors hover:text-foreground hover:bg-background-secondary"
+          >
+            <PlusCircle className="w-4 h-4 mr-2 text-accent" /> Quick Target
+          </Button>
         </div>
 
         {/* Render groups */}
@@ -175,6 +226,14 @@ export default function PlayerPoolPage() {
         isRemoving={isRemoving}
         handleSubmitTarget={handleSubmitTarget}
         handleRemoveTarget={handleRemoveTarget}
+      />
+
+      <QuickTargetModal
+        slateId={id}
+        open={showQuickTargetsModal}
+        onClose={() => setShowQuickTargetsModal(false)}
+        onTargetPlayer={onTargetPlayer}
+        addingIds={addingIds}
       />
     </div>
   )

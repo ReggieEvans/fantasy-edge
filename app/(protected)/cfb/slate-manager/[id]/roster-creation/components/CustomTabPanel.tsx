@@ -22,19 +22,28 @@ export default function CustomTabPanel({ target, showProjections, addPlayerToRos
         </div>
       </div>
 
-      <div className="flex items-center gap-4 text-xs">
-        {showProjections ? (
-          <>
-            <span className="text-right pr-4">{target.projection ?? '-'}</span>
-          </>
-        ) : (
-          <>
-            <span className="text-right text-muted pr-4">
-              <Lock className="w-3 h-3 mx-auto text-muted" />
-            </span>
-          </>
-        )}
-        <span className="text-right font-bold">${target.salary?.toLocaleString('en-US')}</span>
+      <div className="flex items-center gap-8 text-xs">
+        <div className="flex gap-6 items-center">
+          {showProjections ? (
+            <>
+              <div className="flex flex-col items-center">
+                <span className="text-[10px] font-bold text-muted uppercase">Proj</span>
+                <p className="text-right font-bold">{target.projection ?? '—'}</p>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="flex flex-col items-center">
+                <span className="text-[10px] font-bold text-muted uppercase">Proj</span>
+                <Lock className="w-4 h-4 mx-auto text-muted" />
+              </div>
+            </>
+          )}
+          <div className="flex flex-col">
+            <span className="text-[10px] font-bold text-muted uppercase">Salary</span>
+            <p className="text-right font-bold">{target.salary ? `$${target.salary.toLocaleString('en-US')}` : '—'}</p>
+          </div>
+        </div>
 
         <Button
           variant="outline"

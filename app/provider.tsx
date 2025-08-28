@@ -21,7 +21,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     <ReduxProvider store={store}>
       <QueryClientProvider client={queryClient}>
         {children}
-        <ReactQueryDevtools initialIsOpen={false} />
+        {/* <ReactQueryDevtools initialIsOpen={false} /> */}
       </QueryClientProvider>
     </ReduxProvider>
   )
