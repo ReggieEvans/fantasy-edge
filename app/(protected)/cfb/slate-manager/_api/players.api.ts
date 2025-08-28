@@ -1,16 +1,24 @@
 import { baseApi } from '../../../../../store/api/baseApi'
+import { Player } from '../_types/player'
 
 export const playersApi = baseApi.injectEndpoints({
-  endpoints: builder => ({
-    getQuickTargets: builder.query<any[], string>({
-      query: id => ({
-        url: `/api/players/${id}/quick-targets`,
-        method: 'GET',
+  endpoints: build => ({
+    getSlatePlayers: build.query<Player[], { slateId: string }>({
+      query: ({ slateId }) => `/api/players/${slateId}/quick-targets`,
+    }),
+
+    uploadProjections: build.mutation<
+      { updated: number; matched: Array<{ name: string; points: number }>; unmatchedCsv: string[] },
+      { slateId: string; csvText: string }
+    >({
+      query: body => ({
+        url: '/api/projections',
+        method: 'POST',
+        body,
       }),
-      providesTags: ['SlatePlayers'],
-      keepUnusedDataFor: 0,
+      invalidatesTags: ['SlatePlayers', 'Slates'],
     }),
   }),
 })
 
-export const { useGetQuickTargetsQuery } = playersApi
+export const { useGetSlatePlayersQuery, useUploadProjectionsMutation } = playersApi

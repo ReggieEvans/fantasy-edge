@@ -17,6 +17,7 @@ export interface Player {
   rushing: RushingStats | null
   receiving: ReceivingStats | null
   projection: number | null
+  full_name: string
 }
 
 export interface TeamRoster {

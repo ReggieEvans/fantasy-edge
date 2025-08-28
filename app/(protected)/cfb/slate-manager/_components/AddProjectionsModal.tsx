@@ -18,7 +18,7 @@ import { Label } from '@/components/ui/label'
 import { toast } from '@/hooks/use-toast'
 import { formatDateTime } from '@/utils/formatDkTime'
 
-import { useUploadProjectionsMutation } from '../_api/players'
+import { useUploadProjectionsMutation } from '../_api/players.api'
 import { Slate } from '../_types/slate'
 
 export default function AddProjectionsModal({

@@ -19,6 +19,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useDebouncedValue } from '@/hooks/use-debounce-value'
 import { useSlatePlayers } from '@/hooks/use-infinite-query'
 
+import { Player } from '../_types/player'
+
 export default function QuickTargetsModal({
   slateId,
   initialPosition = '',
@@ -29,7 +31,7 @@ export default function QuickTargetsModal({
 }: {
   slateId: string
   initialPosition?: string
-  onTargetPlayer: (p: any) => Promise<void>
+  onTargetPlayer: (p: Player) => Promise<void>
   open: boolean
   onClose: () => void
   addingIds: Set<number>
@@ -78,7 +80,7 @@ export default function QuickTargetsModal({
     [fetchNextPage, hasNextPage, isFetchingNextPage],
   )
 
-  const handleTarget = async (p: any) => {
+  const handleTarget = async (p: Player) => {
     await onTargetPlayer(p)
     refetch()
   }
@@ -138,7 +140,7 @@ export default function QuickTargetsModal({
               <div className="h-full flex flex-col items-center justify-center p-6">
                 <Alert variant="destructive" className="max-w-md">
                   <AlertTitle>Couldn’t load players</AlertTitle>
-                  <AlertDescription className="mt-2">{(error as any)?.message ?? 'Unknown error.'}</AlertDescription>
+                  <AlertDescription className="mt-2">{(error as Error)?.message ?? 'Unknown error.'}</AlertDescription>
                 </Alert>
                 <Button onClick={() => refetch()} className="mt-4">
                   Retry

@@ -5,8 +5,12 @@ import { createServerSupabaseClient } from '@/libs/supabase/server'
 import { normalizeName } from '@/utils/normalizeName'
 
 type CsvRow = {
-  'Player Name': string // exact column in CSV
-  Pnts: string | number
+  'Player Name'?: string // exact column in CSV
+  player_name?: string
+  Pnts?: string | number
+  Points?: string | number
+  Proj?: string | number
+  [key: string]: string | number | undefined
 }
 
 export async function POST(req: Request) {
@@ -35,8 +39,8 @@ export async function POST(req: Request) {
     // build CSV name -> points map
     const csvMap = new Map<string, number>()
     for (const row of records) {
-      const rawName = (row as any)['Player Name'] ?? (row as any)['player_name']
-      const rawPnts = (row as any)['Pnts'] ?? (row as any)['Points'] ?? (row as any)['Proj']
+      const rawName = row['Player Name'] ?? row['player_name']
+      const rawPnts = row['Pnts'] ?? row['Points'] ?? row['Proj']
       if (!rawName) continue
       const key = normalizeName(String(rawName))
       const val = Number(rawPnts)
@@ -107,7 +111,8 @@ export async function POST(req: Request) {
       matched,
       unmatchedCsv,
     })
-  } catch (e: any) {
-    return NextResponse.json({ error: e?.message ?? 'Unknown error' }, { status: 500 })
+  } catch (e: unknown) {
+    const errorMessage = e instanceof Error ? e.message : 'Unknown error'
+    return NextResponse.json({ error: errorMessage }, { status: 500 })
   }
 }
