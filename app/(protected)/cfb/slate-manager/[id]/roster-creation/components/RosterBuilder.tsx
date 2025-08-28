@@ -169,14 +169,18 @@ export default function RosterBuilder({
                   </div>
                   <div className="w-14 text-center pr-4">
                     <div className="flex flex-col items-center">
-                      <span className="text-[11px] font-bold text-muted uppercase">Proj</span>
-                      {showProjections && field.value ? (
+                      {field.value && (
                         <>
-                          <p className="font-bold text-xs">{field.value?.projection ?? '—'}</p>
+                          <span className="text-[11px] font-bold text-muted uppercase">Proj</span>
+                          {showProjections && field.value ? (
+                            <>
+                              <p className="font-bold text-xs">{field.value?.projection ?? '—'}</p>
+                            </>
+                          ) : !showProjections && field.value ? (
+                            <Lock className="w-4 h-4 mx-auto text-muted" />
+                          ) : null}
                         </>
-                      ) : !showProjections && field.value ? (
-                        <Lock className="w-4 h-4 mx-auto text-muted" />
-                      ) : null}
+                      )}
                     </div>
                   </div>
                   <div className="flex flex-col items-center mr-4">
