@@ -83,7 +83,7 @@ export default function RosterCreation() {
             We recommend building your rosters in a desktop browser.
           </div>
         </div>
-        <QuickTargetModal open={showQuickTargetsModal} onClose={() => setShowQuickTargetsModal(false)} />
+        <QuickTargetModal slateId={id} open={showQuickTargetsModal} onClose={() => setShowQuickTargetsModal(false)} />
       </div>
     </div>
   )

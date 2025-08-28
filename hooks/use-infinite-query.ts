@@ -1,0 +1,45 @@
+import { useInfiniteQuery } from '@tanstack/react-query'
+
+type PlayersResponse = {
+  items: any[]
+  total: number
+  page: number
+  pageSize: number
+  hasMore: boolean
+}
+
+export function useSlatePlayers({
+  slateId,
+  q,
+  position,
+  includeAllSalaries,
+  maxSalary,
+}: {
+  slateId: string
+  q: string
+  position: string
+  includeAllSalaries: boolean
+  maxSalary: number | null
+}) {
+  return useInfiniteQuery({
+    queryKey: ['slatePlayers', slateId, q, position, includeAllSalaries, maxSalary],
+    queryFn: async ({ pageParam = 1 }): Promise<PlayersResponse> => {
+      const params = new URLSearchParams({
+        page: String(pageParam),
+        pageSize: '100', // adjust as you like (<=200 as per server cap)
+      })
+      if (q) params.set('q', q)
+      const positionParam = position === 'all' ? '' : position
+      params.set('position', positionParam)
+      params.set('includeAllSalaries', includeAllSalaries ? 'true' : 'false')
+      if (!includeAllSalaries && maxSalary != null) params.set('maxSalary', String(maxSalary))
+
+      const res = await fetch(`/api/players/${slateId}/quick-targets?` + params.toString())
+      if (!res.ok) throw new Error('Failed to fetch players')
+      return res.json()
+    },
+    getNextPageParam: lastPage => (lastPage.hasMore ? lastPage.page + 1 : undefined),
+    keepPreviousData: true,
+    staleTime: 30_000,
+  })
+}
