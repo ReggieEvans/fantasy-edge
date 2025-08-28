@@ -7,6 +7,7 @@ import { useGetSlatesQuery } from '@/app/(protected)/cfb/slate-manager/_api/slat
 import { Slate as SlateType } from '@/app/(protected)/cfb/slate-manager/_types/slate'
 import { Skeleton } from '@/components/ui/skeleton'
 
+import AddProjectionsModal from './_components/AddProjectionsModal'
 import AddSlateModal from './_components/AddSlateModal'
 import DeleteSlateModal from './_components/DeleteSlateModal'
 import Slate from './_components/Slate'
@@ -15,11 +16,17 @@ export default function SlateManagerPage() {
   const { data: slates, isLoading, isError } = useGetSlatesQuery()
   const [open, setOpen] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
-  const [slateToDelete, setSlateToDelete] = useState<SlateType | null>(null)
+  const [addProjectionsModalOpen, setAddProjectionsModalOpen] = useState(false)
+  const [selectedSlate, setSelectedSlate] = useState<SlateType | null>(null)
 
   const onDeleteSlate = (slate: SlateType) => {
-    setSlateToDelete(slate)
+    setSelectedSlate(slate)
     setDeleteModalOpen(true)
+  }
+
+  const onAddProjections = (slate: SlateType) => {
+    setSelectedSlate(slate)
+    setAddProjectionsModalOpen(true)
   }
 
   if (isError) return <p className="p-4 text-red-500">Failed to load slates</p>
@@ -57,14 +64,23 @@ export default function SlateManagerPage() {
             </p>
           </div>
         ) : (
-          slates?.map((slate: SlateType) => <Slate key={slate.id} slate={slate} onDeleteSlate={onDeleteSlate} />)
+          slates?.map((slate: SlateType) => (
+            <Slate key={slate.id} slate={slate} onDeleteSlate={onDeleteSlate} onAddProjections={onAddProjections} />
+          ))
         )}
       </div>
 
       {/* Modals */}
       {open && <AddSlateModal open={open} onClose={() => setOpen(false)} />}
-      {slateToDelete && (
-        <DeleteSlateModal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)} slate={slateToDelete} />
+      {deleteModalOpen && selectedSlate && (
+        <DeleteSlateModal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)} slate={selectedSlate} />
+      )}
+      {addProjectionsModalOpen && selectedSlate && (
+        <AddProjectionsModal
+          open={addProjectionsModalOpen}
+          onClose={() => setAddProjectionsModalOpen(false)}
+          slate={selectedSlate}
+        />
       )}
     </div>
   )

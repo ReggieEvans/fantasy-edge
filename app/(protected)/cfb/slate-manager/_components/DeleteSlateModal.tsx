@@ -4,12 +4,27 @@ import { Loader, Trash } from 'lucide-react'
 
 import { useDeleteSlateMutation } from '@/app/(protected)/cfb/slate-manager/_api/slates.api'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { toast } from '@/hooks/use-toast'
 
 import { Slate } from '../_types/slate'
 
-export default function DeleteSlateModal({ open, onClose, slate }: { open: boolean; onClose: () => void; slate: Slate }) {
+export default function DeleteSlateModal({
+  open,
+  onClose,
+  slate,
+}: {
+  open: boolean
+  onClose: () => void
+  slate: Slate
+}) {
   const [deleteSlate, { isLoading }] = useDeleteSlateMutation()
 
   const onDelete = async () => {
@@ -32,9 +47,7 @@ export default function DeleteSlateModal({ open, onClose, slate }: { open: boole
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogDescription className="sr-only">
-        Delete Slate
-      </DialogDescription>
+      <DialogDescription className="sr-only">Delete Slate</DialogDescription>
       <DialogContent className="p-0">
         <DialogHeader className="bg-background-secondary p-4 rounded-t">
           <DialogTitle className="text-xl text-foreground">Delete Slate</DialogTitle>
