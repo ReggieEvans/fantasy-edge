@@ -16,6 +16,7 @@ import { useRemoveTargetMutation } from '../../_api/targets.api'
 import QuickTargetModal from '../../_components/QuickTargetModal'
 import TargetPlayerModal from '../../_components/TargetPlayerModal'
 import { TargetPlayerFormValues } from '../../_schema/targetForm.schema'
+import { Player } from '../../_types/player'
 import { TargetPool } from '../../_types/targetPool'
 import { TargetCard } from './components/TargetCard'
 
@@ -67,7 +68,7 @@ export default function PlayerPoolPage() {
     }
   }
 
-  const onTargetPlayer = async player => {
+  const onTargetPlayer = async (player: Player) => {
     const id = player.player_id
     setAddingIds(prev => new Set(prev).add(id))
 

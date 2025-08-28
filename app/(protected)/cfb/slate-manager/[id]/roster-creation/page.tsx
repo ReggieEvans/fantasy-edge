@@ -9,6 +9,7 @@ import { toast } from '@/hooks/use-toast'
 import { useAddTargetMutation } from '../../_api'
 import { useGetTargetPoolQuery } from '../../_api/target-pool.api'
 import QuickTargetModal from '../../_components/QuickTargetModal'
+import { Player } from '../../_types/player'
 import { TargetPool as TargetPoolType } from '../../_types/targetPool'
 import RosterBuilder from './components/RosterBuilder'
 import TargetPool from './components/TargetPool'
@@ -69,7 +70,7 @@ export default function RosterCreation() {
     })
   }
 
-  const onTargetPlayer = async player => {
+  const onTargetPlayer = async (player: Player) => {
     const id = player.player_id
     setAddingIds(prev => new Set(prev).add(id))
 
