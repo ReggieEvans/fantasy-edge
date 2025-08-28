@@ -1,4 +1,4 @@
-import { PassingStats, ReceivingStats, RushingStats } from "./stats"
+import { PassingStats, ReceivingStats, RushingStats } from './stats'
 
 export interface Player {
   id: string
@@ -16,6 +16,7 @@ export interface Player {
   passing: PassingStats | null
   rushing: RushingStats | null
   receiving: ReceivingStats | null
+  projection: number | null
 }
 
 export interface TeamRoster {

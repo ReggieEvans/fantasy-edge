@@ -13,7 +13,7 @@ import TargetPool from './components/TargetPool'
 export default function RosterCreation() {
   const { id } = useParams() as { id: string }
 
-  const [showProjections, setShowProjections] = useState(false)
+  const [showProjections, setShowProjections] = useState(true)
   const [showGroups, setShowGroups] = useState(true)
   const [showQuickTargetsModal, setShowQuickTargetsModal] = useState(false)
   const [roster, setRoster] = useState({})

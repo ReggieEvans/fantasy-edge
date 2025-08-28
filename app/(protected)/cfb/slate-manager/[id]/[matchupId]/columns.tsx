@@ -20,23 +20,23 @@ export const baseColumns: ColumnDef<Player>[] = [
     meta: 'Salary',
     accessorFn: row => row.salary ?? '-',
   },
-  // {
-  //   id: '_projection',
-  //   header: 'PROJ',
-  //   meta: 'Projected points',
-  //   accessorFn: row => row._projection ?? '-',
-  // },
-  // {
-  //   id: 'roi',
-  //   header: 'ROI',
-  //   meta: 'FPTS/Salary',
-  //   cell: ({ row }) => {
-  //     const salary = row.original.salary
-  //     const projection = row.original._projection
-  //     const val = salary && projection ? (projection / salary).toFixed(2) : '-'
-  //     return <div>{val}</div>
-  //   },
-  // },
+  {
+    id: 'projection',
+    header: 'PROJ',
+    meta: 'Projected points',
+    accessorFn: row => row.projection ?? '-',
+  },
+  {
+    id: 'roi',
+    header: 'ROI',
+    meta: 'FPTS/Salary',
+    cell: ({ row }) => {
+      const salary = row.original.salary
+      const projection = row.original.projection
+      const val = salary && projection ? (projection / salary).toFixed(2) : '-'
+      return <div>{val}</div>
+    },
+  },
 ]
 
 export const quarterbackColumns: ColumnDef<Player>[] = [

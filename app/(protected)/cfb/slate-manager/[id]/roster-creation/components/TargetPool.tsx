@@ -84,7 +84,7 @@ export default function TargetPool({
       <div className="flex justify-between mb-4">
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={toggleProjections} className="text-xs px-4 py-2">
-            {!showProjections ? <Lock className="w-4 h-4 mr-2" /> : <Unlock className="w-4 h-4 mr-2" />}
+            {!showProjections ? <Lock className="w-4 h-4 mr-2" /> : <Unlock className="w-4 h-4 mr-2 text-accent" />}
             {showProjections ? 'Hide Projections' : 'Show Projections'}
           </Button>
           <Button
@@ -93,13 +93,13 @@ export default function TargetPool({
             onClick={toggleGroups}
             className="text-xs px-4 py-2 duration-300 transition-colors"
           >
-            {showGroups ? <Boxes className="w-4 h-4 mr-2" /> : <Component className="w-4 h-4 mr-2" />}
+            {showGroups ? <Boxes className="w-4 h-4 mr-2 text-accent" /> : <Component className="w-4 h-4 mr-2" />}
             {showGroups ? 'Ungroup Targets' : 'Group Targets'}
           </Button>
         </div>
 
-        <Button variant="secondary" size="sm" onClick={openQuickTargetModal} className="text-xs px-4 py-2">
-          <PlusCircle className="w-4 h-4 mr-2" /> Quick Target
+        <Button variant="outline" size="sm" onClick={openQuickTargetModal} className="text-xs px-4 py-2">
+          <PlusCircle className="w-4 h-4 mr-2 text-accent" /> Quick Target
         </Button>
       </div>
 

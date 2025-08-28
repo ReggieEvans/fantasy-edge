@@ -19,7 +19,7 @@ export async function buildSlatePlayers(
 
     const teamMap = new Map(teams.map(t => [t.draftkings_abbreviation.toUpperCase(), t.id]))
 
-    const playerRows = []
+    const dedup = new Map<number, any>()
 
     for (const p of players) {
       const teamId = teamMap.get(p.teamAbbreviation?.toUpperCase() || '')
@@ -29,18 +29,33 @@ export async function buildSlatePlayers(
         continue
       }
 
-      playerRows.push({
+      const row = {
         slate_id: slate.id,
-        player_id: p.playerId,
-        draftable_id: p.draftableId,
+        player_id: p.playerId as number,
+        draftable_id: p.draftableId as number,
         first_name: p.firstName ?? null,
         last_name: p.lastName ?? null,
         team_id: teamId,
         position: p.position ?? null,
         salary: p.salary ?? null,
         player_image: p.playerImage160 ?? null,
-      })
+      }
+
+      const existing = dedup.get(row.player_id)
+      if (!existing) {
+        dedup.set(row.player_id, row)
+      } else {
+        // Prefer the higher salary; tweak this rule if you want something else.
+        const keepNew =
+          (row.salary ?? 0) > (existing.salary ?? 0) ||
+          // if same salary, prefer non-null position
+          (!!row.position && !existing.position)
+
+        if (keepNew) dedup.set(row.player_id, row)
+      }
     }
+
+    const playerRows = Array.from(dedup.values())
 
     const { error: insertErr } = await supabase.from('slate_players').insert(playerRows)
     if (insertErr) throw new Error(`Failed to insert slate_players: ${insertErr.message}`)

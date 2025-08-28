@@ -41,26 +41,26 @@ export default function PlayerTable({ data, position, showPlayersWithNoStats }: 
 
   const columns: ColumnDef<Player>[] = [...baseColumns, ...positionCols]
 
-  const hasStats = (player: Player): boolean => {
-    if (position === 'QB') return !!player.passing
-    if (position === 'RB') return !!player.rushing
-    if (position === 'WR') return !!player.receiving
+  const hasProjection = (player: Player): boolean => {
+    if (position === 'QB') return !!player.projection
+    if (position === 'RB') return !!player.projection
+    if (position === 'WR') return !!player.projection
     return true
   }
 
-  const withStats = data.filter(hasStats)
+  const withProjection = data.filter(hasProjection)
 
   // Return atleast 2 players even if they have no stats
   const filteredData = showPlayersWithNoStats
     ? data
-    : withStats.length >= 2
-      ? withStats
+    : withProjection.length >= 2
+      ? withProjection
       : [
-          ...withStats,
+          ...withProjection,
           ...data
-            .filter(p => !withStats.includes(p))
+            .filter(p => !withProjection.includes(p))
             .sort((a, b) => (b.salary ?? 0) - (a.salary ?? 0))
-            .slice(0, 2 - withStats.length),
+            .slice(0, 2 - withProjection.length),
         ]
 
   const handleTargetingPlayer = (player: Player) => {
