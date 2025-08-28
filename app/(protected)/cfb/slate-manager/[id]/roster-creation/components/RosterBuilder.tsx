@@ -151,7 +151,7 @@ export default function RosterBuilder({
               name={slot.key}
               control={control}
               render={({ field }) => (
-                <div className="flex items-center bg-background-secondary px-3 rounded text-sm">
+                <div className="flex items-center justify-center bg-background-secondary px-3 rounded text-sm">
                   <div className="w-20 font-bold text-center">{slot.position}</div>
                   <div className="w-[4px] h-[56px] bg-background mx-2" />
                   <div className="flex flex-col w-full">
@@ -168,14 +168,26 @@ export default function RosterBuilder({
                     )}
                   </div>
                   <div className="w-14 text-center pr-4">
-                    {showProjections && field.value ? (
-                      (field.value?.projection ?? '-')
-                    ) : !showProjections && field.value ? (
-                      <Lock className="w-3 h-3 mx-auto text-muted" />
-                    ) : null}
+                    <div className="flex flex-col items-center">
+                      <span className="text-[11px] font-bold text-muted uppercase">Proj</span>
+                      {showProjections && field.value ? (
+                        <>
+                          <p className="font-bold text-xs">{field.value?.projection ?? '—'}</p>
+                        </>
+                      ) : !showProjections && field.value ? (
+                        <Lock className="w-4 h-4 mx-auto text-muted" />
+                      ) : null}
+                    </div>
                   </div>
-                  <div className="w-24 text-center">
-                    {field.value?.salary ? `$${field.value.salary.toLocaleString('en-US')}` : null}
+                  <div className="flex flex-col items-center mr-4">
+                    {field.value && (
+                      <>
+                        <span className="text-[11px] font-bold text-muted uppercase">Salary</span>
+                        <p className="font-bold text-xs">
+                          {field.value?.salary ? `$${field.value.salary.toLocaleString('en-US')}` : '—'}
+                        </p>
+                      </>
+                    )}
                   </div>
                   <div className="w-24 text-center">
                     {field.value && (
@@ -238,12 +250,12 @@ export default function RosterBuilder({
         </div>
 
         <div className="mt-4 text-xs flex justify-end gap-6 text-muted-foreground">
-          <div className="flex items-center gap-1">
+          {/* <div className="flex items-center gap-1">
             <span className="text-muted font-bold">Ownership:</span>{' '}
             {showProjections ? 'N/A' : <Lock className="inline w-3 h-3" />}
-          </div>
+          </div> */}
           <div className="flex items-center gap-1">
-            <span className="text-muted font-bold">Projection:</span>{' '}
+            <span className="text-muted font-bold">Total Projection:</span>{' '}
             {showProjections ? totalProjection.toFixed(1) : <Lock className="inline w-3 h-3" />}
           </div>
         </div>

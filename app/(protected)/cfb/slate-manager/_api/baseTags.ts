@@ -5,6 +5,7 @@ export const slateManagerTags = [
   'Matchups',
   'Targets',
   'Rosters',
+  'QuickTargets',
   'SlatePlayers',
 ] as const
 
