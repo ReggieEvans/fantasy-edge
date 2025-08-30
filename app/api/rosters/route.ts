@@ -55,6 +55,9 @@ export async function POST(req: Request) {
     salary: player.salary,
     target_type: player.target_type,
     stack_candidate: player.stack_candidate,
+    projection: player.projection,
+    team_name: player.team_name,
+    slot_position: player.slot_position,
   }))
 
   const { error: playerInsertError } = await supabase.from('roster_players').insert(playerRows)

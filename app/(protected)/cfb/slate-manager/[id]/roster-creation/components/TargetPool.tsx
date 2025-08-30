@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ROSTER_SLOTS } from '@/constants/slots'
+import { toast } from '@/hooks/use-toast'
 
 import type { TargetPool } from '../../../_types/targetPool'
 import TargetGroup from './TargetGroup'
@@ -57,16 +58,19 @@ export default function TargetPool({
     const alreadyAdded = Object.values(roster).some(p => p?.player_id === target.player_id)
     if (alreadyAdded) return
 
-    for (const slot of rosterSlots) {
-      const isEmpty = !roster[slot.key]
-      const acceptsPosition = slot.eligiblePositions.includes(target.position)
-
-      if (isEmpty && acceptsPosition) {
-        setRoster(prev => ({ ...prev, [slot.key]: target }))
-        setPlayerPool(prev => prev.filter((p: TargetPool) => p.player_id !== target.player_id))
-        return
-      }
+    const eligible = rosterSlots.filter(s => s.eligiblePositions.includes(target.position))
+    const empty = eligible.find(s => !roster[s.key])
+    if (!empty) {
+      toast({
+        title: 'Position full',
+        description: `All ${target.position} slots are filled.`,
+        variant: 'destructive',
+      })
+      return
     }
+
+    setRoster(prev => ({ ...prev, [empty.key]: target }))
+    setPlayerPool(prev => prev.filter(p => p.player_id !== target.player_id))
   }
 
   const groupProps = {

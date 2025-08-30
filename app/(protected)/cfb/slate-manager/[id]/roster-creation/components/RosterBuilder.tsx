@@ -64,6 +64,7 @@ export default function RosterBuilder({
   const isIncomplete = Object.values(values).some(player => player == null)
 
   const onSubmit = async (data: Record<string, TargetPool | null>) => {
+    console.log(data)
     try {
       await saveRoster({
         slateId,
@@ -79,10 +80,13 @@ export default function RosterBuilder({
               player_name: getName(player!.first_name || '', player!.last_name || ''),
               slate_player_id: player!.slate_player_id!,
               slot_key: key,
-              position: key,
+              slot_position: key,
               salary: player!.salary!,
               target_type: player!.target_type!,
               stack_candidate: player!.stack_candidate!,
+              projection: player!.projection!,
+              team_name: player!.team_name!,
+              position: player!.position!,
             },
           ]),
         ),

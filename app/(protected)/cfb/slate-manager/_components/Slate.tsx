@@ -5,6 +5,7 @@ import Link from 'next/link'
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { formatDateTime } from '@/utils/formatDkTime'
+import { parseUtcWhenNoTZ } from '@/utils/parseUtcWithNoTz'
 
 import { Slate as SlateType } from '../_types/slate'
 
@@ -15,10 +16,9 @@ interface SlateProps {
 }
 
 export default function Slate({ slate, onDeleteSlate, onAddProjections }: SlateProps) {
-  const now = Date.now()
-  const startTs = new Date(slate.min_start_time).getTime()
-  const isFuture = startTs > now
-  const statusColor = isFuture ? 'bg-green-500' : 'bg-muted-foreground'
+  const startMs = parseUtcWhenNoTZ(slate.min_start_time)
+  const isPast = Number.isFinite(startMs) && startMs < Date.now()
+  const statusColor = isPast ? 'bg-destructive' : 'bg-green-500'
 
   return (
     <div className="flex flex-col md:flex-row bg-card rounded-md">
@@ -30,7 +30,7 @@ export default function Slate({ slate, onDeleteSlate, onAddProjections }: SlateP
             <span className="truncate">
               {formatDateTime(slate.min_start_time)} {slate.startTimeSuffix}
             </span>
-            <span className="sr-only">{isFuture ? 'Upcoming' : 'Completed'}</span>
+            <span className="sr-only">{isPast ? 'Completed' : 'Upcoming'}</span>
           </h4>
 
           {/* Desktop Actions */}

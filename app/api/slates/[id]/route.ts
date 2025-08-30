@@ -6,7 +6,7 @@ import { createServerSupabaseClient } from '@/libs/supabase/server'
 
 export const DELETE = async (_req: Request, { params }: { params: Promise<{ id: string }> }) => {
   const supabase = await createServerSupabaseClient()
-  const { id: slateId } = await params;
+  const { id: slateId } = await params
 
   const {
     data: { user },
@@ -17,7 +17,8 @@ export const DELETE = async (_req: Request, { params }: { params: Promise<{ id: 
   }
 
   try {
-    await supabase.from('slate_games').delete().eq('slate_id', slateId)
+    await supabase.from('slate_matchups').delete().eq('slate_id', slateId)
+    await supabase.from('rosters').delete().eq('slate_id', slateId)
     await supabase.from('slate_players').delete().eq('slate_id', slateId)
     await supabase.from('user_slates').delete().eq('id', slateId)
 
