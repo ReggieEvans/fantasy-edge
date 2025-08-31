@@ -57,10 +57,9 @@ const cfbLinks: { title: string; href: string; description: string; disabled: bo
   },
   {
     title: 'Contest Selection',
-    href: '/cfb/contests',
+    href: '/cfb/contest-selection',
     description: 'A collection of the best DFS contests to enter on a weekly basis.',
-    disabled: true,
-    note: 'Coming Soon',
+    disabled: false,
   },
 ]
 

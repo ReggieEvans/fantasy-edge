@@ -33,6 +33,7 @@ export type RawContest = Record<string, unknown> & {
   draftGroupId?: number | string // alt key
   me?: number | string // max entries per user
   attr?: Record<string, unknown>
+  gameType?: string
 }
 
 export type ContestView = {
@@ -55,6 +56,7 @@ export type ContestView = {
   isDoubleUp: boolean
   isFifty: boolean
   isQualifier: boolean
+  gameType?: string
 }
 
 // ----------------- Helpers -----------------
@@ -120,6 +122,10 @@ const normalizeContest = (c: RawContest, idx: number): ContestView => {
 
   const dg = c.dg ?? c.draftGroupId
 
+  // infer if not present (defensive)
+  const nameLc = (c.n || '').toLowerCase()
+  const inferredType = nameLc.includes('showdown') || nameLc.includes('captain') ? 'Showdown Captain Mode' : 'Classic'
+
   return {
     id: String(c.id ?? idx),
     name: c.n || 'Contest',
@@ -140,6 +146,7 @@ const normalizeContest = (c: RawContest, idx: number): ContestView => {
     isDoubleUp,
     isFifty,
     isQualifier,
+    gameType: c.gameType || inferredType,
   }
 }
 
@@ -266,12 +273,12 @@ export default function ContestPickerAggressive() {
   const [allocation, setAllocation] = useState<'aggressive' | 'normal'>('aggressive')
   const [dg, setDg] = useState<string>('')
   const [showOnlyRecommended, setShowOnlyRecommended] = useState(true)
+  const [gameType, setGameType] = useState<'ALL' | 'Classic' | 'Showdown Captain Mode'>('ALL')
   const [bucketFilter, setBucketFilter] = useState<'ALL' | 'Cash' | 'GPP-SE' | 'GPP-3Max' | 'GPP-20Max'>('ALL')
 
   const parsed = useMemo(() => {
     try {
       const raw = JSON.parse(jsonText || '{}')
-      // Many exports use { Contests: [...] }
       const arr: RawContest[] = Array.isArray(raw) ? raw : Array.isArray(raw.Contests) ? raw.Contests : []
       return arr
     } catch {
@@ -279,13 +286,18 @@ export default function ContestPickerAggressive() {
     }
   }, [jsonText])
 
+  const parsedFiltered = useMemo(() => {
+    if (gameType === 'ALL') return parsed
+    return parsed.filter(c => String(c.gameType || '').toLowerCase() === gameType.toLowerCase())
+  }, [parsed, gameType])
+
   const result = useMemo(() => {
-    return pickAggressiveContests(parsed, {
+    return pickAggressiveContests(parsedFiltered, {
       bankroll: Number(bankroll || 0),
       dg: dg || undefined,
       allocation,
     })
-  }, [parsed, bankroll, dg, allocation])
+  }, [parsedFiltered, bankroll, dg, allocation])
 
   const filteredPicks = useMemo(() => {
     const picks = bucketFilter === 'ALL' ? result.picks : result.picks.filter(p => p.bucket === bucketFilter)
@@ -341,6 +353,22 @@ export default function ContestPickerAggressive() {
                 placeholder="e.g. 78645"
                 className="w-40 border border-background-darker"
               />
+            </div>
+            <div>
+              <Label className="text-sm text-muted">Game Type</Label>
+              <Select
+                value={gameType}
+                onValueChange={v => setGameType(v as 'ALL' | 'Classic' | 'Showdown Captain Mode')}
+              >
+                <SelectTrigger className="w-56 border border-background-darker">
+                  <SelectValue placeholder="All types" />
+                </SelectTrigger>
+                <SelectContent className="bg-background-darker">
+                  <SelectItem value="ALL">All</SelectItem>
+                  <SelectItem value="Classic">Classic</SelectItem>
+                  <SelectItem value="Showdown Captain Mode">Showdown Captain Mode</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <Label className="text-sm text-muted">Allocation</Label>
