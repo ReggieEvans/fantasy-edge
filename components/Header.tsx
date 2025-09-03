@@ -149,9 +149,9 @@ function NavMenu() {
           </NavigationMenuTrigger>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <NavigationMenuTrigger disabled className="bg-transparent text-xs uppercase font-bold">
-            PICKEM
-          </NavigationMenuTrigger>
+          <NavigationMenuLink asChild className="text-xs uppercase font-bold px-4">
+            <Link href="/pickem">Pickem</Link>
+          </NavigationMenuLink>
         </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationMenu>
