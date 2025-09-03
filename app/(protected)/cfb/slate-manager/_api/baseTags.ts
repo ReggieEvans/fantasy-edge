@@ -7,6 +7,7 @@ export const slateManagerTags = [
   'Rosters',
   'QuickTargets',
   'SlatePlayers',
+  'SlatePack',
 ] as const
 
 export type SlateManagerTag = (typeof slateManagerTags)[number]
