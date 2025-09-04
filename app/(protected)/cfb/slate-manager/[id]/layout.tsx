@@ -1,6 +1,6 @@
 'use client'
 
-import { Binoculars, ClipboardCheck, Hammer, Users } from 'lucide-react'
+import { Binoculars, Brain, ClipboardCheck, Hammer, Users } from 'lucide-react'
 import Link from 'next/link'
 import { useParams, usePathname } from 'next/navigation'
 import { ReactNode } from 'react'
@@ -31,6 +31,11 @@ const NAVIGATION_LINKS: NavLink[] = [
     href: '/roster-view',
     label: 'Export',
     icon: <ClipboardCheck size={22} />,
+  },
+  {
+    href: '/ai-optimizer',
+    label: 'AI',
+    icon: <Brain size={22} />,
   },
 ]
 

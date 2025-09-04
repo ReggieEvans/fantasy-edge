@@ -28,11 +28,10 @@ const cfbLinks: { title: string; href: string; description: string; disabled: bo
     disabled: false,
   },
   {
-    title: 'AI Optimizer',
+    title: 'Optimizer',
     href: '/cfb/optimizer',
     description: 'Optimize rosters using AI for Single Entry and Multi-Entry contests.',
-    disabled: true,
-    note: 'Coming Soon',
+    disabled: false,
   },
   {
     title: 'Study Hub',
