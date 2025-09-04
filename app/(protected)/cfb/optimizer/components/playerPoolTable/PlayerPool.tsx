@@ -2,19 +2,18 @@
 
 import { useParams } from 'next/navigation'
 
-import { useGetSlatePackQuery } from '../../_api/optimizer'
+import { useGetSlatePackQuery } from '../../../slate-manager/_api/optimizer'
 import { playerColumns } from './columns'
 import { DataTable } from './data-table'
 
-export default function AiOptimizer() {
+export default function PlayerPoolTable() {
   const { id } = useParams() as { id: string }
   const { data: slatePack, isLoading, isError } = useGetSlatePackQuery(id)
   console.log(slatePack)
   console.log('rendering ai optimizer')
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-6">
+    <div>
       <DataTable columns={playerColumns} data={slatePack?.players ?? []} />
-      {/* <DataTable columns={playerColumns} data={slatePack?.matchups ?? []} /> */}
-    </main>
+    </div>
   )
 }

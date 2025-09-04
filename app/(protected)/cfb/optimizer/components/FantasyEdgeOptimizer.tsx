@@ -296,12 +296,6 @@ export default function OptimizerUI() {
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">
-      <h1 className="text-3xl font-semibold">FantasyEdge Optimizer</h1>
-      <p className="text-sm opacity-70">
-        Upload a DraftKings CSV, set constraints, stacks, and build lineups. The UI understands the backend&apos;s new
-        partial/zero-lineup messages and now computes exposures after lineups are generated.
-      </p>
-
       <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-1 space-y-4">
           <div>
