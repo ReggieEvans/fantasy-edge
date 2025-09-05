@@ -2,8 +2,8 @@
 // @route   GET /api/dkSlates
 import { NextResponse } from 'next/server'
 
-import { DkContestDTO, DkContestsResponseDTO } from '@/app/(protected)/cfb/slate-manager/_dto/dkContests.dto'
-import { DkSlateDTO } from '@/app/(protected)/cfb/slate-manager/_dto/dkSlate.dto'
+import { DkContestDTO, DkContestsResponseDTO } from '@/app/(protected)/slate-manager/_dto/dkContests.dto'
+import { DkSlateDTO } from '@/app/(protected)/slate-manager/_dto/dkSlate.dto'
 import { createServerSupabaseClient } from '@/libs/supabase/server'
 
 export const GET = async () => {

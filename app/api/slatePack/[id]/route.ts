@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 
-import { Player } from '@/app/(protected)/cfb/slate-manager/_types/player'
-import { PassingStats, ReceivingStats, RushingStats } from '@/app/(protected)/cfb/slate-manager/_types/stats'
+import { Player } from '@/app/(protected)/slate-manager/_types/player'
+import { PassingStats, ReceivingStats, RushingStats } from '@/app/(protected)/slate-manager/_types/stats'
 import { createServerSupabaseClient } from '@/libs/supabase/server'
 
 export const GET = async (_req: Request, { params }: { params: Promise<{ id: string }> }) => {

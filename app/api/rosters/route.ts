@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-import { Roster, RosterSlot } from '@/app/(protected)/cfb/slate-manager/_types/roster'
+import { Roster, RosterSlot } from '@/app/(protected)/slate-manager/_types/roster'
 import { createServerSupabaseClient } from '@/libs/supabase/server'
 
 // @desc    Save roster

@@ -23,40 +23,40 @@ import {
 const cfbLinks: { title: string; href: string; description: string; disabled: boolean; note?: string }[] = [
   {
     title: 'Slate Manager',
-    href: '/cfb/slate-manager',
+    href: '/slate-manager',
     description: 'Manage DFS Slates with matchups, player pools and roster creation.',
     disabled: false,
   },
   {
     title: 'Optimizer',
-    href: '/cfb/optimizer',
+    href: '/optimizer',
     description: 'Optimize rosters using AI for Single Entry and Multi-Entry contests.',
     disabled: false,
   },
   {
     title: 'Study Hub',
-    href: '/cfb/study-hub',
+    href: '/study-hub',
     description: 'Study past contests by analyzing roster contruction across all lineups.',
     disabled: true,
     note: 'Coming Soon',
   },
   {
     title: 'Stats',
-    href: '/cfb/stats',
+    href: '/stats',
     description: 'College football stats across a multitude of categories.',
     disabled: true,
     note: 'Coming Soon',
   },
   {
     title: 'Props',
-    href: '/cfb/props',
+    href: '/props',
     description: 'Analyze player props against odds and projections to build the best prop tickets.',
     disabled: true,
     note: 'Coming Soon',
   },
   {
     title: 'Contest Selection',
-    href: '/cfb/contest-selection',
+    href: '/contest-selection',
     description: 'A collection of the best DFS contests to enter on a weekly basis.',
     disabled: false,
   },
@@ -109,43 +109,33 @@ function NavMenu() {
           </NavigationMenuLink>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <NavigationMenuTrigger className="bg-transparent text-xs uppercase font-bold">
-            DFS Tools
-          </NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <ul className="grid w-[400px] gap-2 md:w-[500px] md:grid-cols-2 lg:w-[600px] p-2 bg-card ">
-              {cfbLinks.map(link => (
-                <ListItem
-                  key={link.title}
-                  title={link.title}
-                  note={link.note}
-                  href={link.href}
-                  className={link.disabled ? 'pointer-events-none opacity-50' : ''}
-                >
-                  {link.description}
-                </ListItem>
-              ))}
-            </ul>
-          </NavigationMenuContent>
+          <NavigationMenuLink asChild className="text-xs uppercase font-bold px-4">
+            <Link href="/slate-manager">Slate Manager</Link>
+          </NavigationMenuLink>
         </NavigationMenuItem>
-        {/* <NavigationMenuItem>
-          <NavigationMenuTrigger disabled className="bg-transparent text-xs uppercase font-bold">
-            NFL
-          </NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <ul className="grid w-[400px] gap-2 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-              {cfbLinks.map(link => (
-                <ListItem key={link.title} title={link.title} href={link.href}>
-                  {link.description}
-                </ListItem>
-              ))}
-            </ul>
-          </NavigationMenuContent>
-        </NavigationMenuItem> */}
         <NavigationMenuItem>
-          <NavigationMenuTrigger disabled className="bg-transparent text-xs uppercase font-bold">
-            BANKROLL TRACKER
-          </NavigationMenuTrigger>
+          <NavigationMenuLink
+            asChild
+            className="text-xs uppercase font-bold px-4 opacity-50 cursor-not-allowed pointer-events-none"
+          >
+            <span aria-disabled="true">Study Hub</span>
+          </NavigationMenuLink>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+          <NavigationMenuLink
+            asChild
+            className="text-xs uppercase font-bold px-4 opacity-50 cursor-not-allowed pointer-events-none"
+          >
+            <span aria-disabled="true">Props</span>
+          </NavigationMenuLink>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+          <NavigationMenuLink
+            asChild
+            className="text-xs uppercase font-bold px-4 opacity-50 cursor-not-allowed pointer-events-none"
+          >
+            <span aria-disabled="true">Bankroll Tracker</span>
+          </NavigationMenuLink>
         </NavigationMenuItem>
         <NavigationMenuItem>
           <NavigationMenuLink asChild className="text-xs uppercase font-bold px-4">
