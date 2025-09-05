@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-import { DkSlateSelection } from '@/app/(protected)/cfb/slate-manager/_types/dkSlate'
+import { DkSlateSelection } from '@/app/(protected)/slate-manager/_types/dkSlate'
 import { buildSlateMatchups } from '@/libs/slates/buildSlateMatchups'
 import { buildSlatePlayers } from '@/libs/slates/buildSlatePlayers'
 import { saveSlateMetadata } from '@/libs/slates/saveSlateMetadata'

@@ -1,15 +1,14 @@
-
 // @desc    Get Matchup by slateId and matchupId
 // @route   GET /api/matchups/:id/:matchupId
 import { NextResponse } from 'next/server'
 
-import { Player } from '@/app/(protected)/cfb/slate-manager/_types/player';
-import { PassingStats, ReceivingStats, RushingStats } from '@/app/(protected)/cfb/slate-manager/_types/stats';
+import { Player } from '@/app/(protected)/slate-manager/_types/player'
+import { PassingStats, ReceivingStats, RushingStats } from '@/app/(protected)/slate-manager/_types/stats'
 import { createServerSupabaseClient } from '@/libs/supabase/server'
 
 export const GET = async (_req: Request, { params }: { params: Promise<{ id: string; matchupId: string }> }) => {
   const supabase = await createServerSupabaseClient()
-  const { id: slateId, matchupId } = await params;
+  const { id: slateId, matchupId } = await params
 
   const {
     data: { user },
@@ -135,7 +134,14 @@ function fullName(player: { first_name: string; last_name: string }) {
   return normalizeName(`${player.first_name}${player.last_name}`)
 }
 
-function enrichPlayers(players: Player[], statMaps: { passing: Map<string, PassingStats>; rushing: Map<string, RushingStats>; receiving: Map<string, ReceivingStats> }) {
+function enrichPlayers(
+  players: Player[],
+  statMaps: {
+    passing: Map<string, PassingStats>
+    rushing: Map<string, RushingStats>
+    receiving: Map<string, ReceivingStats>
+  },
+) {
   return players.map(p => {
     const key = fullName(p)
 

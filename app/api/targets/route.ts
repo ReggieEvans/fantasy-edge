@@ -2,7 +2,7 @@
 
 import { NextResponse } from 'next/server'
 
-import { Target } from '@/app/(protected)/cfb/slate-manager/_types/target'
+import { Target } from '@/app/(protected)/slate-manager/_types/target'
 import { createServerSupabaseClient } from '@/libs/supabase/server'
 
 // @desc    Save target

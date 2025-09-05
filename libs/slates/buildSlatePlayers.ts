@@ -1,6 +1,6 @@
 import { SupabaseClient } from '@supabase/supabase-js'
 
-import { DkSlateSelection } from '@/app/(protected)/cfb/slate-manager/_types/dkSlate'
+import { DkSlateSelection } from '@/app/(protected)/slate-manager/_types/dkSlate'
 
 export async function buildSlatePlayers(
   supabase: SupabaseClient,

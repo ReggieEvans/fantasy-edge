@@ -1,6 +1,6 @@
 import { SupabaseClient } from '@supabase/supabase-js'
 
-import { DkSlateSelection } from '@/app/(protected)/cfb/slate-manager/_types/dkSlate'
+import { DkSlateSelection } from '@/app/(protected)/slate-manager/_types/dkSlate'
 import { getMarket, impliedTotals, norm, parseAbbrs, pickBook } from '@/libs/utils'
 import { OddsGame } from '@/types/odds'
 
