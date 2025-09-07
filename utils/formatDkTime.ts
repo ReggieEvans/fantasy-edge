@@ -1,4 +1,5 @@
-export const formatDateTime = (dateString: string) => {
+export const formatDateTime = (dateString: string | undefined) => {
+  if (!dateString) return ''
   // Parse as UTC if no Z
   let date: Date
   if (dateString.endsWith('Z')) {

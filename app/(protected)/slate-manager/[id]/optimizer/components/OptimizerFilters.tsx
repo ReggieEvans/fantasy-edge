@@ -1,3 +1,4 @@
+import { Slate } from '@/app/(protected)/slate-manager/_types/slate'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -8,36 +9,48 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Label } from '@/components/ui/label'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { useAppDispatch, useAppSelector } from '@/store/hooks'
+import { formatDateTime } from '@/utils/formatDkTime'
 
-export default function OptimizerFilters() {
+import { CFBPosition, NFLPosition, setPosition } from '../../../_state/optimizerFilters.slice'
+
+export default function OptimizerFilters({
+  slate,
+  positionsArray,
+  excludedCount,
+}: {
+  slate: Slate | undefined
+  positionsArray: string[] | undefined
+  excludedCount: number
+}) {
+  const dispatch = useAppDispatch()
+  const position = useAppSelector(s => s.optimizerFilters.position)
+
+  const slateType = slate?.contest_type_id === 94 ? 'Classic' : 'Showdown'
+
   return (
     <div className="flex gap-6 items-center py-2">
-      <div className="text-sm px-2">
-        <span className="text-muted">Sport:</span> CFB
+      <div className="text-sm rounded py-2 px-4 border border-card">
+        <span className="text-muted">Sport:</span> {slate?.sport} {slateType}
       </div>
-      <div className="text-sm px-2">
-        <span className="text-muted">Slate:</span> Saturday, September 7 (8 Games)
+      <div className="text-sm rounded py-2 px-4 border border-card">
+        <span className="text-muted">Slate:</span> {formatDateTime(slate?.min_start_time)} {slate?.startTimeSuffix}
       </div>
       <div>
-        <ToggleGroup variant="outline" type="single" value={'all'}>
+        <ToggleGroup
+          variant="outline"
+          type="single"
+          value={position}
+          onValueChange={val => dispatch(setPosition((val as CFBPosition | NFLPosition) || 'all'))}
+        >
           <ToggleGroupItem value="all" aria-label="Toggle bold" className="text-xs">
             ALL
           </ToggleGroupItem>
-          <ToggleGroupItem value="qb" aria-label="Toggle italic" className="text-xs">
-            QB
-          </ToggleGroupItem>
-          <ToggleGroupItem value="rb" aria-label="Toggle strikethrough" className="text-xs">
-            RB
-          </ToggleGroupItem>
-          <ToggleGroupItem value="wr" aria-label="Toggle strikethrough" className="text-xs">
-            WR
-          </ToggleGroupItem>
-          <ToggleGroupItem value="te" aria-label="Toggle strikethrough" className="text-xs">
-            TE
-          </ToggleGroupItem>
-          <ToggleGroupItem value="dst" aria-label="Toggle strikethrough" className="text-xs">
-            DST
-          </ToggleGroupItem>
+          {positionsArray?.map(position => (
+            <ToggleGroupItem key={position} value={position} aria-label={`Toggle ${position}`} className="text-xs">
+              {position}
+            </ToggleGroupItem>
+          ))}
         </ToggleGroup>
       </div>
       <div>
@@ -56,18 +69,6 @@ export default function OptimizerFilters() {
       </div>
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-1">
-          <Label className="text-xs px-1 text-muted">Player Pool</Label>
-          <Badge variant="outline" className="bg-background-darker">
-            0
-          </Badge>
-        </div>
-        <div className="flex items-center gap-1">
-          <Label className="text-xs px-1 text-muted">Targeted</Label>
-          <Badge variant="outline" className="bg-background-darker">
-            0
-          </Badge>
-        </div>
-        <div className="flex items-center gap-1">
           <Label className="text-xs px-1 text-muted">Locks</Label>
           <Badge variant="outline" className="bg-background-darker">
             0
@@ -75,8 +76,8 @@ export default function OptimizerFilters() {
         </div>
         <div className="flex items-center gap-1">
           <Label className="text-xs px-1 text-muted">Excluded</Label>
-          <Badge variant="outline" className="bg-background-darker">
-            0
+          <Badge variant="outline" className={` ${excludedCount > 0 ? 'bg-destructive' : 'bg-background-darker'}`}>
+            {excludedCount}
           </Badge>
         </div>
       </div>

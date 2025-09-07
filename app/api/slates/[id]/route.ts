@@ -4,9 +4,35 @@ import { NextResponse } from 'next/server'
 
 import { createServerSupabaseClient } from '@/libs/supabase/server'
 
+export const GET = async (_req: Request, { params }: { params: Promise<{ id: string }> }) => {
+  const supabase = await createServerSupabaseClient()
+  const { id: slateId } = await params
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const { data: userSlate, error: userSlateError } = await supabase
+    .from('user_slates')
+    .select('*')
+    .eq('user_id', user.id)
+    .eq('id', slateId)
+    .single()
+
+  if (userSlateError) {
+    return NextResponse.json({ error: userSlateError.message }, { status: 500 })
+  }
+
+  return NextResponse.json(userSlate)
+}
+
 export const DELETE = async (_req: Request, { params }: { params: Promise<{ id: string }> }) => {
   const supabase = await createServerSupabaseClient()
-  const { id: slateId } = await params;
+  const { id: slateId } = await params
 
   const {
     data: { user },

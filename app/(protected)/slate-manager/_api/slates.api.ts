@@ -5,6 +5,10 @@ import { Slate } from '../_types/slate'
 
 export const slatesApi = baseApi.injectEndpoints({
   endpoints: builder => ({
+    getSlate: builder.query<Slate, string>({
+      query: id => `/api/slates/${id}`,
+      providesTags: ['Slates'],
+    }),
     getSlates: builder.query<Slate[], void>({
       query: () => '/api/slates',
       providesTags: ['Slates'],
@@ -27,4 +31,4 @@ export const slatesApi = baseApi.injectEndpoints({
   }),
 })
 
-export const { useGetSlatesQuery, useAddSlateMutation, useDeleteSlateMutation } = slatesApi
+export const { useGetSlateQuery, useGetSlatesQuery, useAddSlateMutation, useDeleteSlateMutation } = slatesApi
