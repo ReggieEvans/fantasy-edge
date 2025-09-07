@@ -1,6 +1,7 @@
 export interface Slate {
   created_at: string
   dk_draft_group_id: number
+  contest_type_id: number
   gameCount: number
   game_type: string
   id: string

@@ -18,6 +18,8 @@ export interface Player {
   receiving: ReceivingStats | null
   projection: number | null
   full_name: string
+  isExcluded?: boolean
+  isLocked?: boolean
 }
 
 export interface TeamRoster {

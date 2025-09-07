@@ -35,6 +35,14 @@ export const GET = async (_req: Request, { params }: { params: Promise<{ id: str
       opponentByTeamId.set(away, home)
     }
 
+    const teamImageByTeamId = new Map<string, string>()
+    for (const m of matchups) {
+      const home = String(m.home_team_id)
+      const away = String(m.away_team_id)
+      teamImageByTeamId.set(home, m.home_team_logo)
+      teamImageByTeamId.set(away, m.away_team_logo)
+    }
+
     // Unique team ids across all matchups
     const teamIds = Array.from(new Set<string>(matchups.flatMap(m => [String(m.home_team_id), String(m.away_team_id)])))
 
@@ -105,10 +113,12 @@ export const GET = async (_req: Request, { params }: { params: Promise<{ id: str
     }).map(p => {
       const teamId = String(p.team_id)
       const oppId = opponentByTeamId.get(teamId) ?? null
+      const teamImage = teamImageByTeamId.get(teamId) ?? null
 
       return {
         ...p,
         opponent_team_id: oppId,
+        team_image: teamImage,
         teamStats: {
           passingRate: passingRateByTeam.get(teamId) ?? null,
           rushingRate: rushingRateByTeam.get(teamId) ?? null,
@@ -149,6 +159,12 @@ export const GET = async (_req: Request, { params }: { params: Promise<{ id: str
     const hasAnyProjection = players.some(p => (p as any).projection != null)
     const isMissingProjections = !hasAnyProjection
 
+    const positionsArray = players.reduce((acc, p) => {
+      if (acc.includes(p.position)) return acc
+      acc.push(p.position)
+      return acc
+    }, [] as string[])
+
     const sortedPlayers = players.sort((a, b) => (b.salary ?? 0) - (a.salary ?? 0))
 
     return NextResponse.json(
@@ -158,6 +174,7 @@ export const GET = async (_req: Request, { params }: { params: Promise<{ id: str
         isMissingProjections,
         filteredOutCount,
         filteredOutPlayers,
+        positionsArray,
       },
       { status: 200 },
     )

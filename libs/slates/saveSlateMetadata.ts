@@ -3,7 +3,7 @@ import { SupabaseClient } from '@supabase/supabase-js'
 import { DkSlateSelection } from '@/app/(protected)/slate-manager/_types/dkSlate'
 
 export async function saveSlateMetadata(supabase: SupabaseClient, userId: string, slateSelection: DkSlateSelection) {
-  const { draftGroupId, sport, gameType, minStartTime, maxStartTime } = slateSelection
+  const { draftGroupId, sport, gameType, contestTypeId, minStartTime, maxStartTime } = slateSelection
 
   const { data, error } = await supabase
     .from('user_slates')
@@ -12,6 +12,7 @@ export async function saveSlateMetadata(supabase: SupabaseClient, userId: string
       dk_draft_group_id: draftGroupId,
       sport,
       game_type: gameType,
+      contest_type_id: contestTypeId,
       min_start_time: minStartTime,
       max_start_time: maxStartTime,
     })
