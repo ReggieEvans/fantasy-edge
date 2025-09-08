@@ -6,8 +6,8 @@ import { DkSlateSelection } from '../_types/dkSlate'
 
 export const dkApi = baseApi.injectEndpoints({
   endpoints: builder => ({
-    getDkSlates: builder.query<DkSlateSelection[], void>({
-      query: () => '/api/dkSlates',
+    getDkSlates: builder.query<DkSlateSelection[], { sport: string; gameType: string }>({
+      query: ({ sport, gameType }) => `/api/dkSlates?sport=${sport}&gameType=${gameType}`,
       transformResponse: (res: DkSlateDTO[]) => toDkSlate(res),
       providesTags: ['Slates'],
     }),

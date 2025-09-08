@@ -5,6 +5,7 @@ import { getMarket, impliedTotals, norm, parseAbbrs, pickBook } from '@/libs/uti
 import { OddsGame } from '@/types/odds'
 
 const CFB_ODDS_API = `https://api.the-odds-api.com/v4/sports/americanfootball_ncaaf/odds/?apiKey=${process.env.ODDS_API_KEY}&regions=us&markets=spreads,totals&oddsFormat=american`
+const NFL_ODDS_API = `https://api.the-odds-api.com/v4/sports/americanfootball_nfl/odds/?apiKey=${process.env.ODDS_API_KEY}&regions=us&markets=spreads,totals&oddsFormat=american`
 
 export async function buildSlateMatchups(
   supabase: SupabaseClient,
@@ -19,7 +20,7 @@ export async function buildSlateMatchups(
     const { data: teams, error: teamErr } = await supabase.from('cfb_team_flat').select('*')
     if (teamErr || !teams) throw new Error(`Failed to fetch teams: ${teamErr?.message}`)
 
-    const oddsRes = await fetch(CFB_ODDS_API)
+    const oddsRes = await fetch(slateSelection.sport === 'NFL' ? NFL_ODDS_API : CFB_ODDS_API)
     const odds: OddsGame[] = await oddsRes.json()
 
     const teamByDkAbbr = new Map(teams.map(t => [t.draftkings_abbreviation.toUpperCase(), t]))
@@ -77,10 +78,10 @@ export async function buildSlateMatchups(
           }
         }
       }
-
+      console.log(home, away)
       matchupRows.push({
         slate_id: slate.id,
-        sport: 'CFB',
+        sport: slateSelection.sport,
         start_time: g.startDate,
         name: g.description,
         venue: g.location ?? null,

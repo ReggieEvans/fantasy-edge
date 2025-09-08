@@ -18,10 +18,10 @@ export default function Slate({ slate, onDeleteSlate, onAddProjections }: SlateP
   const now = Date.now()
   const startTs = new Date(slate.min_start_time).getTime()
   const isFuture = startTs > now
-  const statusColor = isFuture ? 'bg-green-500' : 'bg-muted-foreground'
+  const statusColor = isFuture ? 'bg-green-500' : 'bg-destructive'
 
   return (
-    <div className="flex flex-col md:flex-row bg-card rounded-md">
+    <div className="flex flex-col md:flex-row bg-card rounded-md border-l-2 border-accent">
       <div className={`hidden md:block w-3 h-3 rounded-full mt-8 ml-4 mr-2 ${statusColor}`} />
 
       <div className="flex-grow flex flex-col p-4">

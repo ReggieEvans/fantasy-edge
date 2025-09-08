@@ -21,6 +21,8 @@ import { useSlatePlayers } from '@/hooks/use-infinite-query'
 
 import { Player } from '../_types/player'
 
+type Sport = 'NFL' | 'CFB'
+
 export default function QuickTargetsModal({
   slateId,
   initialPosition = '',
@@ -28,6 +30,7 @@ export default function QuickTargetsModal({
   open,
   onClose,
   addingIds,
+  tabs,
 }: {
   slateId: string
   initialPosition?: string
@@ -35,6 +38,7 @@ export default function QuickTargetsModal({
   open: boolean
   onClose: () => void
   addingIds: Set<number>
+  tabs: { value: string; label: string }[]
 }) {
   const [q, setQ] = useState('')
   const [position, setPosition] = useState(initialPosition)
@@ -85,6 +89,14 @@ export default function QuickTargetsModal({
     refetch()
   }
 
+  const onSetPosition = (value: string) => {
+    if (value === 'ALL') {
+      setPosition('')
+    } else {
+      setPosition(value)
+    }
+  }
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl p-0">
@@ -120,15 +132,16 @@ export default function QuickTargetsModal({
 
             <div className="flex flex-col gap-1 w-24">
               <p className="text-[11px] px-1 text-muted font-bold">POSITION</p>
-              <Select value={position} onValueChange={setPosition}>
+              <Select value={position} onValueChange={onSetPosition}>
                 <SelectTrigger>
                   <SelectValue placeholder="All" className="text-sm" />
                 </SelectTrigger>
                 <SelectContent className="bg-background-darker">
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="QB">QB</SelectItem>
-                  <SelectItem value="RB">RB</SelectItem>
-                  <SelectItem value="WR">WR</SelectItem>
+                  {tabs?.map(tab => (
+                    <SelectItem key={tab.value} value={tab.value}>
+                      {tab.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

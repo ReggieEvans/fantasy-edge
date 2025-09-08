@@ -22,5 +22,6 @@ export interface DkSlateSelection {
   }[]
   games: {
     gameId: number
+    description: string
   }[]
 }

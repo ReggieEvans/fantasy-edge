@@ -1,12 +1,22 @@
 // @desc    Get Available DkSlates
 // @route   GET /api/dkSlates
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 import { DkContestDTO, DkContestsResponseDTO } from '@/app/(protected)/slate-manager/_dto/dkContests.dto'
 import { DkSlateDTO } from '@/app/(protected)/slate-manager/_dto/dkSlate.dto'
 import { createServerSupabaseClient } from '@/libs/supabase/server'
 
-export const GET = async () => {
+export const GET = async (req: NextRequest) => {
+  const { searchParams } = new URL(req.url)
+  const sport = searchParams.get('sport')
+  const gameType = searchParams.get('gameType')
+
+  if (!sport || !gameType) {
+    return NextResponse.json({ error: 'Missing sport or gameType' }, { status: 400 })
+  }
+
+  const gt = gameType === 'classic' ? 'Classic' : 'Showdown Captain Mode'
+
   const supabase = await createServerSupabaseClient()
 
   const {
@@ -18,13 +28,13 @@ export const GET = async () => {
   }
 
   // Get all DK contest by sport
-  const contestsResponse = await fetch('https://www.draftkings.com/lobby/getcontests?sport=CFB')
+  const contestsResponse = await fetch(`https://www.draftkings.com/lobby/getcontests?sport=${sport}`)
   const contests: DkContestsResponseDTO = await contestsResponse.json()
 
   // Get all slateIds (groupIds) by gameType
   const groupIdList: number[] = []
   contests['Contests'].forEach((contest: DkContestDTO) => {
-    if (!groupIdList.includes(contest['dg']) && contest['gameType'] === 'Classic') {
+    if (!groupIdList.includes(contest['dg']) && contest['gameType'] === gt) {
       groupIdList.push(contest['dg'])
     }
   })

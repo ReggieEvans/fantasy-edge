@@ -15,6 +15,14 @@ export default function MatchupsPage() {
   const { id } = useParams() as { id: string }
   const { data: matchups, isLoading, isError } = useGetMatchupsQuery(id)
 
+  const renderMatchups = () => {
+    if (!matchups) return []
+
+    return [...matchups]
+      .sort((a, b) => (b.game_total ?? 0) - (a.game_total ?? 0))
+      .map((matchup: Matchup) => <MatchupCard key={matchup.id} matchup={matchup} />)
+  }
+
   return (
     <div className="flex flex-col bg-background pt-3 rounded-tl-[40px] min-h-[calc(100vh-90px)] overflow-y-auto">
       <div className="flex flex-col py-4 px-6 text-muted">
@@ -40,7 +48,7 @@ export default function MatchupsPage() {
       <div className="flex flex-col gap-8 px-6 py-4 max-h-[calc(100vh-300px)] overflow-y-auto">
         {isLoading ? (
           // Loading skeletons
-          [...Array(3)].map((_, i) => <Skeleton key={i} className="h-48 w-full bg-card rounded animate-pulse" />)
+          [...Array(4)].map((_, i) => <Skeleton key={i} className="h-48 w-full bg-card rounded animate-pulse" />)
         ) : isError ? (
           // Error state
           <p className="text-red-500">Something went wrong while loading matchups.</p>
@@ -49,7 +57,7 @@ export default function MatchupsPage() {
           <p>No matchups found.</p>
         ) : (
           // Success state
-          matchups?.map((matchup: Matchup) => <MatchupCard key={matchup.id} matchup={matchup} />)
+          renderMatchups()
         )}
       </div>
     </div>

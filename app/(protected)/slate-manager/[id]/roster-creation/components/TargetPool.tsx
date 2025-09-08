@@ -11,6 +11,8 @@ import { ROSTER_SLOTS } from '@/constants/slots'
 import type { TargetPool } from '../../../_types/targetPool'
 import TargetGroup from './TargetGroup'
 
+type Sport = 'NFL' | 'CFB'
+
 interface TargetPoolProps {
   showProjections: boolean
   toggleProjections: () => void
@@ -23,6 +25,10 @@ interface TargetPoolProps {
   setPlayerPool: React.Dispatch<React.SetStateAction<TargetPool[]>>
   isLoading: boolean
   isError: boolean
+  sport: Sport
+  tabs: { value: string; label: string }[]
+  tabValue: string
+  setTabValue: React.Dispatch<React.SetStateAction<string>>
 }
 
 export default function TargetPool({
@@ -37,20 +43,16 @@ export default function TargetPool({
   setPlayerPool,
   isLoading,
   isError,
+  sport,
+  tabs,
+  tabValue,
+  setTabValue,
 }: TargetPoolProps) {
-  const [selectedTab, setSelectedTab] = useState('0')
-  const rosterSlots = ROSTER_SLOTS['CFB']
-
-  const tabs = [
-    { id: 0, label: 'ALL' },
-    { id: 1, label: 'QB' },
-    { id: 2, label: 'RB' },
-    { id: 3, label: 'WR' },
-  ]
+  const rosterSlots = ROSTER_SLOTS[sport]
 
   const filteredTargets = playerPool.filter(t => {
-    if (selectedTab === '0') return true
-    return t.position === tabs.find(tab => String(tab.id) === selectedTab)?.label
+    if (tabValue === 'ALL') return true
+    return t.position === tabs.find(tab => String(tab.value) === tabValue)?.label
   })
 
   const addPlayerToRoster = (target: TargetPool) => {
@@ -113,10 +115,10 @@ export default function TargetPool({
         </Button>
       </div>
 
-      <Tabs defaultValue={'0'} value={selectedTab} onValueChange={setSelectedTab}>
+      <Tabs defaultValue={'ALL'} value={tabValue} onValueChange={setTabValue}>
         <TabsList className="gap-2 bg-background-secondary">
           {tabs.map(tab => (
-            <TabsTrigger key={tab.id} value={String(tab.id)} className="text-xs font-bold">
+            <TabsTrigger key={tab.value} value={String(tab.value)} className="text-xs font-bold">
               {tab.label}
             </TabsTrigger>
           ))}
@@ -124,13 +126,13 @@ export default function TargetPool({
 
         {tabs.map(tab => {
           const tabLabel = tab.label
-          const tabValue = String(tab.id)
+          const tabValue = String(tab.value)
           const targetsForTab =
-            tabValue === '0' ? filteredTargets : filteredTargets.filter(p => p.position === tabLabel)
+            tabValue === 'ALL' ? filteredTargets : filteredTargets.filter(p => p.position === tabLabel)
 
           return (
             <TabsContent
-              key={tab.id}
+              key={tab.value}
               value={tabValue}
               className={`mt-4 ${showGroups ? 'space-y-6' : 'space-y-2'} max-h-[500px] overflow-y-auto`}
             >
