@@ -1,9 +1,13 @@
 import { baseApi } from '@/store/api/baseApi'
 
-import { Roster } from '../_types/roster'
+import { Roster, RosterView } from '../_types/roster'
 
 export const rostersApi = baseApi.injectEndpoints({
   endpoints: builder => ({
+    getRoster: builder.query<RosterView[], { slateId: string }>({
+      query: ({ slateId }) => `/api/rosters/${slateId}`,
+      providesTags: ['Rosters'],
+    }),
     saveRoster: builder.mutation<void, Roster>({
       query: roster => ({
         url: '/api/rosters',
@@ -15,4 +19,4 @@ export const rostersApi = baseApi.injectEndpoints({
   }),
 })
 
-export const { useSaveRosterMutation } = rostersApi
+export const { useGetRosterQuery, useSaveRosterMutation } = rostersApi
