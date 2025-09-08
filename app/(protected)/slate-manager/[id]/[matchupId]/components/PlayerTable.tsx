@@ -23,7 +23,7 @@ import { baseColumns, quarterbackColumns, runningbackColumns, widereceiverColumn
 
 interface Props {
   data: Player[]
-  position: 'QB' | 'RB' | 'WR'
+  position: 'QB' | 'RB' | 'WR' | 'TE' | 'DST'
   showPlayersWithNoStats?: boolean
 }
 
@@ -132,7 +132,7 @@ export default function PlayerTable({ data, position, showPlayersWithNoStats }: 
 
   return (
     <>
-      <Table className="h-[100px] overflow-y-auto">
+      <Table>
         <TableHeader>
           <TableRow className="border-b border-background-secondary">
             {/* Fixed Target Column */}

@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowLeft, CloudSun, GitCompareArrows, UserCheck } from 'lucide-react'
+import { ArrowLeft, Bug, CloudSun, GitCompareArrows, UserCheck } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
@@ -8,13 +8,54 @@ import React, { useState } from 'react'
 
 import { useGetMatchupQuery } from '@/app/(protected)/slate-manager/_api/matchups.api'
 import { NestedStatKey, StatGroupKey, TeamSide } from '@/app/(protected)/slate-manager/_types/diffRow'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Switch } from '@/components/ui/switch'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { getErrorMessage } from '@/utils/getErrorMessage'
 
 import { DiffRow } from './components/DiffRow'
 import PlayerTable from './components/PlayerTable'
 import TeamStatRow from './components/TeamStatsRow'
+
+const sportPositions: { [key: string]: { position: string; positionAbb: 'QB' | 'RB' | 'WR' | 'TE' | 'DST' }[] } = {
+  NFL: [
+    {
+      position: 'Quarterback',
+      positionAbb: 'QB',
+    },
+    {
+      position: 'Running Back',
+      positionAbb: 'RB',
+    },
+    {
+      position: 'Wide Receiver',
+      positionAbb: 'WR',
+    },
+    {
+      position: 'Tight End',
+      positionAbb: 'TE',
+    },
+    {
+      position: 'Defense',
+      positionAbb: 'DST',
+    },
+  ],
+  CFB: [
+    {
+      position: 'Quarterback',
+      positionAbb: 'QB',
+    },
+    {
+      position: 'Running Back',
+      positionAbb: 'RB',
+    },
+    {
+      position: 'Wide Receiver',
+      positionAbb: 'WR',
+    },
+  ],
+}
 
 export default function MatchupPage() {
   const [value, setValue] = useState('both')
@@ -23,7 +64,7 @@ export default function MatchupPage() {
     id: string
     matchupId: string
   }
-  const { data, isLoading, isError } = useGetMatchupQuery({ id, matchupId })
+  const { data, isLoading, isError, error } = useGetMatchupQuery({ id, matchupId })
 
   const formatDateTime = React.useCallback((dateString: string) => {
     if (!dateString) return ''
@@ -42,7 +83,7 @@ export default function MatchupPage() {
   }, [])
 
   return (
-    <div className="bg-background px-6 pt-3 rounded-tl-[40px]">
+    <div className="bg-background px-6 pt-3 rounded-tl-[40px] min-h-[calc(100vh-90px)]">
       <div className="flex flex-col text-muted mb-4">
         <div className="text-sm text-muted py-4">
           <div className="flex items-center gap-2 uppercase font-bold text-xs text-accent">
@@ -73,7 +114,15 @@ export default function MatchupPage() {
           ))
         ) : isError ? (
           // Error state
-          <p className="text-red-500">Something went wrong while loading matchup.</p>
+          <div className="flex flex-col gap-2 items-center justify-center py-12 w-[600px] mx-auto">
+            <Alert variant="destructive">
+              <Bug size={20} />
+              <AlertTitle className="text-lg font-bold">Something went wrong while loading the matchup.</AlertTitle>
+              <AlertDescription className="py-2">
+                <p>{getErrorMessage(error)}</p>
+              </AlertDescription>
+            </Alert>
+          </div>
         ) : !data ? (
           // Empty state
           <p>No matchup found.</p>
@@ -162,15 +211,15 @@ export default function MatchupPage() {
               <div className="flex justify-center gap-24 bg-card pb-2 pt-6 border-t border-border">
                 <div className="flex flex-col items-center justify-center">
                   <div className="uppercase text-xs font-bold">Team Total</div>
-                  <div className="text-3xl font-black py-2">{data.matchup.away_team_total}</div>
+                  <div className="text-3xl font-black py-2">{data.matchup.away_team_total ?? 'N/A'}</div>
                 </div>
                 <div className="flex flex-col items-center justify-center">
                   <div className="uppercase text-xs font-bold">Game Total</div>
-                  <div className="text-3xl font-black py-2">{data.matchup.game_total}</div>
+                  <div className="text-3xl font-black py-2">{data.matchup.game_total ?? 'N/A'}</div>
                 </div>
                 <div className="flex flex-col items-center justify-center">
                   <div className="uppercase text-xs font-bold">Team Total</div>
-                  <div className="text-3xl font-black py-2">{data.matchup.home_team_total}</div>
+                  <div className="text-3xl font-black py-2">{data.matchup.home_team_total ?? 'N/A'}</div>
                 </div>
               </div>
             </section>
@@ -227,95 +276,37 @@ export default function MatchupPage() {
               </div>
 
               <div className="flex flex-col gap-8">
-                <div className="flex flex-col bg-card rounded">
-                  <div className="px-4 py-3">
-                    <h5 className="uppercase text-sm font-bold">Quarterbacks</h5>
+                {sportPositions[data.matchup.sport].map((position: { position: string; positionAbb: string }) => (
+                  <div className="flex flex-col bg-card rounded" key={position.positionAbb}>
+                    <div className="px-4 py-3">
+                      <h5 className="uppercase text-sm font-bold">{position.position}</h5>
+                    </div>
+                    <div className="flex flex-row gap-2 bg-background-secondary rounded pb-4 p-2">
+                      {(value === 'both' || value === 'away_team') && (
+                        <div className={`flex ${value === 'both' ? 'w-1/2' : 'w-full'} px-2 min-w-0`}>
+                          <div className="w-full overflow-x-auto border border-background-darker rounded">
+                            <PlayerTable
+                              data={data.awayRoster[position.positionAbb as keyof typeof data.awayRoster]}
+                              position={position.positionAbb as 'QB' | 'RB' | 'WR' | 'TE' | 'DST'}
+                              showPlayersWithNoStats={showPlayersWithNoStats}
+                            />
+                          </div>
+                        </div>
+                      )}
+                      {(value === 'both' || value === 'home_team') && (
+                        <div className={`flex ${value === 'both' ? 'w-1/2' : 'w-full'} px-2 min-w-0`}>
+                          <div className="w-full overflow-x-auto border border-background-darker rounded">
+                            <PlayerTable
+                              data={data.homeRoster[position.positionAbb as keyof typeof data.homeRoster]}
+                              position={position.positionAbb as 'QB' | 'RB' | 'WR' | 'TE' | 'DST'}
+                              showPlayersWithNoStats={showPlayersWithNoStats}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex flex-row bg-background-secondary rounded pb-4">
-                    {(value === 'both' || value === 'away_team') && (
-                      <div className={`flex flex-col ${value === 'both' ? 'w-1/2' : 'w-full'} px-2`}>
-                        <section>
-                          <PlayerTable
-                            data={data.awayRoster.QB}
-                            position="QB"
-                            showPlayersWithNoStats={showPlayersWithNoStats}
-                          />
-                        </section>
-                      </div>
-                    )}
-                    {(value === 'both' || value === 'home_team') && (
-                      <div className={`flex flex-col ${value === 'both' ? 'w-1/2' : 'w-full'} px-2`}>
-                        <section>
-                          <PlayerTable
-                            data={data.homeRoster.QB}
-                            position="QB"
-                            showPlayersWithNoStats={showPlayersWithNoStats}
-                          />
-                        </section>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex flex-col bg-card rounded">
-                  <div className="px-4 py-3">
-                    <h5 className="uppercase text-sm font-bold">Running Backs</h5>
-                  </div>
-                  <div className="flex flex-row bg-background-secondary rounded pb-8">
-                    {(value === 'both' || value === 'away_team') && (
-                      <div className={`flex flex-col ${value === 'both' ? 'w-1/2' : 'w-full'} px-2`}>
-                        <section>
-                          <PlayerTable
-                            data={data.awayRoster.RB}
-                            position="RB"
-                            showPlayersWithNoStats={showPlayersWithNoStats}
-                          />
-                        </section>
-                      </div>
-                    )}
-                    {(value === 'both' || value === 'home_team') && (
-                      <div className={`flex flex-col ${value === 'both' ? 'w-1/2' : 'w-full'} px-2`}>
-                        <section>
-                          <PlayerTable
-                            data={data.homeRoster.RB}
-                            position="RB"
-                            showPlayersWithNoStats={showPlayersWithNoStats}
-                          />
-                        </section>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex flex-col bg-card rounded">
-                  <div className="px-4 py-3">
-                    <h5 className="uppercase text-sm font-bold">Wide Receivers</h5>
-                  </div>
-                  <div className="flex flex-row bg-background-secondary rounded pb-8">
-                    {(value === 'both' || value === 'away_team') && (
-                      <div className={`flex flex-col ${value === 'both' ? 'w-1/2' : 'w-full'} px-2`}>
-                        <section>
-                          <PlayerTable
-                            data={data.awayRoster.WR}
-                            position="WR"
-                            showPlayersWithNoStats={showPlayersWithNoStats}
-                          />
-                        </section>
-                      </div>
-                    )}
-                    {(value === 'both' || value === 'home_team') && (
-                      <div className={`flex flex-col ${value === 'both' ? 'w-1/2' : 'w-full'} px-2`}>
-                        <section>
-                          <PlayerTable
-                            data={data.homeRoster.WR}
-                            position="WR"
-                            showPlayersWithNoStats={showPlayersWithNoStats}
-                          />
-                        </section>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                ))}
               </div>
             </section>
           </div>

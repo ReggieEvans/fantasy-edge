@@ -26,7 +26,7 @@ export const GET = async (_req: Request, { params }: { params: Promise<{ id: str
       .eq('id', matchupId)
       .single()
 
-    const { home_team_id, away_team_id } = matchup
+    const { home_team_id, away_team_id, sport } = matchup
     const teamIds = [home_team_id, away_team_id]
 
     const { data: allPlayers } = await supabase
@@ -69,7 +69,10 @@ export const GET = async (_req: Request, { params }: { params: Promise<{ id: str
       rushingSummary.length === 0 ||
       receivingSummary.length === 0
     ) {
-      return NextResponse.json({ error: 'Failed to fetch players stats' }, { status: 500 })
+      return NextResponse.json(
+        { error: 'Failed to fetch players stats. There are currently no stats for this matchup.' },
+        { status: 500 },
+      )
     }
 
     if (!passingRate || !rushingRate || !teamPassing || !teamRushing || !passingDefense || !rushingDefense) {

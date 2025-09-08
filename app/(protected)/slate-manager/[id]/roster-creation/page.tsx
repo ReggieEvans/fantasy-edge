@@ -7,12 +7,32 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from '@/hooks/use-toast'
 
 import { useAddTargetMutation } from '../../_api'
+import { useGetSlateQuery } from '../../_api/slates.api'
 import { useGetTargetPoolQuery } from '../../_api/target-pool.api'
 import QuickTargetModal from '../../_components/QuickTargetModal'
 import { Player } from '../../_types/player'
 import { TargetPool as TargetPoolType } from '../../_types/targetPool'
 import RosterBuilder from './components/RosterBuilder'
 import TargetPool from './components/TargetPool'
+
+type Sport = 'NFL' | 'CFB'
+
+const TABS = {
+  NFL: [
+    { value: 'ALL', label: 'ALL' },
+    { value: 'QB', label: 'QB' },
+    { value: 'RB', label: 'RB' },
+    { value: 'WR', label: 'WR' },
+    { value: 'TE', label: 'TE' },
+    { value: 'DST', label: 'DST' },
+  ],
+  CFB: [
+    { value: 'ALL', label: 'ALL' },
+    { value: 'QB', label: 'QB' },
+    { value: 'RB', label: 'RB' },
+    { value: 'WR', label: 'WR' },
+  ],
+}
 
 export default function RosterCreation() {
   const { id } = useParams() as { id: string }
@@ -26,7 +46,20 @@ export default function RosterCreation() {
   const [addingIds, setAddingIds] = useState<Set<number>>(new Set())
 
   const { data: userTargets = [], isLoading, isError } = useGetTargetPoolQuery(id)
+  const { data: slate, isLoading: isSlateLoading, isError: isSlateError } = useGetSlateQuery(id)
   const [addTarget] = useAddTargetMutation()
+
+  // derive tabs from sport
+  const tabs = useMemo(() => {
+    const sport = slate?.sport as Sport | undefined
+    return sport ? TABS[sport] : []
+  }, [slate?.sport])
+
+  // control Tabs value so it updates once sport loads
+  const [tabValue, setTabValue] = useState('ALL')
+  useEffect(() => {
+    if (tabs.length) setTabValue(tabs[0].value)
+  }, [tabs])
 
   const rosteredIds = useMemo(() => {
     // roster: Record<string, TargetPoolType | null>
@@ -110,6 +143,9 @@ export default function RosterCreation() {
     roster,
     setRoster,
     setPlayerPool,
+    tabs,
+    tabValue,
+    setTabValue,
   }
 
   return (
@@ -138,10 +174,16 @@ export default function RosterCreation() {
               openQuickTargetModal={() => setShowQuickTargetsModal(true)}
               isLoading={isLoading}
               isError={isError}
+              sport={slate?.sport as Sport}
             />
           </div>
           <div className="w-1/2">
-            <RosterBuilder {...targetPoolProps} userTargets={userTargets} restorePlayerToPool={restorePlayerToPool} />
+            <RosterBuilder
+              {...targetPoolProps}
+              userTargets={userTargets}
+              restorePlayerToPool={restorePlayerToPool}
+              sport={slate?.sport as Sport}
+            />
           </div>
         </div>
         <div className="lg:hidden">
@@ -155,6 +197,7 @@ export default function RosterCreation() {
           onClose={() => setShowQuickTargetsModal(false)}
           onTargetPlayer={onTargetPlayer}
           addingIds={addingIds}
+          tabs={tabs}
         />
       </div>
     </div>

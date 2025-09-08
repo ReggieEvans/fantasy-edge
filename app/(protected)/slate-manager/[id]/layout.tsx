@@ -37,11 +37,11 @@ const NAVIGATION_LINKS: NavLink[] = [
     label: 'Optiimize',
     icon: <Cog size={22} />,
   },
-  {
-    href: '/ai-optimizer',
-    label: 'AI',
-    icon: <Brain size={22} />,
-  },
+  // {
+  //   href: '/ai-optimizer',
+  //   label: 'AI',
+  //   icon: <Brain size={22} />,
+  // },
   {
     href: '/contest-selection',
     label: 'Contests',

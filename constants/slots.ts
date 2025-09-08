@@ -6,7 +6,7 @@ export const ROSTER_SLOTS = {
       slotId: 66,
       required: true,
       controlType: 'text',
-      eligiblePositions: [],
+      eligiblePositions: ['QB'],
     },
     {
       key: '67_1',
@@ -14,7 +14,7 @@ export const ROSTER_SLOTS = {
       slotId: 67,
       required: true,
       controlType: 'text',
-      eligiblePositions: ['70_1'],
+      eligiblePositions: ['RB'],
     },
     {
       key: '67_2',
@@ -22,7 +22,7 @@ export const ROSTER_SLOTS = {
       slotId: 67,
       required: true,
       controlType: 'text',
-      eligiblePositions: ['70_1'],
+      eligiblePositions: ['RB'],
     },
     {
       key: '68_1',
@@ -30,7 +30,7 @@ export const ROSTER_SLOTS = {
       slotId: 68,
       required: true,
       controlType: 'text',
-      eligiblePositions: ['70_1'],
+      eligiblePositions: ['WR'],
     },
     {
       key: '68_2',
@@ -38,7 +38,7 @@ export const ROSTER_SLOTS = {
       slotId: 68,
       required: true,
       controlType: 'text',
-      eligiblePositions: ['70_1'],
+      eligiblePositions: ['WR'],
     },
     {
       key: '68_3',
@@ -46,7 +46,7 @@ export const ROSTER_SLOTS = {
       slotId: 68,
       required: true,
       controlType: 'text',
-      eligiblePositions: ['70_1'],
+      eligiblePositions: ['WR'],
     },
     {
       key: '69_1',
@@ -54,7 +54,7 @@ export const ROSTER_SLOTS = {
       slotId: 69,
       required: true,
       controlType: 'text',
-      eligiblePositions: ['70_1'],
+      eligiblePositions: ['TE'],
     },
     {
       key: '70_1',
@@ -62,7 +62,7 @@ export const ROSTER_SLOTS = {
       slotId: 70,
       required: true,
       controlType: 'text',
-      eligiblePositions: ['67_1', '67_2', '68_1', '68_2', '68_3', '69_1'],
+      eligiblePositions: ['RB', 'WR', 'TE'],
     },
     {
       key: '71_1',
@@ -70,7 +70,7 @@ export const ROSTER_SLOTS = {
       slotId: 71,
       required: true,
       controlType: 'text',
-      eligiblePositions: [],
+      eligiblePositions: ['DST'],
     },
   ],
   CFB: [

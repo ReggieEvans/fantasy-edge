@@ -4,16 +4,16 @@ export type Matchup = {
   away_team_id: string | null
   away_team_logo: string
   away_team_name: string
-  away_team_spread: number
-  away_team_total: number
-  game_total: number
+  away_team_spread: number | null
+  away_team_total: number | null
+  game_total: number | null
   home_team_abbr: string
   home_team_city: string
   home_team_id: string | null
   home_team_logo: string
   home_team_name: string
-  home_team_spread: number
-  home_team_total: number
+  home_team_spread: number | null
+  home_team_total: number | null
   id: string
   name: string
   slate_id: string
