@@ -133,7 +133,7 @@ export const GET = async (_req: Request, { params }: { params: Promise<{ id: str
     // 7) Filter out players with no passing, rushing, or receiving
     const [players, filteredOut] = partition(
       enriched,
-      p => p.passing != null || p.rushing != null || p.receiving != null,
+      p => p.position === 'DST' || p.passing != null || p.rushing != null || p.receiving != null,
     )
 
     const filteredOutCount = filteredOut.length
