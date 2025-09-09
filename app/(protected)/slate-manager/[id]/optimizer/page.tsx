@@ -7,7 +7,7 @@ import { useMemo, useState } from 'react'
 import { useGetSlateQuery } from '@/app/(protected)/slate-manager/_api/slates.api'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { makeLineupEnricher } from '@/utils/lineupEnricher'
-import { toDraftKingsCsv, toDraftKingsCsvFromMatchups } from '@/utils/toDraftkingsCsv'
+import { toDraftKingsCsvFromMatchups } from '@/utils/toDraftkingsCsv'
 
 import { useGetMatchupsQuery } from '../../_api/matchups.api'
 import { useGetSlatePackQuery } from '../../_api/optimizer'
@@ -36,6 +36,8 @@ import PlayerPool from './components/OLD_PlayerPool'
 import OptimizerFilters from './components/OptimizerFilters'
 import OptimizerOptions from './components/OptimizerOptions'
 import PlayerTable from './components/PlayerTable'
+
+type Sport = 'NFL' | 'CFB'
 
 export default function OptimizerPage() {
   const { id } = useParams() as { id: string }
@@ -103,7 +105,7 @@ export default function OptimizerPage() {
 
     // matchups: your slatePack.matchups (array with away/home ids + abbrs)
     const matchups = slatePack.matchups
-    const slateType = slate?.contest_type_id === 94 ? 'Classic' : 'Showdown'
+    const slateType = slate?.contest_type_id === 94 || slate?.contest_type_id === 21 ? 'Classic' : 'Showdown'
 
     const enrich = makeLineupEnricher(eligiblePlayers, slatePack.matchups, {
       salaryTolerance: 300, // bump if needed
@@ -114,7 +116,7 @@ export default function OptimizerPage() {
       },
     })
 
-    const csv = toDraftKingsCsvFromMatchups(eligiblePlayers, matchups, {
+    const csv = toDraftKingsCsvFromMatchups(eligiblePlayers, matchups, slate.sport as Sport, {
       fallbackStartIso: slate?.min_start_time, // optional
       avgPointsKey: 'projection',
     })
@@ -250,7 +252,7 @@ export default function OptimizerPage() {
 
         {response && (
           <div className="flex gap-6">
-            <div className="w-[500px]">
+            <div className="w-[400px]">
               <ExposureSummary
                 expSearch={expSearch}
                 setExpSearch={setExpSearch}

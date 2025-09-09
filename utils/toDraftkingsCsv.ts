@@ -19,6 +19,30 @@ type Matchup = {
   // ...other fields you have; they're ignored here
 }
 
+type Sport = 'NFL' | 'CFB'
+type Pos = 'QB' | 'RB' | 'WR' | 'TE' | 'DST' | 'FLEX' | 'S-FLEX'
+
+const POSITION_ELIGIBILITY: Record<Sport, Record<Pos, Pos[]>> = {
+  NFL: {
+    QB: ['QB'],
+    RB: ['RB', 'FLEX'],
+    WR: ['WR', 'FLEX'],
+    TE: ['TE', 'FLEX'],
+    FLEX: ['RB', 'WR', 'TE'],
+    DST: ['DST'],
+    'S-FLEX': ['QB', 'RB', 'WR', 'TE'], // not used in NFL Classic, here for completeness
+  },
+  CFB: {
+    QB: ['QB', 'S-FLEX'],
+    RB: ['RB', 'FLEX', 'S-FLEX'],
+    WR: ['WR', 'FLEX', 'S-FLEX'],
+    TE: ['TE', 'FLEX', 'S-FLEX'], // include if your CFB slates have TE; otherwise remove
+    FLEX: ['RB', 'WR'], // CFB FLEX (no QB)
+    DST: ['DST'], // usually not present in CFB Classic; harmless if unused
+    'S-FLEX': ['QB', 'RB', 'WR', 'TE'], // superflex allows QB (and TE if present)
+  },
+} as const
+
 const DK_HEADER = [
   'Position',
   'Name + ID',
@@ -31,11 +55,16 @@ const DK_HEADER = [
   'AvgPointsPerGame',
 ] as const
 
-function rosterPositionsFor(pos: string) {
+function rosterPositionsFor(pos: string, sport: Sport) {
   const P = pos.toUpperCase()
-  if (P === 'QB') return 'QB/S-FLEX'
-  if (P === 'RB' || P === 'WR' || P === 'TE') return `${P}/FLEX/S-FLEX`
-  return `${P}/FLEX`
+  if (sport === 'CFB') {
+    if (P === 'QB') return 'QB/S-FLEX'
+    if (P === 'RB' || P === 'WR' || P === 'TE') return `${P}/FLEX/S-FLEX`
+    return `${P}/FLEX`
+  } else {
+    if (P === 'RB' || P === 'WR' || P === 'TE') return `${P}/FLEX`
+    return P
+  }
 }
 
 function formatEtDateTime(iso: string) {
@@ -83,6 +112,7 @@ function buildTeamIndex(matchups: Matchup[], fallbackStartIso?: string) {
 export function toDraftKingsCsvFromMatchups(
   players: Player[],
   matchups: Matchup[],
+  sport: Sport,
   opts?: { fallbackStartIso?: string; avgPointsKey?: keyof Player },
 ): string {
   const teamIndex = buildTeamIndex(matchups, opts?.fallbackStartIso)
@@ -93,7 +123,7 @@ export function toDraftKingsCsvFromMatchups(
     const name = p.full_name
     const id = p.draftable_id
     const namePlusId = `${name} (${id})`
-    const rosterPos = rosterPositionsFor(pos)
+    const rosterPos = rosterPositionsFor(pos, sport)
 
     const teamInfo = teamIndex[p.team_id] // player’s own team
     const teamAbbrev = teamInfo?.abbrev ?? ''

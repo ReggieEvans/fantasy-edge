@@ -26,7 +26,7 @@ export default function OptimizerFilters({
   const dispatch = useAppDispatch()
   const position = useAppSelector(s => s.optimizerFilters.position)
 
-  const slateType = slate?.contest_type_id === 94 ? 'Classic' : 'Showdown'
+  const slateType = slate?.contest_type_id === 94 || slate?.contest_type_id === 21 ? 'Classic' : 'Showdown'
 
   return (
     <div className="flex gap-6 items-center py-2">
