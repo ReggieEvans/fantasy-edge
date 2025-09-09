@@ -6,6 +6,8 @@ type Player = {
   team_id: number | string
   opponent_team_id: number | string
   projection?: number | null
+  showdown_position: string | null
+  avg_points: number | null
 }
 
 type Matchup = {
@@ -55,8 +57,15 @@ const DK_HEADER = [
   'AvgPointsPerGame',
 ] as const
 
-function rosterPositionsFor(pos: string, sport: Sport) {
+function rosterPositionsFor(pos: string, sport: Sport, isShowdown: boolean, showdownPosition: string | null) {
   const P = pos.toUpperCase()
+
+  // SHOWDOWN_POSITIONS
+  if (isShowdown) {
+    return showdownPosition
+  }
+
+  // CLASSIC_POSITIONS
   if (sport === 'CFB') {
     if (P === 'QB') return 'QB/S-FLEX'
     if (P === 'RB' || P === 'WR' || P === 'TE') return `${P}/FLEX/S-FLEX`
@@ -113,6 +122,7 @@ export function toDraftKingsCsvFromMatchups(
   players: Player[],
   matchups: Matchup[],
   sport: Sport,
+  isShowdown: boolean,
   opts?: { fallbackStartIso?: string; avgPointsKey?: keyof Player },
 ): string {
   const teamIndex = buildTeamIndex(matchups, opts?.fallbackStartIso)
@@ -123,7 +133,7 @@ export function toDraftKingsCsvFromMatchups(
     const name = p.full_name
     const id = p.draftable_id
     const namePlusId = `${name} (${id})`
-    const rosterPos = rosterPositionsFor(pos, sport)
+    const rosterPos = rosterPositionsFor(pos, sport, isShowdown, p.showdown_position)
 
     const teamInfo = teamIndex[p.team_id] // player’s own team
     const teamAbbrev = teamInfo?.abbrev ?? ''
@@ -131,7 +141,9 @@ export function toDraftKingsCsvFromMatchups(
     const gameBase = teamInfo?.gameBase ?? '' // "SJSU@TEX"
     const gameInfo = startIso ? `${gameBase} ${formatEtDateTime(startIso)} ET` : gameBase
 
-    const avg = (opts?.avgPointsKey ? (p[opts.avgPointsKey] as number | undefined) : undefined) ?? p.projection ?? 0
+    // TODO: Remove this once we have projections
+    // If theres no projection, use a random number between 0 and 25 for testing
+    const avg = p.projection ?? (Number.isFinite(Number(p.avg_points)) ? Number(p.avg_points) : 0)
 
     return [
       cell(pos),
@@ -142,9 +154,9 @@ export function toDraftKingsCsvFromMatchups(
       cell(p.salary),
       cell(gameInfo),
       cell(teamAbbrev),
-      cell(Number.isFinite(avg) ? (avg as number) : 0),
+      cell(avg),
     ].join(',')
   })
-
+  console.log('rows', rows)
   return [header, ...rows].join('\r\n')
 }

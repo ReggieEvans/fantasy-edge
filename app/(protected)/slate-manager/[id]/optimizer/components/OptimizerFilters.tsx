@@ -41,16 +41,26 @@ export default function OptimizerFilters({
           variant="outline"
           type="single"
           value={position}
-          onValueChange={val => dispatch(setPosition((val as CFBPosition | NFLPosition) || 'all'))}
+          onValueChange={val => dispatch(setPosition((val as CFBPosition | NFLPosition) || 'all' || 'cpt' || 'flex'))}
         >
           <ToggleGroupItem value="all" aria-label="Toggle bold" className="text-xs">
             ALL
           </ToggleGroupItem>
+          {slateType === 'Showdown' && (
+            <ToggleGroupItem value="CPT" aria-label="Toggle bold" className="text-xs">
+              CPT
+            </ToggleGroupItem>
+          )}
           {positionsArray?.map(position => (
             <ToggleGroupItem key={position} value={position} aria-label={`Toggle ${position}`} className="text-xs">
               {position}
             </ToggleGroupItem>
           ))}
+          {slateType === 'Showdown' && (
+            <ToggleGroupItem value="FLEX" aria-label="Toggle bold" className="text-xs">
+              FLEX
+            </ToggleGroupItem>
+          )}
         </ToggleGroup>
       </div>
       <div>

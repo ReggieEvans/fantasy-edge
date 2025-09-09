@@ -1,12 +1,14 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 import { Player } from '@/app/(protected)/slate-manager/_types/player'
 import { PassingStats, ReceivingStats, RushingStats } from '@/app/(protected)/slate-manager/_types/stats'
 import { createServerSupabaseClient } from '@/libs/supabase/server'
 
-export const GET = async (_req: Request, { params }: { params: Promise<{ id: string }> }) => {
+export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   const supabase = await createServerSupabaseClient()
   const { id: slateId } = await params
+  const { searchParams } = new URL(req.url)
+  const gameType = searchParams.get('gameType')
 
   const {
     data: { user },
@@ -105,7 +107,7 @@ export const GET = async (_req: Request, { params }: { params: Promise<{ id: str
     const rushingDefenseByTeam = toTeamMap(rushingDefense)
 
     // 6) Players: dedupe → enrich → attach teamStats (with OPPONENT defense)
-    const deduped = dedupePlayers(allPlayers)
+    const deduped = gameType === 'classic' ? dedupePlayers(allPlayers) : allPlayers
     const enriched = enrichPlayers(deduped, {
       passing: passingStats,
       rushing: rushingStats,
@@ -131,13 +133,13 @@ export const GET = async (_req: Request, { params }: { params: Promise<{ id: str
     })
 
     // 7) Filter out players with no passing, rushing, or receiving
-    const [players, filteredOut] = partition(
-      enriched,
-      p => p.position === 'DST' || p.passing != null || p.rushing != null || p.receiving != null,
-    )
+    // const [players, filteredOut] = partition(
+    //   enriched,
+    //   p => p.position === 'DST' || p.passing != null || p.rushing != null || p.receiving != null,
+    // )
 
-    const filteredOutCount = filteredOut.length
-    const filteredOutPlayers = filteredOut.map(p => `${p.first_name} ${p.last_name} (${p.position ?? 'UNKNOWN'})`)
+    // const filteredOutCount = filteredOut.length
+    // const filteredOutPlayers = filteredOut.map(p => `${p.first_name} ${p.last_name} (${p.position ?? 'UNKNOWN'})`)
 
     // 8) Matchups with team stats
     const teamStatPair = <T extends { team_id: string }>(rows: T[] = [], homeId: string, awayId: string) => ({
@@ -156,24 +158,22 @@ export const GET = async (_req: Request, { params }: { params: Promise<{ id: str
     }))
 
     // 9) Projections flag
-    const hasAnyProjection = players.some(p => (p as any).projection != null)
+    const hasAnyProjection = enriched.some(p => (p as any).projection != null)
     const isMissingProjections = !hasAnyProjection
 
-    const positionsArray = players.reduce((acc, p) => {
+    const positionsArray = enriched.reduce((acc, p) => {
       if (acc.includes(p.position)) return acc
       acc.push(p.position)
       return acc
     }, [] as string[])
 
-    const sortedPlayers = players.sort((a, b) => (b.salary ?? 0) - (a.salary ?? 0))
+    const sortedPlayers = enriched.sort((a, b) => (b.salary ?? 0) - (a.salary ?? 0))
 
     return NextResponse.json(
       {
         players: sortedPlayers,
         matchups: matchupsWithTeamStats,
         isMissingProjections,
-        filteredOutCount,
-        filteredOutPlayers,
         positionsArray,
       },
       { status: 200 },

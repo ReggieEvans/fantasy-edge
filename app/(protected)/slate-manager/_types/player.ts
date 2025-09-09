@@ -18,6 +18,7 @@ export interface Player {
   receiving: ReceivingStats | null
   projection: number | null
   full_name: string
+  avg_points: number | null
   isExcluded?: boolean
   isLocked?: boolean
 }
