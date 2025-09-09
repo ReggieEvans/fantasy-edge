@@ -31,20 +31,22 @@ const slice = createSlice({
     unlockPlayer: (s, a: PayloadAction<string>) => {
       s.lockedPlayerIds = s.lockedPlayerIds.filter(id => id !== a.payload)
     },
-    toggleExcludeAllPlayers: (s, action: PayloadAction<string[]>) => {
-      const allIds = action.payload.map(String)
-      const currentSet = new Set(s.excludedPlayerIds.map(String))
+    toggleExcludePlayersSubset: (s, action: PayloadAction<string[]>) => {
+      const subset = action.payload.map(String)
+      const set = new Set(s.excludedPlayerIds.map(String))
 
-      const allAreExcluded = allIds.every(id => currentSet.has(id))
+      const allSubsetAlreadyExcluded = subset.every(id => set.has(id))
 
-      if (allAreExcluded) {
-        // 👇 All were already excluded → include all
-        s.excludedPlayerIds = []
+      if (allSubsetAlreadyExcluded) {
+        // UN-exclude just this subset
+        subset.forEach(id => set.delete(id))
       } else {
-        // 👇 Not all excluded → exclude all
-        s.excludedPlayerIds = allIds
-        s.lockedPlayerIds = [] // optional
+        // Exclude this subset, keep previous excludes
+        subset.forEach(id => set.add(id))
       }
+
+      s.excludedPlayerIds = Array.from(set)
+      // s.lockedPlayerIds = [] // optional, if you want to clear locks when excluding
     },
     resetPool: () => initial,
   },
@@ -56,7 +58,7 @@ export const {
   includePlayer,
   lockPlayer,
   unlockPlayer,
-  toggleExcludeAllPlayers,
+  toggleExcludePlayersSubset,
   resetPool,
 } = slice.actions
 export default slice.reducer

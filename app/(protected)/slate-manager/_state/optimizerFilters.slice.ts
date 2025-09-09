@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-type Position = 'all' | 'QB' | 'RB' | 'WR'
+type Position = 'all' | 'QB' | 'RB' | 'WR' | 'CPT' | 'FLEX'
 
 interface UIState {
   position: Position

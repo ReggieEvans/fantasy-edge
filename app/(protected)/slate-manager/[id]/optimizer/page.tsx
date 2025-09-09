@@ -2,7 +2,7 @@
 
 import { Cog, Loader2 } from 'lucide-react'
 import { useParams } from 'next/navigation'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import { useGetSlateQuery } from '@/app/(protected)/slate-manager/_api/slates.api'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
@@ -16,7 +16,7 @@ import {
   excludePlayer,
   includePlayer,
   lockPlayer,
-  toggleExcludeAllPlayers,
+  toggleExcludePlayersSubset,
   unlockPlayer,
 } from '../../_state/optimizerPool.slice'
 import {
@@ -46,10 +46,9 @@ export default function OptimizerPage() {
     data: slatePack = { players: [], matchups: [], positionsArray: [] },
     isLoading: slatePackLoading,
     isError: slatePackError,
-  } = useGetSlatePackQuery(id)
+  } = useGetSlatePackQuery({ id, gameType: slate?.game_type as string }, { skip: !slate?.game_type })
   const [isBusy, setBusy] = useState(false)
   const [expSearch, setExpSearch] = useState('')
-  const [excludeAllOpen, setExcludeAllOpen] = useState(false)
 
   const [response, setResponse] = useState<null | {
     requested: number
@@ -61,9 +60,14 @@ export default function OptimizerPage() {
   }>(null)
   const [error, setError] = useState<string | null>(null)
 
-  const selectVisible = useMemo(() => makeSelectVisiblePlayers(id), [id])
+  const selectVisible = useMemo(() => makeSelectVisiblePlayers(id, slate?.game_type as string), [id, slate?.game_type])
   const tableRows = useAppSelector(selectVisible)
-  const selectEligible = useMemo(() => makeSelectEligiblePlayers(id), [id])
+  const selectEligible = useMemo(
+    () => makeSelectEligiblePlayers(id, slate?.game_type as string),
+    [id, slate?.game_type],
+  )
+
+  const position = useAppSelector(s => s.optimizerFilters.position)
   const eligiblePlayers = useAppSelector(selectEligible)
   const excludedPlayerIds = useAppSelector(s => s.optimizerPool.excludedPlayerIds)
   const constraints = useAppSelector(s => s.optimizerConstraints.constraints)
@@ -74,31 +78,73 @@ export default function OptimizerPage() {
     return slatePack.players.every(p => excludedSet.has(String(p.id)))
   }, [excludedPlayerIds, slatePack.players])
 
+  const onToggleExclude = useCallback(
+    (id: string, isCurrentlyExcluded: boolean) => {
+      dispatch(isCurrentlyExcluded ? includePlayer(id) : excludePlayer(id))
+    },
+    [dispatch],
+  )
+
+  const onToggleLock = useCallback(
+    (id: string, isCurrentlyLocked: boolean) => {
+      dispatch(isCurrentlyLocked ? unlockPlayer(id) : lockPlayer(id))
+    },
+    [dispatch],
+  )
+
+  // per-position subset toggle (Showdown-aware)
+  const onExcludePlayersSubsetCb = useCallback(() => {
+    const gameType = slate?.game_type as string | undefined
+    const isShowdown = typeof gameType === 'string' && /(showdown|captain)/i.test(gameType)
+    const norm = (v: any) => (v ?? '').toString().trim().toUpperCase()
+    const isCaptain = (p: any) => {
+      const sp = norm(p?.showdown_position)
+      return sp === 'CPT' || sp === 'CAPTAIN'
+    }
+    const isDst = (p: any) => {
+      const pos = norm(p?.position)
+      return pos === 'DST' || pos === 'D/ST' || pos === 'DEF'
+    }
+
+    const uiPos = norm(position)
+    let ids: string[] = []
+
+    if (uiPos === 'ALL') {
+      ids = slatePack.players.map(p => String(p.id))
+    } else if (isShowdown && uiPos === 'CPT') {
+      ids = slatePack.players.filter(p => isCaptain(p)).map(p => String(p.id))
+    } else if (isShowdown && uiPos === 'FLEX') {
+      ids = slatePack.players.filter(p => !isCaptain(p)).map(p => String(p.id))
+    } else {
+      ids = slatePack.players
+        .filter(p => {
+          if (isShowdown && isCaptain(p)) return false
+          const ppos = norm(p?.position)
+          return uiPos === 'DST' ? isDst(p) : ppos === uiPos
+        })
+        .map(p => String(p.id))
+    }
+
+    dispatch(toggleExcludePlayersSubset(ids))
+  }, [dispatch, slate?.game_type, slatePack.players, position])
+
+  // columns memo depends on the stable callbacks (and any flags you pass)
   const playerColumns = useMemo(
     () =>
       makePlayerColumns({
-        onToggleExclude: (id, isCurrentlyExcluded) => {
-          dispatch(isCurrentlyExcluded ? includePlayer(id) : excludePlayer(id))
-        },
-        onToggleLock: (id, isCurrentlyLocked) => {
-          dispatch(isCurrentlyLocked ? unlockPlayer(id) : lockPlayer(id))
-        },
-        onToggleExcludeAll: () => {
-          setExcludeAllOpen(true)
-        },
-        isAllExcluded: isAllExcluded,
+        onToggleExclude,
+        onToggleLock,
+        onToggleExcludePlayersSubset: onExcludePlayersSubsetCb,
+        isAllExcluded,
       }),
-    [dispatch, isAllExcluded],
+    [onToggleExclude, onToggleLock, onExcludePlayersSubsetCb, isAllExcluded],
   )
 
-  const selectCount = useMemo(() => makeSelectExcludedPlayerCount(id), [id])
+  const selectCount = useMemo(
+    () => makeSelectExcludedPlayerCount(id, slate?.game_type as string),
+    [id, slate?.game_type],
+  )
   const excludedCount = useAppSelector(selectCount)
-
-  const onExcludeAllPlayers = () => {
-    const allIds = slatePack.players.map(p => p.id)
-    dispatch(toggleExcludeAllPlayers(allIds))
-    setExcludeAllOpen(false)
-  }
 
   const onGenerateLineups = async (lineups: number) => {
     if (!slate) return
@@ -116,9 +162,8 @@ export default function OptimizerPage() {
       },
     })
 
-    const csv = toDraftKingsCsvFromMatchups(eligiblePlayers, matchups, slate.sport as Sport, {
+    const csv = toDraftKingsCsvFromMatchups(eligiblePlayers, matchups, slate.sport as Sport, slateType === 'Showdown', {
       fallbackStartIso: slate?.min_start_time, // optional
-      avgPointsKey: 'projection',
     })
 
     // 2) Turn it into a File (best) or Blob (fallback)
@@ -267,14 +312,6 @@ export default function OptimizerPage() {
           </div>
         )}
       </section>
-      <ExcludeAllModal
-        open={excludeAllOpen}
-        onClose={() => setExcludeAllOpen(false)}
-        onExcludeAll={() => {
-          onExcludeAllPlayers()
-        }}
-        isAllExcluded={isAllExcluded}
-      />
     </div>
   )
 }

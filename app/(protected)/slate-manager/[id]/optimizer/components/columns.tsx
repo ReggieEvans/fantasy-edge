@@ -8,12 +8,12 @@ import { getLetterGrade } from '@/utils/letter-grade'
 export function makePlayerColumns({
   onToggleExclude,
   onToggleLock,
-  onToggleExcludeAll,
+  onToggleExcludePlayersSubset,
   isAllExcluded,
 }: {
   onToggleExclude: (id: string, excluded: boolean) => void
   onToggleLock: (id: string, locked: boolean) => void
-  onToggleExcludeAll: () => void
+  onToggleExcludePlayersSubset: () => void
   isAllExcluded: boolean
 }): ColumnDef<Player>[] {
   return [
@@ -26,7 +26,7 @@ export function makePlayerColumns({
             <div className="flex justify-center w-8">
               <button
                 type="button"
-                onClick={() => onToggleExcludeAll()}
+                onClick={() => onToggleExcludePlayersSubset()}
                 title={isAllExcluded ? 'Include all' : 'Exclude all'}
               >
                 {isAllExcluded ? (
