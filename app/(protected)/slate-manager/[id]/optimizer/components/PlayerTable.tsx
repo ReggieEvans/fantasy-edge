@@ -1,8 +1,12 @@
 'use client'
 
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
+import { Loader2 } from 'lucide-react'
 
+import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+
+import { PlayerTableSkeleton } from './skeletons/PlayerTableSkeleton'
 
 interface PlayerWithFlags {
   isExcluded?: boolean
@@ -13,11 +17,17 @@ interface PlayerWithFlags {
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  isLoading?: boolean
+  isPending?: boolean
+  isFetching?: boolean
+  hasRows?: boolean
 }
 
 export default function PlayerTable<TData extends PlayerWithFlags, TValue>({
   columns,
   data,
+  isLoading = false,
+  isFetching = true,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -25,11 +35,23 @@ export default function PlayerTable<TData extends PlayerWithFlags, TValue>({
     getCoreRowModel: getCoreRowModel(),
   })
 
+  const rows = table.getRowModel().rows
+  const hasRows = rows.length > 0
+
+  const showSkeleton = isFetching && !hasRows
+  const showOverlay = isFetching && hasRows
+  const showEmpty = !showSkeleton && !showOverlay && !hasRows
+  const visibleCols = table.getVisibleLeafColumns().length || columns.length
+
+  if (showSkeleton) {
+    return <PlayerTableSkeleton />
+  }
+
   return (
     <div className="w-full overflow-x-auto">
       {/* INNER: vertical scroll cap */}
       <div className="mt-4 max-h-[800px] overflow-y-auto relative">
-        <Table className="min-w-max border-separate border-spacing-0">
+        <Table aria-busy={isLoading} className="min-w-max border-separate border-spacing-0">
           {/* --- STICKY DOUBLE HEADER --- */}
           <TableHeader
             className={`
@@ -70,8 +92,8 @@ export default function PlayerTable<TData extends PlayerWithFlags, TValue>({
               [&_td:first-child]:shadow-[inset_-6px_0_6px_-6px_rgba(0,0,0,0.08)]
         `}
           >
-            {table.getRowModel().rows.length ? (
-              table.getRowModel().rows.map(row => (
+            {hasRows ? (
+              rows.map(row => (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
@@ -84,13 +106,13 @@ export default function PlayerTable<TData extends PlayerWithFlags, TValue>({
                   ))}
                 </TableRow>
               ))
-            ) : (
+            ) : showEmpty ? (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell colSpan={visibleCols} className="h-96 text-center">
                   No results.
                 </TableCell>
               </TableRow>
-            )}
+            ) : null}
           </TableBody>
         </Table>
       </div>
