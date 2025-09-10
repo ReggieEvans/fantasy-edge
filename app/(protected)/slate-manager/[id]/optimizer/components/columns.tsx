@@ -1,9 +1,11 @@
 import { ColumnDef } from '@tanstack/react-table'
-import { CircleX, Lock, RefreshCcw, Square, Unlock } from 'lucide-react'
+import { Lock, RefreshCcw } from 'lucide-react'
 
 import { Player } from '@/app/(protected)/slate-manager/_types/player'
 import { getColorByValue, pffGradeConfig } from '@/utils/color-coding'
 import { getLetterGrade } from '@/utils/letter-grade'
+
+import { ExcludeCell, LockCell, PlayerNameCell, PositionCell, ROICell } from './cells/PlayerCell'
 
 export function makePlayerColumns({
   onToggleExclude,
@@ -29,80 +31,30 @@ export function makePlayerColumns({
                 onClick={() => onToggleExcludePlayersSubset()}
                 title={isAllExcluded ? 'Include all' : 'Exclude all'}
               >
-                {isAllExcluded ? (
-                  <RefreshCcw className="w-4 h-4 hover:text-destructive" />
-                ) : (
-                  <CircleX className="w-4 h-4 hover:text-destructive" />
-                )}
+                <RefreshCcw className="w-4 h-4 hover:text-destructive" />
               </button>
             </div>
           ),
           meta: 'Exclude',
-          cell: ({ row }) => {
-            const player = row.original
-            const isExcluded = !!player.isExcluded
-
-            return (
-              <div className="flex justify-center w-8">
-                <button
-                  type="button"
-                  onClick={() => onToggleExclude(player.id, isExcluded)}
-                  title={isExcluded ? 'Include player' : 'Exclude player'}
-                  className="hover:scale-150 transition-all duration-300"
-                >
-                  {isExcluded ? (
-                    <Square className="w-4 h-4 text-muted" />
-                  ) : (
-                    <CircleX className="w-4 h-4 text-destructive" />
-                  )}
-                </button>
-              </div>
-            )
-          },
+          cell: ({ row }) => <ExcludeCell player={row.original} onToggleExclude={onToggleExclude} />,
         },
         {
           id: 'lock',
           header: () => <Lock className="w-4 h-4 text-muted" />,
           meta: 'Lock',
-          cell: ({ row }) => {
-            const player = row.original
-            const isLocked = !!player.isLocked
-
-            return (
-              <div className="flex justify-center w-8">
-                <button
-                  type="button"
-                  onClick={() => onToggleLock(player.id, isLocked)}
-                  title={isLocked ? 'Unlock player' : 'Lock player'}
-                  className="hover:scale-150 transition-all duration-300 "
-                >
-                  {isLocked ? (
-                    <Lock className="w-4 h-4 text-accent" />
-                  ) : (
-                    <Unlock className="w-4 h-4 text-muted hover:text-accent transition-all duration-300" />
-                  )}
-                </button>
-              </div>
-            )
-          },
+          cell: ({ row }) => <LockCell player={row.original} onToggleLock={onToggleLock} />,
         },
         {
           id: 'displayName',
           header: 'PLAYER',
           meta: 'Player',
-          cell: ({ row }) => {
-            const name = row.original.first_name + ' ' + row.original.last_name
-            return <div className="text-left">{name ?? '-'}</div>
-          },
+          cell: ({ row }) => <PlayerNameCell player={row.original} />,
         },
         {
           id: 'position',
           header: 'POS',
           meta: 'Position',
-          cell: ({ row }) => {
-            const position = row.original.position
-            return <div className="text-left">{position ?? '-'}</div>
-          },
+          cell: ({ row }) => <PositionCell player={row.original} />,
         },
         {
           id: 'salary',
@@ -120,13 +72,7 @@ export function makePlayerColumns({
           id: 'roi',
           header: 'ROI',
           meta: 'FPTS/Salary',
-          cell: ({ row }) => {
-            const salary = Number(row.original.salary)
-            const projection = Number(row.original.projection)
-            if (!salary || isNaN(salary) || isNaN(projection)) return <div>-</div>
-            const val = ((projection / salary) * 1000).toFixed(2) // 26/9800*1000 ≈ 2.65
-            return <div>{val}</div>
-          },
+          cell: ({ row }) => <ROICell player={row.original} />,
         },
       ],
     },

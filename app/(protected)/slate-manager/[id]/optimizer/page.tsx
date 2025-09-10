@@ -1,18 +1,16 @@
 'use client'
 
-import { Cog, Loader2 } from 'lucide-react'
+import { Cog } from 'lucide-react'
 import { useParams } from 'next/navigation'
-import { useCallback, useMemo, useState } from 'react'
+import { startTransition, useCallback, useMemo, useState } from 'react'
 
 import { useGetSlateQuery } from '@/app/(protected)/slate-manager/_api/slates.api'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { makeLineupEnricher } from '@/utils/lineupEnricher'
 import { toDraftKingsCsvFromMatchups } from '@/utils/toDraftkingsCsv'
 
-import { useGetMatchupsQuery } from '../../_api/matchups.api'
 import { useGetSlatePackQuery } from '../../_api/optimizer'
 import {
-  excludeAllPlayers,
   excludePlayer,
   includePlayer,
   lockPlayer,
@@ -22,17 +20,13 @@ import {
 import {
   makeSelectEligiblePlayers,
   makeSelectExcludedPlayerCount,
-  makeSelectFilteredPlayers,
   makeSelectVisiblePlayers,
 } from '../../_state/selectors'
-import { Player } from '../../_types/player'
 import { makePlayerColumns } from './components/columns'
-import ExcludeAllModal from './components/ExcludeAllModal'
+import { OptimizerErrorBoundary } from './components/ErrorBoundary'
 import ExposureSummary from './components/ExposureSummary'
 import GenerateLineups from './components/GenerateLineups'
 import LineupResults from './components/LineupResults'
-import FantasyEdgeOptimizer from './components/OLD_FantasyEdgeOptimizer'
-import PlayerPool from './components/OLD_PlayerPool'
 import OptimizerFilters from './components/OptimizerFilters'
 import OptimizerOptions from './components/OptimizerOptions'
 import PlayerTable from './components/PlayerTable'
@@ -41,12 +35,15 @@ type Sport = 'NFL' | 'CFB'
 
 export default function OptimizerPage() {
   const { id } = useParams() as { id: string }
-  const { data: slate, isLoading, isError } = useGetSlateQuery(id)
+  const { data: slate } = useGetSlateQuery(id)
   const {
     data: slatePack = { players: [], matchups: [], positionsArray: [] },
     isLoading: slatePackLoading,
-    isError: slatePackError,
-  } = useGetSlatePackQuery({ id, gameType: slate?.game_type as string }, { skip: !slate?.game_type })
+    isFetching: slatePackFetching,
+  } = useGetSlatePackQuery(
+    { id, gameType: slate?.game_type as string },
+    { skip: !slate?.game_type, refetchOnFocus: false, refetchOnReconnect: false, pollingInterval: 0 },
+  )
   const [isBusy, setBusy] = useState(false)
   const [expSearch, setExpSearch] = useState('')
 
@@ -55,7 +52,22 @@ export default function OptimizerPage() {
     generated: number
     mode: string
     sport: string
-    lineups: any[]
+    lineups: Array<{
+      players: Array<{
+        name: string
+        team?: string
+        salary: number
+        lineup_position?: string
+        positions?: string[]
+        fe_player_id: string
+        fe: {
+          team_image: string
+          projection?: number
+        }
+      }>
+      salary: number
+      projection: number
+    }>
     message?: string
   }>(null)
   const [error, setError] = useState<string | null>(null)
@@ -75,7 +87,7 @@ export default function OptimizerPage() {
 
   const isAllExcluded = useMemo(() => {
     const excludedSet = new Set(excludedPlayerIds)
-    return slatePack.players.every(p => excludedSet.has(String(p.id)))
+    return slatePack.players.every((p: { id: string | number }) => excludedSet.has(String(p.id)))
   }, [excludedPlayerIds, slatePack.players])
 
   const onToggleExclude = useCallback(
@@ -96,12 +108,12 @@ export default function OptimizerPage() {
   const onExcludePlayersSubsetCb = useCallback(() => {
     const gameType = slate?.game_type as string | undefined
     const isShowdown = typeof gameType === 'string' && /(showdown|captain)/i.test(gameType)
-    const norm = (v: any) => (v ?? '').toString().trim().toUpperCase()
-    const isCaptain = (p: any) => {
+    const norm = (v: unknown) => (v ?? '').toString().trim().toUpperCase()
+    const isCaptain = (p: { showdown_position?: unknown }) => {
       const sp = norm(p?.showdown_position)
       return sp === 'CPT' || sp === 'CAPTAIN'
     }
-    const isDst = (p: any) => {
+    const isDst = (p: { position?: unknown }) => {
       const pos = norm(p?.position)
       return pos === 'DST' || pos === 'D/ST' || pos === 'DEF'
     }
@@ -110,22 +122,28 @@ export default function OptimizerPage() {
     let ids: string[] = []
 
     if (uiPos === 'ALL') {
-      ids = slatePack.players.map(p => String(p.id))
+      ids = slatePack.players.map((p: { id: string | number }) => String(p.id))
     } else if (isShowdown && uiPos === 'CPT') {
-      ids = slatePack.players.filter(p => isCaptain(p)).map(p => String(p.id))
+      ids = slatePack.players
+        .filter((p: { showdown_position?: unknown }) => isCaptain(p))
+        .map((p: { id: string | number }) => String(p.id))
     } else if (isShowdown && uiPos === 'FLEX') {
-      ids = slatePack.players.filter(p => !isCaptain(p)).map(p => String(p.id))
+      ids = slatePack.players
+        .filter((p: { showdown_position?: unknown }) => !isCaptain(p))
+        .map((p: { id: string | number }) => String(p.id))
     } else {
       ids = slatePack.players
-        .filter(p => {
+        .filter((p: { showdown_position?: unknown; position?: unknown }) => {
           if (isShowdown && isCaptain(p)) return false
           const ppos = norm(p?.position)
           return uiPos === 'DST' ? isDst(p) : ppos === uiPos
         })
-        .map(p => String(p.id))
+        .map((p: { id: string | number }) => String(p.id))
     }
 
-    dispatch(toggleExcludePlayersSubset(ids))
+    startTransition(() => {
+      dispatch(toggleExcludePlayersSubset(ids))
+    })
   }, [dispatch, slate?.game_type, slatePack.players, position])
 
   // columns memo depends on the stable callbacks (and any flags you pass)
@@ -198,8 +216,8 @@ export default function OptimizerPage() {
         // Keep your response shape but with richer per-player info:
         setResponse({ ...data, lineups: enriched })
       }
-    } catch (err: any) {
-      setError(err?.message || String(err))
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err))
     } finally {
       setBusy(false)
     }
@@ -220,12 +238,17 @@ export default function OptimizerPage() {
   }
 
   const { playerExposures, teamExposures, totalLineups } = useMemo(() => {
+    if (!response?.lineups?.length) {
+      return { playerExposures: [], teamExposures: [], totalLineups: 0 }
+    }
+
     const map = new Map<PlayerKey, { name: string; team?: string; pos?: string; count: number; salarySum: number }>()
     const teamMap = new Map<string, number>()
 
-    const n = response?.generated ?? 0
-    const lineups = response?.lineups ?? []
+    const n = response.generated
+    const lineups = response.lineups
 
+    // Process lineups in batches for better performance
     for (const lu of lineups) {
       const seenTeams = new Set<string>()
       for (const p of lu.players ?? []) {
@@ -264,7 +287,7 @@ export default function OptimizerPage() {
       .sort((a, b) => b.exposurePct - a.exposurePct || a.team.localeCompare(b.team))
 
     return { playerExposures, teamExposures, totalLineups: n }
-  }, [response])
+  }, [response?.generated, response?.lineups])
 
   const filteredPlayerExposures = useMemo(() => {
     if (!expSearch) return playerExposures
@@ -290,26 +313,44 @@ export default function OptimizerPage() {
       </div>
 
       <section className="flex flex-col px-6 pb-8">
-        <OptimizerOptions slate={slate} matchups={slatePack?.matchups} />
-        <OptimizerFilters slate={slate} positionsArray={slatePack?.positionsArray} excludedCount={excludedCount} />
-        <PlayerTable columns={playerColumns} data={tableRows} />
-        <GenerateLineups onGenerateLineups={onGenerateLineups} isBusy={isBusy} />
+        <OptimizerErrorBoundary>
+          <OptimizerOptions slate={slate} matchups={slatePack.matchups} />
+        </OptimizerErrorBoundary>
+
+        <OptimizerErrorBoundary>
+          <OptimizerFilters slate={slate} positionsArray={slatePack.positionsArray} excludedCount={excludedCount} />
+        </OptimizerErrorBoundary>
+
+        <OptimizerErrorBoundary>
+          <PlayerTable
+            columns={playerColumns}
+            data={tableRows}
+            isLoading={slatePackLoading}
+            isFetching={slatePackFetching}
+          />
+        </OptimizerErrorBoundary>
+
+        <OptimizerErrorBoundary>
+          <GenerateLineups onGenerateLineups={onGenerateLineups} isBusy={isBusy} />
+        </OptimizerErrorBoundary>
 
         {response && (
-          <div className="flex gap-6">
-            <div className="w-[400px]">
-              <ExposureSummary
-                expSearch={expSearch}
-                setExpSearch={setExpSearch}
-                playerExposures={filteredPlayerExposures}
-                teamExposures={teamExposures}
-                totalLineups={totalLineups}
-              />
+          <OptimizerErrorBoundary>
+            <div className="flex gap-6">
+              <div className="w-[400px]">
+                <ExposureSummary
+                  expSearch={expSearch}
+                  setExpSearch={setExpSearch}
+                  playerExposures={filteredPlayerExposures}
+                  teamExposures={teamExposures}
+                  totalLineups={totalLineups}
+                />
+              </div>
+              <div className="flex-1">
+                <LineupResults lineups={response?.lineups ?? null} error={error} />
+              </div>
             </div>
-            <div className="flex-1">
-              <LineupResults lineups={response?.lineups ?? null} error={error} />
-            </div>
-          </div>
+          </OptimizerErrorBoundary>
         )}
       </section>
     </div>
