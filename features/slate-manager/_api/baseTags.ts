@@ -1,12 +1,13 @@
 export const slateManagerTags = [
-  'Slate',
-  'Player',
-  'Matchup',
-  'Target',
+  'Slates',
+  'Players',
+  'Matchups',
+  'Targets',
   'Rosters',
-  'Projection',
-  'Contest',
+  'Projections',
+  'Contests',
   'SlatePack',
+  'SlatePlayers',
 ] as const
 
 export type SlateManagerTag = (typeof slateManagerTags)[number]

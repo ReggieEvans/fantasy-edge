@@ -24,6 +24,7 @@ import {
 } from '../../_api/targets.api'
 import { TargetPlayerFormValues } from '../../_schema/targetForm.schema'
 import { Target } from '../../_types/target'
+import { TargetPool } from '../../_types/targetPool'
 import TargetPlayerModal from '../../_ui/TargetPlayerModal'
 import { Player } from '../types/player'
 import { baseColumns, quarterbackColumns, runningbackColumns, widereceiverColumns } from './columns'
@@ -221,7 +222,7 @@ export default function PlayerTable({ data, position, showPlayersWithNoStats }: 
       <TargetPlayerModal
         open={open}
         onClose={() => setOpen(false)}
-        selectedPlayer={selectedPlayer}
+        selectedPlayer={selectedPlayer as TargetPool | null}
         existingTarget={existingTarget}
         handleSubmitTarget={handleSubmitTarget}
         isSaving={isSaving}

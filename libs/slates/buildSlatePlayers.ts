@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { SupabaseClient } from '@supabase/supabase-js'
 
 import { DkSlateSelection } from '@/features/slate-manager/_types/dkSlate'
@@ -40,7 +41,7 @@ export async function buildSlatePlayers(
         '512': 'FLEX',
       }
       const showdownPosition = isShowdown ? slotToPosition[p.rosterSlotId] : null
-      const avgPoints = p.draftStatAttributes.find(attr => attr.id === 90)?.value ?? null
+      const avgPoints = p.draftStatAttributes.find((attr: any) => attr.id === 90)?.value ?? null
 
       const row = {
         slate_id: slate.id,

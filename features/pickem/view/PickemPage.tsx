@@ -53,7 +53,7 @@ export default function PickemPage() {
         canGenerate={canGenerate}
       />
 
-      {error && <ErrorMessage errorMessage={error} />}
+      {error && <ErrorMessage errorMessage={error} errorTitle="Error" />}
 
       <div className="space-y-4 mt-4 px-1">
         {isLoading ? (

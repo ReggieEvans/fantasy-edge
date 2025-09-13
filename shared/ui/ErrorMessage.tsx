@@ -1,4 +1,4 @@
-import { Bug } from 'lucide-react'
+import { AlertTriangle } from 'lucide-react'
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
@@ -10,7 +10,7 @@ type ErrorMessageProps = {
 export const ErrorMessage = ({ errorTitle, errorMessage }: ErrorMessageProps) => {
   return (
     <Alert variant="destructive">
-      <Bug size={20} aria-hidden />
+      <AlertTriangle size={20} aria-hidden />
       <div className="flex gap-2 ml-2">
         <div className="flex">
           <div className="w-[1px] h-full bg-destructive"></div>

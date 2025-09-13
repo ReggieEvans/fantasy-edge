@@ -1,18 +1,12 @@
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { Label } from '@/components/ui/label'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Slate } from '@/features/slate-manager/_types/slate'
 import { formatDateTime } from '@/shared/utils/formatDkTime'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 
-import { setPosition } from '../model/optimizerFilters.slice'
+import { Position, setPosition } from '../model/optimizerFilters.slice'
 
 export default function OptimizerFilters({
   slate,
@@ -43,7 +37,9 @@ export default function OptimizerFilters({
           variant="outline"
           type="single"
           value={position}
-          onValueChange={val => dispatch(setPosition((val as any) || 'all' || 'cpt' || 'flex'))}
+          onValueChange={val =>
+            dispatch(setPosition((val as Position) || 'all' || 'cpt' || 'flex'))
+          }
         >
           <ToggleGroupItem value="all" aria-label="Toggle bold" className="text-xs">
             ALL
@@ -71,18 +67,14 @@ export default function OptimizerFilters({
         </ToggleGroup>
       </div>
       <div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild className="w-40">
-            <Button variant="outline" className="text-xs">
-              Columns
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-40 bg-background-darker">
-            <DropdownMenuCheckboxItem>Column1</DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem>Column2</DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem>Column3</DropdownMenuCheckboxItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Button variant="outline" className="text-xs">
+          Lock Targets
+        </Button>
+      </div>
+      <div>
+        <Button variant="outline" className="text-xs">
+          Exclude Non-Targets
+        </Button>
       </div>
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-1">

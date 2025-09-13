@@ -50,7 +50,10 @@ export default function MatchupsPage() {
         )}
 
         {!isLoading && isError && (
-          <ErrorMessage errorMessage="Something went wrong while loading matchups." />
+          <ErrorMessage
+            errorMessage="Something went wrong while loading matchups."
+            errorTitle="Error"
+          />
         )}
 
         {!isLoading && !isError && sortedMatchups.length === 0 && (

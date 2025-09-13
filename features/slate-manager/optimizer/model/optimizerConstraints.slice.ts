@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-import { OptimizerConstraints } from '../[id]/optimizer/types'
+import { OptimizerConstraints } from '../types/optimizerConstraints'
 
 interface ConstraintsState {
   constraints: OptimizerConstraints

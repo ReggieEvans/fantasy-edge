@@ -252,6 +252,7 @@ export default function PlayerPoolPage() {
         onClose={() => setShowQuickTargetsModal(false)}
         onTargetPlayer={onTargetPlayer}
         addingIds={addingIds}
+        tabs={[]}
       />
     </div>
   )

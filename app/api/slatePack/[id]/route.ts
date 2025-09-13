@@ -3,12 +3,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Player } from '@/features/slate-manager/_types/player'
 import { PassingStats, ReceivingStats, RushingStats } from '@/features/slate-manager/_types/stats'
 import { createServerSupabaseClient } from '@/libs/supabase/server'
+import { Sport } from '@/types/sport'
 
 export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   const supabase = await createServerSupabaseClient()
   const { id: slateId } = await params
   const { searchParams } = new URL(req.url)
   const gameType = searchParams.get('gameType')
+  let sport: Sport
 
   const {
     data: { user },
@@ -27,6 +29,8 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: 
     if (!matchups || matchups.length === 0) {
       return NextResponse.json({ error: 'No matchups found for this slate' }, { status: 404 })
     }
+
+    sport = matchups[0].sport
 
     // Build opponent lookup: team_id -> opponent_team_id
     const opponentByTeamId = new Map<string, string>()
@@ -173,14 +177,28 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: 
     }))
 
     // 9) Projections flag
-    const hasAnyProjection = enriched.some(p => (p as any).projection != null)
+    const hasAnyProjection = enriched.some(p => (p as Player).projection != null)
     const isMissingProjections = !hasAnyProjection
 
-    const positionsArray = enriched.reduce((acc, p) => {
-      if (acc.includes(p.position)) return acc
-      acc.push(p.position)
-      return acc
-    }, [] as string[])
+    const norm = (s?: string) => (s ?? '').toUpperCase().trim()
+    const toDst = (p: string) => (p === 'D/ST' || p === 'DEF' ? 'DST' : p)
+
+    const available = new Set<string>()
+    for (const p of enriched) {
+      if (Array.isArray(p.position)) {
+        for (const pos of p.position) available.add(toDst(norm(pos)))
+      }
+      if (p.position) available.add(toDst(norm(p.position)))
+    }
+
+    // choose desired order by sport
+    const ORDER: Record<'NFL' | 'CFB', readonly string[]> = {
+      NFL: ['QB', 'RB', 'WR', 'TE', 'DST'],
+      CFB: ['QB', 'RB', 'WR'],
+    }
+
+    // `sport` can come from your slate
+    const positionsArray = ORDER[sport as 'NFL' | 'CFB'].filter(pos => available.has(pos))
 
     const sortedPlayers = enriched.sort((a, b) => (b.salary ?? 0) - (a.salary ?? 0))
 
@@ -241,14 +259,4 @@ function dedupePlayers(players: Player[]) {
   }
 
   return deduped
-}
-
-function partition<T>(arr: T[], predicate: (x: T) => boolean): [T[], T[]] {
-  const pass: T[] = []
-  const fail: T[] = []
-  for (const item of arr) {
-    if (predicate(item)) pass.push(item)
-    else fail.push(item)
-  }
-  return [pass, fail]
 }

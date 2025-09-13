@@ -1,11 +1,27 @@
 import { Input } from '@/components/ui/input'
 
+type PlayerExposure = {
+  key: string
+  name: string
+  team?: string
+  pos?: string
+  count: number
+  exposurePct: number
+  avgSalary?: number
+}
+
+type TeamExposure = {
+  team: string
+  count: number
+  exposurePct: number
+}
+
 type ExposureSummaryProps = {
   expSearch: string
   setExpSearch: (expSearch: string) => void
-  playerExposures: any[]
-  teamExposures: any[]
-  totalLineups: number
+  playerExposures: PlayerExposure[]
+  teamExposures: TeamExposure[]
+  // totalLineups: number
 }
 
 export default function ExposureSummary({
@@ -13,7 +29,7 @@ export default function ExposureSummary({
   setExpSearch,
   playerExposures,
   teamExposures,
-  totalLineups,
+  // totalLineups,
 }: ExposureSummaryProps) {
   return (
     <div className="rounded border border-background-darker px-2 py-4 h-full bg-card">

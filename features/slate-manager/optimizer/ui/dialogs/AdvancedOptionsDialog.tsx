@@ -123,11 +123,11 @@ export default function AdvancedOptionsDialog({
                             onChange={e =>
                               dispatchForm({
                                 type: 'SET_STRING_NUMBER',
-                                key: `flex${pos}` as any,
+                                key: `flex${pos}`,
                                 value: e.target.value,
                               })
                             }
-                            value={String((state as any)[`flex${pos}`] ?? '')}
+                            value={String((state as Record<string, unknown>)[`flex${pos}`] ?? '')}
                           />
                         </div>
                       ))}

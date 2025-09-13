@@ -1,14 +1,16 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
 import { Cog } from 'lucide-react'
 import { useParams } from 'next/navigation'
-import { startTransition, useCallback, useMemo, useState } from 'react'
+import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { makeLineupEnricher } from '@/utils/lineupEnricher'
 import { toDraftKingsCsvFromMatchups } from '@/utils/toDraftkingsCsv'
 
 import { useGetSlateQuery } from '../../_api/slates.api'
+import { Slate } from '../../_types/slate'
 import { useGetSlatePackQuery } from '../api/optimizer.api'
 import {
   excludePlayer,
@@ -31,17 +33,66 @@ import OptimizerFilters from '../ui/OptimizerFilters'
 import OptimizerOptions from '../ui/OptimizerOptions'
 import PlayerTable from '../ui/PlayerTable'
 
-type Sport = 'NFL' | 'CFB'
+type OptimizedPlayer = {
+  name: string
+  team?: string
+  salary: number
+  lineup_position?: string
+  positions?: string[]
+  fe_player_id: string
+  fe: {
+    team_image: string
+    projection?: number
+  }
+}
 
+type OptimizedLineup = {
+  players: OptimizedPlayer[]
+  salary: number
+  projection: number
+}
+
+type OptimizeResponse = {
+  requested: number
+  generated: number
+  mode: string
+  sport: string
+  lineups: OptimizedLineup[]
+  message?: string
+}
+
+/* =========================
+   Utils
+========================= */
+const normStr = (v: unknown): string => (v ?? '').toString().trim()
+const normUpper = (v: unknown): string => normStr(v).toUpperCase()
+
+const isShowdownMode = (gameType?: string): boolean =>
+  typeof gameType === 'string' && /(showdown|captain)/i.test(gameType)
+
+const isCaptain = (p: unknown): boolean =>
+  (p as { showdown_position?: string }).showdown_position === 'CPT'
+
+const isDst = (p: unknown): boolean => (p as { position?: string }).position === 'DST'
+
+/* =========================
+   Component
+========================= */
 export default function OptimizerPage() {
   const { id } = useParams() as { id: string }
+
+  // Slate (needed for sport + game_type)
   const { data: slate } = useGetSlateQuery(id)
+
+  const lineupsRef = useRef<HTMLDivElement | null>(null)
+
+  // Slate pack (players/matchups) keyed by slate/game type
   const {
     data: slatePack = { players: [], matchups: [], positionsArray: [] },
     isLoading: slatePackLoading,
     isFetching: slatePackFetching,
   } = useGetSlatePackQuery(
-    { id, gameType: slate?.game_type as string },
+    slate?.game_type ? { id, gameType: slate.game_type } : skipArg(), // typed skip helper below
     {
       skip: !slate?.game_type,
       refetchOnFocus: false,
@@ -49,110 +100,86 @@ export default function OptimizerPage() {
       pollingInterval: 0,
     },
   )
+
   const [isBusy, setBusy] = useState(false)
   const [expSearch, setExpSearch] = useState('')
 
-  const [response, setResponse] = useState<null | {
-    requested: number
-    generated: number
-    mode: string
-    sport: string
-    lineups: Array<{
-      players: Array<{
-        name: string
-        team?: string
-        salary: number
-        lineup_position?: string
-        positions?: string[]
-        fe_player_id: string
-        fe: {
-          team_image: string
-          projection?: number
-        }
-      }>
-      salary: number
-      projection: number
-    }>
-    message?: string
-  }>(null)
+  const [response, setResponse] = useState<OptimizeResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
 
+  useEffect(() => {
+    if (response) {
+      // if you have a sticky header ~90px tall:
+      lineupsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      // If your header covers the top, add scroll margin on the target (see step 2)
+    }
+  }, [response])
+
+  // Selectors
   const selectVisible = useMemo(
-    () => makeSelectVisiblePlayers(id, slate?.game_type as string),
+    () => makeSelectVisiblePlayers(id, slate?.game_type ?? ''),
     [id, slate?.game_type],
   )
   const tableRows = useAppSelector(selectVisible)
+
   const selectEligible = useMemo(
-    () => makeSelectEligiblePlayers(id, slate?.game_type as string),
+    () => makeSelectEligiblePlayers(id, slate?.game_type ?? ''),
     [id, slate?.game_type],
   )
+  const eligiblePlayers = useAppSelector(selectEligible)
 
   const position = useAppSelector(s => s.optimizerFilters.position)
-  const eligiblePlayers = useAppSelector(selectEligible)
   const excludedPlayerIds = useAppSelector(s => s.optimizerPool.excludedPlayerIds)
   const constraints = useAppSelector(s => s.optimizerConstraints.constraints)
   const dispatch = useAppDispatch()
 
   const isAllExcluded = useMemo(() => {
-    const excludedSet = new Set(excludedPlayerIds)
-    return slatePack.players.every((p: { id: string | number }) => excludedSet.has(String(p.id)))
+    const excludedSet = new Set(excludedPlayerIds.map(String))
+    return (
+      slatePack.players.length > 0 && slatePack.players.every(p => excludedSet.has(String(p.id)))
+    )
   }, [excludedPlayerIds, slatePack.players])
 
   const onToggleExclude = useCallback(
-    (id: string, isCurrentlyExcluded: boolean) => {
-      dispatch(isCurrentlyExcluded ? includePlayer(id) : excludePlayer(id))
+    (playerId: string, isCurrentlyExcluded: boolean) => {
+      dispatch(isCurrentlyExcluded ? includePlayer(playerId) : excludePlayer(playerId))
     },
     [dispatch],
   )
 
   const onToggleLock = useCallback(
-    (id: string, isCurrentlyLocked: boolean) => {
-      dispatch(isCurrentlyLocked ? unlockPlayer(id) : lockPlayer(id))
+    (playerId: string, isCurrentlyLocked: boolean) => {
+      dispatch(isCurrentlyLocked ? unlockPlayer(playerId) : lockPlayer(playerId))
     },
     [dispatch],
   )
 
   // per-position subset toggle (Showdown-aware)
   const onExcludePlayersSubsetCb = useCallback(() => {
-    const gameType = slate?.game_type as string | undefined
-    const isShowdown = typeof gameType === 'string' && /(showdown|captain)/i.test(gameType)
-    const norm = (v: unknown) => (v ?? '').toString().trim().toUpperCase()
-    const isCaptain = (p: { showdown_position?: unknown }) => {
-      const sp = norm(p?.showdown_position)
-      return sp === 'CPT' || sp === 'CAPTAIN'
-    }
-    const isDst = (p: { position?: unknown }) => {
-      const pos = norm(p?.position)
-      return pos === 'DST' || pos === 'D/ST' || pos === 'DEF'
-    }
+    const gameType = slate?.game_type
+    const showdown = isShowdownMode(gameType)
+    const uiPos = normUpper(position)
 
-    const uiPos = norm(position)
-    let ids: string[] = []
-
+    let ids: string[]
     if (uiPos === 'ALL') {
-      ids = slatePack.players.map((p: { id: string | number }) => String(p.id))
-    } else if (isShowdown && uiPos === 'CPT') {
-      ids = slatePack.players
-        .filter((p: { showdown_position?: unknown }) => isCaptain(p))
-        .map((p: { id: string | number }) => String(p.id))
-    } else if (isShowdown && uiPos === 'FLEX') {
-      ids = slatePack.players
-        .filter((p: { showdown_position?: unknown }) => !isCaptain(p))
-        .map((p: { id: string | number }) => String(p.id))
+      ids = slatePack.players.map(p => String(p.id))
+    } else if (showdown && uiPos === 'CPT') {
+      ids = slatePack.players.filter(isCaptain).map(p => String(p.id))
+    } else if (showdown && uiPos === 'FLEX') {
+      ids = slatePack.players.filter(p => !isCaptain(p)).map(p => String(p.id))
     } else {
       ids = slatePack.players
-        .filter((p: { showdown_position?: unknown; position?: unknown }) => {
-          if (isShowdown && isCaptain(p)) return false
-          const ppos = norm(p?.position)
-          return uiPos === 'DST' ? isDst(p) : ppos === uiPos
+        .filter(p => {
+          if (showdown && isCaptain(p)) return false
+          return uiPos === 'DST' ? isDst(p) : normUpper(p.position) === uiPos
         })
-        .map((p: { id: string | number }) => String(p.id))
+        .map(p => String(p.id))
     }
 
     startTransition(() => {
       dispatch(toggleExcludePlayersSubset(ids))
     })
-  }, [dispatch, slate?.game_type, slatePack.players, position])
+  }, [dispatch, position, slate?.game_type, slatePack.players])
 
   // columns memo depends on the stable callbacks (and any flags you pass)
   const playerColumns = useMemo(
@@ -167,80 +194,71 @@ export default function OptimizerPage() {
   )
 
   const selectCount = useMemo(
-    () => makeSelectExcludedPlayerCount(id, slate?.game_type as string),
+    () => makeSelectExcludedPlayerCount(id, slate?.game_type ?? ''),
     [id, slate?.game_type],
   )
   const excludedCount = useAppSelector(selectCount)
 
-  const onGenerateLineups = async (lineups: number) => {
-    if (!slate) return
+  const onGenerateLineups = useCallback(
+    async (lineups: number): Promise<void> => {
+      if (!slate) return
 
-    // matchups: your slatePack.matchups (array with away/home ids + abbrs)
-    const matchups = slatePack.matchups
-    const slateType =
-      slate?.contest_type_id === 94 || slate?.contest_type_id === 21 ? 'Classic' : 'Showdown'
+      const matchups = slatePack.matchups
+      const slateType =
+        slate.contest_type_id === 94 || slate.contest_type_id === 21 ? 'Classic' : 'Showdown'
+      const showdown = slateType === 'Showdown'
 
-    const enrich = makeLineupEnricher(eligiblePlayers, slatePack.matchups, {
-      salaryTolerance: 300, // bump if needed
-      debug: true,
-      nameAliases: {
-        // optional nickname/initial fixes
-        'cj bailey': ['c j bailey', 'christopher bailey', 'christopher j bailey'],
-      },
-    })
-
-    const csv = toDraftKingsCsvFromMatchups(
-      eligiblePlayers,
-      matchups,
-      slate.sport as Sport,
-      slateType === 'Showdown',
-      {
-        fallbackStartIso: slate?.min_start_time, // optional
-      },
-    )
-
-    // 2) Turn it into a File (best) or Blob (fallback)
-    const csvBlob = new Blob([csv], { type: 'text/csv' })
-    // If your TS/lib supports File:
-    const csvFile = new File([csvBlob], 'draftkings_players.csv', { type: 'text/csv' })
-
-    const sport = slate.sport
-    const mode = slateType.toLowerCase()
-    const nLineups = lineups
-    const constraintsObject = constraints
-
-    try {
-      setBusy(true)
-      // 3) Build FormData (DON'T set Content-Type manually)
-      const form = new FormData()
-      form.append('sport', sport) // e.g. 'CFB'
-      form.append('mode', mode) // e.g. 'classic'
-      form.append('n_lineups', String(nLineups))
-      form.append('constraints_json', JSON.stringify(constraintsObject))
-      form.append('file', csvFile, 'draftkings_players.csv') // <- key the server expects
-
-      const res = await fetch(`http://localhost:8006/optimize_upload`, {
-        method: 'POST',
-        body: form,
+      const enrich = makeLineupEnricher(eligiblePlayers, matchups, {
+        salaryTolerance: 300,
+        debug: true,
+        nameAliases: {
+          'cj bailey': ['c j bailey', 'christopher bailey', 'christopher j bailey'],
+        },
       })
-      const data = await res.json()
-      if (!res.ok) {
-        setError(data?.detail || 'Request failed')
-      } else {
-        const enriched = enrich(data.lineups)
-        // Keep your response shape but with richer per-player info:
-        setResponse({ ...data, lineups: enriched })
-      }
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : String(err))
-    } finally {
-      setBusy(false)
-    }
-  }
 
-  // =========================
-  // Exposure calculations
-  // =========================
+      const csv = toDraftKingsCsvFromMatchups(eligiblePlayers, matchups, slate.sport, showdown, {
+        fallbackStartIso: slate.min_start_time,
+      })
+
+      const csvBlob = new Blob([csv], { type: 'text/csv' })
+      const csvFile = new File([csvBlob], 'draftkings_players.csv', { type: 'text/csv' })
+
+      try {
+        setBusy(true)
+
+        const form = new FormData()
+        form.append('sport', slate.sport)
+        form.append('mode', slateType.toLowerCase())
+        form.append('n_lineups', String(lineups))
+        form.append('constraints_json', JSON.stringify(constraints))
+        form.append('file', csvFile, 'draftkings_players.csv')
+
+        const res = await fetch(`${process.env.NEXT_PUBLIC_PYTHON_URL}/optimize_upload`, {
+          method: 'POST',
+          body: form,
+        })
+
+        const data: OptimizeResponse | { detail?: string } = await res.json()
+        if (!res.ok) {
+          setError(('detail' in data && data.detail) || 'Request failed')
+          return
+        }
+
+        const ok = data as OptimizeResponse
+        const enriched = enrich(ok.lineups as any)
+        setResponse({ ...ok, lineups: enriched as any })
+      } catch (err) {
+        setError(err instanceof Error ? err.message : String(err))
+      } finally {
+        setBusy(false)
+      }
+    },
+    [constraints, eligiblePlayers, slate, slatePack.matchups],
+  )
+
+  /* =========================
+     Exposure calculations
+  ========================= */
   type PlayerKey = string
   type PlayerExposure = {
     key: PlayerKey
@@ -251,35 +269,33 @@ export default function OptimizerPage() {
     exposurePct: number
     avgSalary?: number
   }
+  type TeamExposure = { team: string; count: number; exposurePct: number }
 
-  const { playerExposures, teamExposures, totalLineups } = useMemo(() => {
-    if (!response?.lineups?.length) {
-      return { playerExposures: [], teamExposures: [], totalLineups: 0 }
+  const { playerExposures, teamExposures } = useMemo(() => {
+    if (!response?.lineups?.length || !response.generated) {
+      return { playerExposures: [] as PlayerExposure[], teamExposures: [] as TeamExposure[] }
     }
 
-    const map = new Map<
+    const countMap = new Map<
       PlayerKey,
       { name: string; team?: string; pos?: string; count: number; salarySum: number }
     >()
     const teamMap = new Map<string, number>()
+    const total = response.generated
 
-    const n = response.generated
-    const lineups = response.lineups
-
-    // Process lineups in batches for better performance
-    for (const lu of lineups) {
+    for (const lu of response.lineups) {
       const seenTeams = new Set<string>()
-      for (const p of lu.players ?? []) {
-        const name: string = p.name || 'Unknown'
-        const team: string | undefined = p.team || undefined
-        const pos: string | undefined =
+      for (const p of lu.players) {
+        const name = p.name || 'Unknown'
+        const team = p.team || undefined
+        const pos =
           p.lineup_position || (Array.isArray(p.positions) ? p.positions.join('/') : undefined)
         const key = `${name}|${team ?? ''}|${pos ?? ''}`
 
-        const rec = map.get(key) ?? { name, team, pos, count: 0, salarySum: 0 }
-        rec.count += 1
-        if (typeof p.salary === 'number') rec.salarySum += p.salary
-        map.set(key, rec)
+        const prev = countMap.get(key) ?? { name, team, pos, count: 0, salarySum: 0 }
+        prev.count += 1
+        if (typeof p.salary === 'number') prev.salarySum += p.salary
+        countMap.set(key, prev)
 
         if (team && !seenTeams.has(team)) {
           teamMap.set(team, (teamMap.get(team) ?? 0) + 1)
@@ -288,13 +304,13 @@ export default function OptimizerPage() {
       }
     }
 
-    const playerExposures: PlayerExposure[] = Array.from(map.entries()).map(([key, v]) => ({
+    const playerExposures: PlayerExposure[] = Array.from(countMap.entries()).map(([key, v]) => ({
       key,
       name: v.name,
       team: v.team,
       pos: v.pos,
       count: v.count,
-      exposurePct: n ? (v.count / n) * 100 : 0,
+      exposurePct: (v.count / total) * 100,
       avgSalary: v.count ? Math.round(v.salarySum / v.count) : undefined,
     }))
 
@@ -302,11 +318,11 @@ export default function OptimizerPage() {
       (a, b) => b.exposurePct - a.exposurePct || b.count - a.count || a.name.localeCompare(b.name),
     )
 
-    const teamExposures = Array.from(teamMap.entries())
-      .map(([team, c]) => ({ team, count: c, exposurePct: n ? (c / n) * 100 : 0 }))
+    const teamExposures: TeamExposure[] = Array.from(teamMap.entries())
+      .map(([team, c]) => ({ team, count: c, exposurePct: (c / total) * 100 }))
       .sort((a, b) => b.exposurePct - a.exposurePct || a.team.localeCompare(b.team))
 
-    return { playerExposures, teamExposures, totalLineups: n }
+    return { playerExposures, teamExposures }
   }, [response?.generated, response?.lineups])
 
   const filteredPlayerExposures = useMemo(() => {
@@ -328,20 +344,20 @@ export default function OptimizerPage() {
             <h1 className="text-xl font-bold uppercase">Lineup Optimizer</h1>
           </div>
           <p className="text-muted text-sm">
-            FantasyEdge Optimizer is a tool that helps you optimize lineups for draftkings. From
-            here you can optimize your lineups, view your player pool, and view your targets.
+            FantasyEdge Optimizer helps you optimize lineups for DraftKings. Build your pool, set
+            constraints, and generate lineups.
           </p>
         </div>
       </div>
 
       <section className="flex flex-col px-6 pb-8">
         <OptimizerErrorBoundary>
-          <OptimizerOptions slate={slate} matchups={slatePack.matchups} />
+          <OptimizerOptions slate={slate as Slate | undefined} matchups={slatePack.matchups} />
         </OptimizerErrorBoundary>
 
         <OptimizerErrorBoundary>
           <OptimizerFilters
-            slate={slate}
+            slate={slate as Slate | undefined}
             positionsArray={slatePack.positionsArray}
             excludedCount={excludedCount}
           />
@@ -349,10 +365,12 @@ export default function OptimizerPage() {
 
         <OptimizerErrorBoundary>
           <PlayerTable
-            columns={playerColumns}
+            columns={playerColumns as any}
             data={tableRows}
             isLoading={slatePackLoading}
             isFetching={slatePackFetching}
+            initialPageSize={100}
+            getRowId={p => String((p as { id: string | number }).id)}
           />
         </OptimizerErrorBoundary>
 
@@ -362,18 +380,20 @@ export default function OptimizerPage() {
 
         {response && (
           <OptimizerErrorBoundary>
-            <div className="flex gap-6">
-              <div className="w-[400px]">
-                <ExposureSummary
-                  expSearch={expSearch}
-                  setExpSearch={setExpSearch}
-                  playerExposures={filteredPlayerExposures}
-                  teamExposures={teamExposures}
-                  totalLineups={totalLineups}
-                />
-              </div>
-              <div className="flex-1">
-                <LineupResults lineups={response?.lineups ?? null} error={error} />
+            {/* scroll-mt accounts for sticky header height */}
+            <div ref={lineupsRef} id="lineups" className="scroll-mt-[96px]">
+              <div className="flex gap-6">
+                <div className="w-[400px]">
+                  <ExposureSummary
+                    expSearch={expSearch}
+                    setExpSearch={setExpSearch}
+                    playerExposures={filteredPlayerExposures}
+                    teamExposures={teamExposures}
+                  />
+                </div>
+                <div className="flex-1">
+                  <LineupResults lineups={response.lineups} error={error} />
+                </div>
               </div>
             </div>
           </OptimizerErrorBoundary>
@@ -381,4 +401,10 @@ export default function OptimizerPage() {
       </section>
     </div>
   )
+}
+
+/** Small helper to keep useGetSlatePackQuery call typed when skipping */
+function skipArg(): { id: string; gameType: string } {
+  // value never used (skipped), but satisfies the TS signature
+  return { id: '', gameType: '' }
 }
