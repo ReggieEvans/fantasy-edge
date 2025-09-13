@@ -1,4 +1,3 @@
-import { Slate } from '@/app/(protected)/slate-manager/_types/slate'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -9,6 +8,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Label } from '@/components/ui/label'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { Slate } from '@/features/slate-manager/_types/slate'
 import { formatDateTime } from '@/shared/utils/formatDkTime'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 

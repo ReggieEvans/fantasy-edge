@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-import { DkSlateSelection } from '@/app/(protected)/slate-manager/_types/dkSlate'
+import { DkSlateSelection } from '@/features/slate-manager/_types/dkSlate'
 import { buildSlateMatchups } from '@/libs/slates/buildSlateMatchups'
 import { buildSlatePlayers } from '@/libs/slates/buildSlatePlayers'
 import { saveSlateMetadata } from '@/libs/slates/saveSlateMetadata'
@@ -35,13 +35,17 @@ export async function GET() {
   if (slateIds.length === 0) return NextResponse.json([])
 
   // Fetch the rest in parallel
-  const [{ data: slates, error: slatesError }, { data: games }, { data: players }, { data: targets }] =
-    await Promise.all([
-      supabase.from('user_slates').select('*').in('id', slateIds),
-      supabase.from('slate_matchups').select('slate_id').in('slate_id', slateIds),
-      supabase.from('slate_players').select('slate_id').in('slate_id', slateIds),
-      supabase.from('user_targeted_players').select('slate_id').in('slate_id', slateIds),
-    ])
+  const [
+    { data: slates, error: slatesError },
+    { data: games },
+    { data: players },
+    { data: targets },
+  ] = await Promise.all([
+    supabase.from('user_slates').select('*').in('id', slateIds),
+    supabase.from('slate_matchups').select('slate_id').in('slate_id', slateIds),
+    supabase.from('slate_players').select('slate_id').in('slate_id', slateIds),
+    supabase.from('user_targeted_players').select('slate_id').in('slate_id', slateIds),
+  ])
 
   if (slatesError) return NextResponse.json({ error: 'Error fetching slate data' }, { status: 500 })
 
@@ -84,7 +88,8 @@ export async function POST(req: Request) {
   if (!slate) return NextResponse.json({ error: 'Failed to save slate' }, { status: 500 })
 
   const matchupSuccess = await buildSlateMatchups(supabase, slate, slateSelection)
-  if (!matchupSuccess) return NextResponse.json({ error: 'Failed to save matchups' }, { status: 500 })
+  if (!matchupSuccess)
+    return NextResponse.json({ error: 'Failed to save matchups' }, { status: 500 })
 
   const playerSuccess = await buildSlatePlayers(supabase, slate, slateSelection)
   if (!playerSuccess) return NextResponse.json({ error: 'Failed to save players' }, { status: 500 })

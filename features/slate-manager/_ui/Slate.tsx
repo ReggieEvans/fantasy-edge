@@ -148,7 +148,7 @@ export default function Slate({ slate, onDeleteSlate, onAddProjections }: SlateP
 function ManageSlateLink({ slateId, className = '' }: { slateId: string; className?: string }) {
   return (
     <Link
-      href={`n-slate-manager/${slateId}`}
+      href={`slate-manager/${slateId}`}
       className={`btn-accent inline-flex items-center gap-2 ${className}`}
     >
       <span className="mr-2 py-1 px-2 text-primary">Manage Slate</span>

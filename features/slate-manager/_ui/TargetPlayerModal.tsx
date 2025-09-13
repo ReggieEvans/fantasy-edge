@@ -1,5 +1,3 @@
-import { Player } from '@/app/(protected)/slate-manager/_types/player'
-import { Target, TargetType } from '@/app/(protected)/slate-manager/_types/target'
 import {
   Dialog,
   DialogContent,
@@ -7,6 +5,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { Player } from '@/features/slate-manager/_types/player'
+import { Target, TargetType } from '@/features/slate-manager/_types/target'
 
 import { TargetPool } from '../_types/targetPool'
 import TargetPlayerForm from './TargetPlayerForm'

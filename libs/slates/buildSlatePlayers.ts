@@ -1,6 +1,6 @@
 import { SupabaseClient } from '@supabase/supabase-js'
 
-import { DkSlateSelection } from '@/app/(protected)/slate-manager/_types/dkSlate'
+import { DkSlateSelection } from '@/features/slate-manager/_types/dkSlate'
 
 export async function buildSlatePlayers(
   supabase: SupabaseClient,
@@ -16,7 +16,9 @@ export async function buildSlatePlayers(
 
     const isShowdown = slateSelection.gameType === 'showdown'
 
-    const { data: teams, error: teamErr } = await supabase.from('cfb_team_flat').select('id, draftkings_abbreviation')
+    const { data: teams, error: teamErr } = await supabase
+      .from('cfb_team_flat')
+      .select('id, draftkings_abbreviation')
     if (teamErr || !teams) throw new Error(`Failed to fetch teams: ${teamErr.message}`)
 
     const teamMap = new Map(teams.map(t => [String(t.draftkings_abbreviation).toUpperCase(), t.id]))
@@ -64,13 +66,16 @@ export async function buildSlatePlayers(
         if (!existing) {
           dedupClassic.set(row.player_id, row)
         } else {
-          const keepNew = (row.salary ?? 0) > (existing.salary ?? 0) || (!!row.position && !existing.position)
+          const keepNew =
+            (row.salary ?? 0) > (existing.salary ?? 0) || (!!row.position && !existing.position)
           if (keepNew) dedupClassic.set(row.player_id, row)
         }
       }
     }
 
-    const playerRows = isShowdown ? Array.from(dedupShowdown.values()) : Array.from(dedupClassic.values())
+    const playerRows = isShowdown
+      ? Array.from(dedupShowdown.values())
+      : Array.from(dedupClassic.values())
 
     const { error: insertErr } = await supabase.from('slate_players').insert(playerRows)
     if (insertErr) throw new Error(`Failed to insert slate_players: ${insertErr.message}`)

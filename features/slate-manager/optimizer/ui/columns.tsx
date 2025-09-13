@@ -1,7 +1,7 @@
 import { ColumnDef } from '@tanstack/react-table'
 import { Lock, RefreshCcw } from 'lucide-react'
 
-import { Player } from '@/app/(protected)/slate-manager/_types/player'
+import { Player } from '@/features/slate-manager/_types/player'
 import { getColorByValue, pffGradeConfig } from '@/shared/utils/colorCoding'
 import { getLetterGrade } from '@/shared/utils/letterGrade'
 

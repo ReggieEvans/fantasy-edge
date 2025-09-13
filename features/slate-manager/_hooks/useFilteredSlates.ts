@@ -1,5 +1,5 @@
-import { useGetSlatesQuery } from '@/app/(protected)/slate-manager/_api/slates.api'
-import { Slate as SlateType } from '@/app/(protected)/slate-manager/_types/slate'
+import { useGetSlatesQuery } from '@/features/slate-manager/_api/slates.api'
+import { Slate as SlateType } from '@/features/slate-manager/_types/slate'
 import { GameType } from '@/types/gameType'
 import { Sport } from '@/types/sport'
 

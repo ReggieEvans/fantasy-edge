@@ -1,6 +1,12 @@
 import Image from 'next/image'
 
-export default function LineupResults({ lineups }: { lineups: any[] | null }) {
+export default function LineupResults({
+  lineups,
+  error,
+}: {
+  lineups: any[] | null
+  error: string | null
+}) {
   if (!lineups) return null
   return (
     <div className="rounded border border-background-darker px-2 py-4 h-full bg-card">

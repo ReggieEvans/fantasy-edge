@@ -5,13 +5,13 @@ import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useMemo } from 'react'
 
-import { useGetMatchupsQuery } from '@/app/(protected)/slate-manager/_api/matchups.api'
-import { Matchup } from '@/app/(protected)/slate-manager/_types/matchup'
 import { ErrorMessage } from '@/shared/ui/ErrorMessage'
 import FeatureHeader from '@/shared/ui/FeatureHeader'
 import { NoData } from '@/shared/ui/NoData'
 import { SkeletonRows } from '@/shared/ui/SkeletonRows'
 
+import { useGetMatchupsQuery } from '../../scouting/api/matchups.api'
+import { Matchup } from '../types/matchup'
 import MatchupCard from '../ui/MatchupCard'
 
 export default function MatchupsPage() {
@@ -29,7 +29,7 @@ export default function MatchupsPage() {
         <div className="text-sm text-accent mb-4">
           <div className="flex items-center gap-2 uppercase font-bold text-xs">
             <ArrowLeft size={16} aria-hidden />
-            <Link href="/n-slate-manager">All Slates</Link>
+            <Link href="/slate-manager">All Slates</Link>
           </div>
         </div>
 

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 
-import { TargetPool } from '@/app/(protected)/slate-manager/_types/targetPool'
+import { TargetPool } from '@/features/slate-manager/_types/targetPool'
 
 type SortKey = 'target_type' | 'position' | 'salary' | 'projection'
 
@@ -30,7 +30,8 @@ export default function useTargetPoolControls(targets: TargetPool[]) {
           groupKey = t.position
           break
         case 'salary':
-          groupKey = t.salary >= 50000 ? 'High Salary' : t.salary >= 20000 ? 'Mid Salary' : 'Low Salary'
+          groupKey =
+            t.salary >= 50000 ? 'High Salary' : t.salary >= 20000 ? 'Mid Salary' : 'Low Salary'
           break
         case 'projection':
           const proj = t.projection || 0

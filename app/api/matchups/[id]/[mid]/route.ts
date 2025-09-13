@@ -2,12 +2,8 @@
 // @route   GET /api/matchups/:id/:matchupId
 import { NextResponse } from 'next/server'
 
-import { Player } from '@/app/(protected)/slate-manager/_types/player'
-import {
-  PassingStats,
-  ReceivingStats,
-  RushingStats,
-} from '@/app/(protected)/slate-manager/_types/stats'
+import { Player } from '@/features/slate-manager/_types/player'
+import { PassingStats, ReceivingStats, RushingStats } from '@/features/slate-manager/_types/stats'
 import { createServerSupabaseClient } from '@/libs/supabase/server'
 
 export const GET = async (

@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit'
 
-import { optimizerApi } from '@/app/(protected)/slate-manager/_api/optimizer'
+import { optimizerApi } from '../api/optimizer.api'
 
 // pull server list (don’t duplicate in Redux)
 const selectSlatePack = (slateId: string, gameType: string) =>
@@ -85,4 +85,7 @@ export const makeSelectEligiblePlayers = (slateId: string, gameType: string) =>
   })
 
 export const makeSelectExcludedPlayerCount = (slateId: string, gameType: string) =>
-  createSelector([selectPlayersWithFlags(slateId, gameType)], players => players.filter(p => p.isExcluded).length)
+  createSelector(
+    [selectPlayersWithFlags(slateId, gameType)],
+    players => players.filter(p => p.isExcluded).length,
+  )

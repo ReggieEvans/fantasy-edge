@@ -1,12 +1,11 @@
 export const slateManagerTags = [
-  'Slates',
   'Slate',
-  'DkSlates',
-  'Matchups',
-  'Targets',
+  'Player',
+  'Matchup',
+  'Target',
   'Rosters',
-  'QuickTargets',
-  'SlatePlayers',
+  'Projection',
+  'Contest',
   'SlatePack',
 ] as const
 

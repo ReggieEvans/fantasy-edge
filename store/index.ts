@@ -1,9 +1,9 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit'
 
-import optimizerConstraintsSlice from '@/app/(protected)/slate-manager/_state/optimizerConstraints.slice'
+import optimizerConstraintsSlice from '@/features/slate-manager/optimizer/model/optimizerConstraints.slice'
+import optimizerFiltersSlice from '@/features/slate-manager/optimizer/model/optimizerFilters.slice'
+import optimizerPoolSlice from '@/features/slate-manager/optimizer/model/optimizerPool.slice'
 
-import optimizerFiltersSlice from '../app/(protected)/slate-manager/_state/optimizerFilters.slice'
-import optimizerPoolSlice from '../app/(protected)/slate-manager/_state/optimizerPool.slice'
 import { baseApi } from './api/baseApi'
 import { profileApi } from './api/profileApi'
 import { authSlice } from './slices/authSlice'

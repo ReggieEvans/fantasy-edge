@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { Player } from '@/app/(protected)/slate-manager/_types/player'
-import { PassingStats, ReceivingStats, RushingStats } from '@/app/(protected)/slate-manager/_types/stats'
+import { Player } from '@/features/slate-manager/_types/player'
+import { PassingStats, ReceivingStats, RushingStats } from '@/features/slate-manager/_types/stats'
 import { createServerSupabaseClient } from '@/libs/supabase/server'
 
 export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
@@ -46,7 +46,9 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: 
     }
 
     // Unique team ids across all matchups
-    const teamIds = Array.from(new Set<string>(matchups.flatMap(m => [String(m.home_team_id), String(m.away_team_id)])))
+    const teamIds = Array.from(
+      new Set<string>(matchups.flatMap(m => [String(m.home_team_id), String(m.away_team_id)])),
+    )
 
     // 2) All slate players for these teams
     const { data: allPlayers, error: playersErr } = await supabase
@@ -61,11 +63,12 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: 
     }
 
     // 3) Per-player summaries
-    const [{ data: passingSummary }, { data: rushingSummary }, { data: receivingSummary }] = await Promise.all([
-      supabase.from('passing_summary').select('*').in('team_id', teamIds),
-      supabase.from('rushing_summary').select('*').in('team_id', teamIds),
-      supabase.from('receiving_summary').select('*').in('team_id', teamIds),
-    ])
+    const [{ data: passingSummary }, { data: rushingSummary }, { data: receivingSummary }] =
+      await Promise.all([
+        supabase.from('passing_summary').select('*').in('team_id', teamIds),
+        supabase.from('rushing_summary').select('*').in('team_id', teamIds),
+        supabase.from('receiving_summary').select('*').in('team_id', teamIds),
+      ])
 
     if (!passingSummary || !rushingSummary || !receivingSummary) {
       return NextResponse.json({ error: 'Failed to fetch player stats' }, { status: 500 })
@@ -88,7 +91,14 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: 
       supabase.from('rushing_defense').select('*').in('team_id', teamIds),
     ])
 
-    if (!passingRate || !rushingRate || !teamPassing || !teamRushing || !passingDefense || !rushingDefense) {
+    if (
+      !passingRate ||
+      !rushingRate ||
+      !teamPassing ||
+      !teamRushing ||
+      !passingDefense ||
+      !rushingDefense
+    ) {
       return NextResponse.json({ error: 'Failed to fetch team stats' }, { status: 500 })
     }
 
@@ -97,7 +107,8 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: 
     const rushingStats = new Map(rushingSummary.map(stat => [normalizeName(stat.player), stat]))
     const receivingStats = new Map(receivingSummary.map(stat => [normalizeName(stat.player), stat]))
 
-    const toTeamMap = <T extends { team_id: string }>(rows: T[] = []) => new Map(rows.map(r => [String(r.team_id), r]))
+    const toTeamMap = <T extends { team_id: string }>(rows: T[] = []) =>
+      new Map(rows.map(r => [String(r.team_id), r]))
 
     const passingRateByTeam = toTeamMap(passingRate)
     const rushingRateByTeam = toTeamMap(rushingRate)
@@ -142,7 +153,11 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: 
     // const filteredOutPlayers = filteredOut.map(p => `${p.first_name} ${p.last_name} (${p.position ?? 'UNKNOWN'})`)
 
     // 8) Matchups with team stats
-    const teamStatPair = <T extends { team_id: string }>(rows: T[] = [], homeId: string, awayId: string) => ({
+    const teamStatPair = <T extends { team_id: string }>(
+      rows: T[] = [],
+      homeId: string,
+      awayId: string,
+    ) => ({
       home: rows.find(r => String(r.team_id) === String(homeId)) ?? null,
       away: rows.find(r => String(r.team_id) === String(awayId)) ?? null,
     })

@@ -39,7 +39,7 @@ export default function ScoutingPage() {
         <div className="text-sm py-4">
           <div className="flex items-center gap-2 uppercase font-bold text-xs text-accent">
             <ArrowLeft size={16} aria-hidden />
-            <Link href={`/n-slate-manager/${id}`}>all matchups</Link>
+            <Link href={`/slate-manager/${id}`}>all matchups</Link>
           </div>
         </div>
 

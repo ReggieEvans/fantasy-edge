@@ -4,11 +4,11 @@ import { Cog } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { startTransition, useCallback, useMemo, useState } from 'react'
 
-import { useGetSlateQuery } from '@/app/(protected)/slate-manager/_api/slates.api'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { makeLineupEnricher } from '@/utils/lineupEnricher'
 import { toDraftKingsCsvFromMatchups } from '@/utils/toDraftkingsCsv'
 
+import { useGetSlateQuery } from '../../_api/slates.api'
 import { useGetSlatePackQuery } from '../api/optimizer.api'
 import {
   excludePlayer,

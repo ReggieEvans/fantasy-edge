@@ -39,7 +39,7 @@ export default function SlateManagerShell({ children }: { children: ReactNode })
   const pathname = usePathname()
   const id = useSlateId()
 
-  const basePath = useMemo(() => `/n-slate-manager/${id}`, [id])
+  const basePath = useMemo(() => `/slate-manager/${id}`, [id])
 
   return (
     <div className="flex">
