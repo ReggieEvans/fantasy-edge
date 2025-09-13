@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-import { Roster, RosterSlot } from '@/app/(protected)/cfb/slate-manager/_types/roster'
+import { Roster, RosterSlot } from '@/features/slate-manager/_types/roster'
 import { createServerSupabaseClient } from '@/libs/supabase/server'
 
 // @desc    Save roster
@@ -39,7 +39,10 @@ export async function POST(req: Request) {
     .single()
 
   if (rosterError || !rosterInsert) {
-    return NextResponse.json({ error: rosterError?.message ?? 'Failed to insert roster' }, { status: 500 })
+    return NextResponse.json(
+      { error: rosterError?.message ?? 'Failed to insert roster' },
+      { status: 500 },
+    )
   }
 
   const rosterId = rosterInsert.id

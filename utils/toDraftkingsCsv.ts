@@ -1,49 +1,7 @@
-type Player = {
-  draftable_id: number
-  full_name: string
-  position: string
-  salary: number
-  team_id: number | string
-  opponent_team_id: number | string
-  projection?: number | null
-  showdown_position: string | null
-  avg_points: number | null
-}
-
-type Matchup = {
-  id: string
-  away_team_id: number | string
-  away_team_abbr: string
-  home_team_id: number | string
-  home_team_abbr: string
-  // Optional fields; include if you have them
-  start_time?: string // ISO like "2025-09-06T16:00:00Z"
-  // ...other fields you have; they're ignored here
-}
-
-type Sport = 'NFL' | 'CFB'
-type Pos = 'QB' | 'RB' | 'WR' | 'TE' | 'DST' | 'FLEX' | 'S-FLEX'
-
-const POSITION_ELIGIBILITY: Record<Sport, Record<Pos, Pos[]>> = {
-  NFL: {
-    QB: ['QB'],
-    RB: ['RB', 'FLEX'],
-    WR: ['WR', 'FLEX'],
-    TE: ['TE', 'FLEX'],
-    FLEX: ['RB', 'WR', 'TE'],
-    DST: ['DST'],
-    'S-FLEX': ['QB', 'RB', 'WR', 'TE'], // not used in NFL Classic, here for completeness
-  },
-  CFB: {
-    QB: ['QB', 'S-FLEX'],
-    RB: ['RB', 'FLEX', 'S-FLEX'],
-    WR: ['WR', 'FLEX', 'S-FLEX'],
-    TE: ['TE', 'FLEX', 'S-FLEX'], // include if your CFB slates have TE; otherwise remove
-    FLEX: ['RB', 'WR'], // CFB FLEX (no QB)
-    DST: ['DST'], // usually not present in CFB Classic; harmless if unused
-    'S-FLEX': ['QB', 'RB', 'WR', 'TE'], // superflex allows QB (and TE if present)
-  },
-} as const
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Player } from '@/features/slate-manager/_types/player'
+import { Matchup } from '@/features/slate-manager/matchups/types/matchup'
+import { Sport } from '@/types/sport'
 
 const DK_HEADER = [
   'Position',
@@ -57,7 +15,12 @@ const DK_HEADER = [
   'AvgPointsPerGame',
 ] as const
 
-function rosterPositionsFor(pos: string, sport: Sport, isShowdown: boolean, showdownPosition: string | null) {
+function rosterPositionsFor(
+  pos: string,
+  sport: Sport,
+  isShowdown: boolean,
+  showdownPosition: string | null,
+) {
   const P = pos.toUpperCase()
 
   // SHOWDOWN_POSITIONS
@@ -108,8 +71,10 @@ function buildTeamIndex(matchups: Matchup[], fallbackStartIso?: string) {
   for (const m of matchups) {
     const base = `${m.away_team_abbr}@${m.home_team_abbr}`
     const start = m.start_time || fallbackStartIso // use matchup start if present, else slate start if provided
-    idx[m.away_team_id] = { abbrev: m.away_team_abbr, gameBase: base, start }
-    idx[m.home_team_id] = { abbrev: m.home_team_abbr, gameBase: base, start }
+    if (m.away_team_id != null)
+      idx[m.away_team_id] = { abbrev: m.away_team_abbr, gameBase: base, start }
+    if (m.home_team_id != null)
+      idx[m.home_team_id] = { abbrev: m.home_team_abbr, gameBase: base, start }
   }
   return idx
 }
@@ -119,7 +84,7 @@ function buildTeamIndex(matchups: Matchup[], fallbackStartIso?: string) {
  * If your matchups don't include a per-game start time, pass a fallback (e.g., `slate.min_start_time`).
  */
 export function toDraftKingsCsvFromMatchups(
-  players: Player[],
+  players: any[],
   matchups: Matchup[],
   sport: Sport,
   isShowdown: boolean,

@@ -1,14 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { Player } from '@/app/(protected)/slate-manager/_types/player'
-import { PassingStats, ReceivingStats, RushingStats } from '@/app/(protected)/slate-manager/_types/stats'
+import { Player } from '@/features/slate-manager/_types/player'
+import { PassingStats, ReceivingStats, RushingStats } from '@/features/slate-manager/_types/stats'
 import { createServerSupabaseClient } from '@/libs/supabase/server'
+import { Sport } from '@/types/sport'
 
 export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   const supabase = await createServerSupabaseClient()
   const { id: slateId } = await params
   const { searchParams } = new URL(req.url)
   const gameType = searchParams.get('gameType')
+  let sport: Sport
 
   const {
     data: { user },
@@ -28,6 +30,8 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: 'No matchups found for this slate' }, { status: 404 })
     }
 
+    sport = matchups[0].sport
+
     // Build opponent lookup: team_id -> opponent_team_id
     const opponentByTeamId = new Map<string, string>()
     for (const m of matchups) {
@@ -46,7 +50,9 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: 
     }
 
     // Unique team ids across all matchups
-    const teamIds = Array.from(new Set<string>(matchups.flatMap(m => [String(m.home_team_id), String(m.away_team_id)])))
+    const teamIds = Array.from(
+      new Set<string>(matchups.flatMap(m => [String(m.home_team_id), String(m.away_team_id)])),
+    )
 
     // 2) All slate players for these teams
     const { data: allPlayers, error: playersErr } = await supabase
@@ -61,11 +67,12 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: 
     }
 
     // 3) Per-player summaries
-    const [{ data: passingSummary }, { data: rushingSummary }, { data: receivingSummary }] = await Promise.all([
-      supabase.from('passing_summary').select('*').in('team_id', teamIds),
-      supabase.from('rushing_summary').select('*').in('team_id', teamIds),
-      supabase.from('receiving_summary').select('*').in('team_id', teamIds),
-    ])
+    const [{ data: passingSummary }, { data: rushingSummary }, { data: receivingSummary }] =
+      await Promise.all([
+        supabase.from('passing_summary').select('*').in('team_id', teamIds),
+        supabase.from('rushing_summary').select('*').in('team_id', teamIds),
+        supabase.from('receiving_summary').select('*').in('team_id', teamIds),
+      ])
 
     if (!passingSummary || !rushingSummary || !receivingSummary) {
       return NextResponse.json({ error: 'Failed to fetch player stats' }, { status: 500 })
@@ -88,7 +95,14 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: 
       supabase.from('rushing_defense').select('*').in('team_id', teamIds),
     ])
 
-    if (!passingRate || !rushingRate || !teamPassing || !teamRushing || !passingDefense || !rushingDefense) {
+    if (
+      !passingRate ||
+      !rushingRate ||
+      !teamPassing ||
+      !teamRushing ||
+      !passingDefense ||
+      !rushingDefense
+    ) {
       return NextResponse.json({ error: 'Failed to fetch team stats' }, { status: 500 })
     }
 
@@ -97,7 +111,8 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: 
     const rushingStats = new Map(rushingSummary.map(stat => [normalizeName(stat.player), stat]))
     const receivingStats = new Map(receivingSummary.map(stat => [normalizeName(stat.player), stat]))
 
-    const toTeamMap = <T extends { team_id: string }>(rows: T[] = []) => new Map(rows.map(r => [String(r.team_id), r]))
+    const toTeamMap = <T extends { team_id: string }>(rows: T[] = []) =>
+      new Map(rows.map(r => [String(r.team_id), r]))
 
     const passingRateByTeam = toTeamMap(passingRate)
     const rushingRateByTeam = toTeamMap(rushingRate)
@@ -142,7 +157,11 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: 
     // const filteredOutPlayers = filteredOut.map(p => `${p.first_name} ${p.last_name} (${p.position ?? 'UNKNOWN'})`)
 
     // 8) Matchups with team stats
-    const teamStatPair = <T extends { team_id: string }>(rows: T[] = [], homeId: string, awayId: string) => ({
+    const teamStatPair = <T extends { team_id: string }>(
+      rows: T[] = [],
+      homeId: string,
+      awayId: string,
+    ) => ({
       home: rows.find(r => String(r.team_id) === String(homeId)) ?? null,
       away: rows.find(r => String(r.team_id) === String(awayId)) ?? null,
     })
@@ -158,14 +177,28 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: 
     }))
 
     // 9) Projections flag
-    const hasAnyProjection = enriched.some(p => (p as any).projection != null)
+    const hasAnyProjection = enriched.some(p => (p as Player).projection != null)
     const isMissingProjections = !hasAnyProjection
 
-    const positionsArray = enriched.reduce((acc, p) => {
-      if (acc.includes(p.position)) return acc
-      acc.push(p.position)
-      return acc
-    }, [] as string[])
+    const norm = (s?: string) => (s ?? '').toUpperCase().trim()
+    const toDst = (p: string) => (p === 'D/ST' || p === 'DEF' ? 'DST' : p)
+
+    const available = new Set<string>()
+    for (const p of enriched) {
+      if (Array.isArray(p.position)) {
+        for (const pos of p.position) available.add(toDst(norm(pos)))
+      }
+      if (p.position) available.add(toDst(norm(p.position)))
+    }
+
+    // choose desired order by sport
+    const ORDER: Record<'NFL' | 'CFB', readonly string[]> = {
+      NFL: ['QB', 'RB', 'WR', 'TE', 'DST'],
+      CFB: ['QB', 'RB', 'WR'],
+    }
+
+    // `sport` can come from your slate
+    const positionsArray = ORDER[sport as 'NFL' | 'CFB'].filter(pos => available.has(pos))
 
     const sortedPlayers = enriched.sort((a, b) => (b.salary ?? 0) - (a.salary ?? 0))
 
@@ -226,14 +259,4 @@ function dedupePlayers(players: Player[]) {
   }
 
   return deduped
-}
-
-function partition<T>(arr: T[], predicate: (x: T) => boolean): [T[], T[]] {
-  const pass: T[] = []
-  const fail: T[] = []
-  for (const item of arr) {
-    if (predicate(item)) pass.push(item)
-    else fail.push(item)
-  }
-  return [pass, fail]
 }

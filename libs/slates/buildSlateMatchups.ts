@@ -1,6 +1,6 @@
 import { SupabaseClient } from '@supabase/supabase-js'
 
-import { DkSlateSelection } from '@/app/(protected)/slate-manager/_types/dkSlate'
+import { DkSlateSelection } from '@/features/slate-manager/_types/dkSlate'
 import { getMarket, impliedTotals, norm, parseAbbrs, pickBook } from '@/libs/utils'
 import { OddsGame } from '@/types/odds'
 
@@ -13,7 +13,9 @@ export async function buildSlateMatchups(
   slateSelection: DkSlateSelection,
 ) {
   try {
-    const contestRes = await fetch(`https://api.draftkings.com/draftgroups/v1/${slateSelection.draftGroupId}`)
+    const contestRes = await fetch(
+      `https://api.draftkings.com/draftgroups/v1/${slateSelection.draftGroupId}`,
+    )
     const contest = await contestRes.json()
     const games = contest.draftGroup.games
 
@@ -66,13 +68,19 @@ export async function buildSlateMatchups(
 
           if (homeOutcome) home_team_spread = homeOutcome.point
           if (awayOutcome) away_team_spread = awayOutcome.point
-          if (home_team_spread == null && away_team_spread != null) home_team_spread = -away_team_spread
-          if (away_team_spread == null && home_team_spread != null) away_team_spread = -home_team_spread
+          if (home_team_spread == null && away_team_spread != null)
+            home_team_spread = -away_team_spread
+          if (away_team_spread == null && home_team_spread != null)
+            away_team_spread = -home_team_spread
 
           if (totals?.outcomes?.length) game_total = totals.outcomes[0]?.point ?? null
 
           if (game_total != null) {
-            const totalsCalc = impliedTotals(game_total, home_team_spread ?? 0, away_team_spread ?? 0)
+            const totalsCalc = impliedTotals(
+              game_total,
+              home_team_spread ?? 0,
+              away_team_spread ?? 0,
+            )
             home_team_total = Number(totalsCalc.home_total.toFixed(2))
             away_team_total = Number(totalsCalc.away_total.toFixed(2))
           }

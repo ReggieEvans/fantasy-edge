@@ -2,8 +2,8 @@
 // @route   GET /api/dkSlates
 import { NextRequest, NextResponse } from 'next/server'
 
-import { DkContestDTO, DkContestsResponseDTO } from '@/app/(protected)/slate-manager/_dto/dkContests.dto'
-import { DkSlateDTO } from '@/app/(protected)/slate-manager/_dto/dkSlate.dto'
+import { DkContestDTO, DkContestsResponseDTO } from '@/features/slate-manager/_dtos/dkContests.dto'
+import { DkSlateDTO } from '@/features/slate-manager/_dtos/dkSlate.dto'
 import { createServerSupabaseClient } from '@/libs/supabase/server'
 
 export const GET = async (req: NextRequest) => {
@@ -28,7 +28,9 @@ export const GET = async (req: NextRequest) => {
   }
 
   // Get all DK contest by sport
-  const contestsResponse = await fetch(`https://www.draftkings.com/lobby/getcontests?sport=${sport}`)
+  const contestsResponse = await fetch(
+    `https://www.draftkings.com/lobby/getcontests?sport=${sport}`,
+  )
   const contests: DkContestsResponseDTO = await contestsResponse.json()
 
   // Get all slateIds (groupIds) by gameType
@@ -40,7 +42,10 @@ export const GET = async (req: NextRequest) => {
   })
 
   // Get all DK group IDs the user already has
-  const { data: existingSlates } = await supabase.from('user_slates').select('dk_draft_group_id').eq('user_id', user.id)
+  const { data: existingSlates } = await supabase
+    .from('user_slates')
+    .select('dk_draft_group_id')
+    .eq('user_id', user.id)
 
   const existingIds = new Set(existingSlates?.map(s => s.dk_draft_group_id) ?? [])
 

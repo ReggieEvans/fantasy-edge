@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Matchup } from '@/features/slate-manager/matchups/types/matchup'
+
 // utils/enrichLineups.ts
 type LibPlayer = {
   lineup_position: string
@@ -13,26 +16,6 @@ type LibLineup = {
   projection: number
   salary: number
   // ...anything else the library returns; we will keep it
-}
-
-type FullPlayer = {
-  draftable_id: number
-  full_name: string
-  position: string
-  salary: number
-  team_id: number | string
-  opponent_team_id: number | string
-  // many other fields...
-}
-
-type Matchup = {
-  away_team_id: number | string
-  away_team_abbr: string
-  home_team_id: number | string
-  home_team_abbr: string
-  // maybe: start_time?: string
-  id: string
-  name: string
 }
 
 type EnricherOptions = {
@@ -61,25 +44,26 @@ function normalizeName(s: string) {
 function buildTeamIndex(matchups: Matchup[]) {
   const idx: Record<string | number, string> = {}
   for (const m of matchups) {
-    idx[m.away_team_id] = m.away_team_abbr
-    idx[m.home_team_id] = m.home_team_abbr
+    if (m.away_team_id != null) idx[m.away_team_id] = m.away_team_abbr
+    if (m.home_team_id != null) idx[m.home_team_id] = m.home_team_abbr
   }
   return idx
 }
 
 /** choose closest by salary, with tolerance */
-function pickClosestBySalary<T extends { salary: number }>(
+function pickClosestBySalary<T extends { salary: number | null }>(
   candidates: T[],
   targetSalary: number,
   tolerance: number,
 ): T | undefined {
-  if (!candidates.length) return undefined
-  let best = candidates[0]
+  const validCandidates = candidates.filter(c => c.salary != null) as (T & { salary: number })[]
+  if (!validCandidates.length) return undefined
+  let best = validCandidates[0]
   let bestDiff = Math.abs(best.salary - targetSalary)
-  for (let i = 1; i < candidates.length; i++) {
-    const d = Math.abs(candidates[i].salary - targetSalary)
+  for (let i = 1; i < validCandidates.length; i++) {
+    const d = Math.abs(validCandidates[i].salary - targetSalary)
     if (d < bestDiff) {
-      best = candidates[i]
+      best = validCandidates[i]
       bestDiff = d
     }
   }
@@ -88,12 +72,16 @@ function pickClosestBySalary<T extends { salary: number }>(
 
 /* ---------------- enricher factory ---------------- */
 
-export function makeLineupEnricher(players: FullPlayer[], matchups: Matchup[], opts: EnricherOptions = {}) {
+export function makeLineupEnricher(
+  players: any[],
+  matchups: Matchup[],
+  opts: EnricherOptions = {},
+) {
   const salaryTolerance = opts.salaryTolerance ?? 200
   const teamIndex = buildTeamIndex(matchups)
 
   // Precompute abbrev & normalized names for your pool
-  type Indexed = FullPlayer & { _abbr: string; _n: string; _pos: string }
+  type Indexed = any & { _abbr: string; _n: string; _pos: string }
   const pool: Indexed[] = players.map(p => ({
     ...p,
     _abbr: teamIndex[p.team_id] ?? '',
@@ -117,7 +105,7 @@ export function makeLineupEnricher(players: FullPlayer[], matchups: Matchup[], o
   }
 
   for (const p of pool) {
-    byHardKey.set(hardKey(p._n, p._abbr, p.salary, p._pos), p)
+    byHardKey.set(hardKey(p._n, p._abbr, p.salary ?? 0, p._pos), p)
     push(byNameTeamPos, `${p._n}|${p._abbr}|${p._pos}`, p)
     push(byNamePos, `${p._n}|${p._pos}`, p)
     push(byName, p._n, p)

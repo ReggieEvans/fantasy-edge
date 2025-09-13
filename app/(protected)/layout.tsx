@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 
-import Header from '@/components/Header'
 import { createServerSupabaseClient } from '@/libs/supabase/server'
+import Header from '@/shared/ui/Header'
 
 export default async function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createServerSupabaseClient()

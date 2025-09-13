@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
-import { slateManagerTags } from '@/app/(protected)/slate-manager/_api/baseTags'
+import { slateManagerTags } from '@/features/slate-manager/_api/baseTags'
 
 export const baseApi = createApi({
   reducerPath: 'api',
