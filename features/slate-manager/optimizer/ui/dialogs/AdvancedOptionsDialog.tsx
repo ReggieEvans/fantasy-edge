@@ -1,8 +1,6 @@
 import Image from 'next/image'
 import { useReducer } from 'react'
 
-import { setConstraints } from '@/app/(protected)/slate-manager/_state/optimizerConstraints.slice'
-import { Matchup } from '@/app/(protected)/slate-manager/_types/matchup'
 import { DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -15,6 +13,7 @@ import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsList } from '@/components/ui/tabs'
 import { TabsTrigger } from '@/components/ui/tabs'
 import { TabsContent } from '@/components/ui/tabs'
+import { Matchup } from '@/features/slate-manager/matchups/types/matchup'
 import { Info } from '@/shared/ui/Info'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 
@@ -24,6 +23,7 @@ import {
   parseNum,
   reducer,
 } from '../../hooks/useOptimizerForm'
+import { setConstraints } from '../../model/optimizerConstraints.slice'
 import { RandomnessMode } from '../../types'
 
 const getTeamLogo = (url?: string) => (url ? url.split('&')[0] : '/no_image.png')

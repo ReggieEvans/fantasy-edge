@@ -6,7 +6,7 @@ import React, { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ROSTER_SLOTS } from '@/constants/slots'
+import { ROSTER_SLOTS } from '@/shared/constants/slots'
 
 import type { TargetPool } from '../../../_types/targetPool'
 import TargetGroup from './TargetGroup'
@@ -91,7 +91,11 @@ export default function TargetPool({
             onClick={toggleProjections}
             className="text-xs px-4 py-2 duration-300 transition-colors hover:text-foreground hover:bg-background-secondary"
           >
-            {!showProjections ? <Lock className="w-4 h-4 mr-2" /> : <Unlock className="w-4 h-4 mr-2 text-accent" />}
+            {!showProjections ? (
+              <Lock className="w-4 h-4 mr-2" />
+            ) : (
+              <Unlock className="w-4 h-4 mr-2 text-accent" />
+            )}
             {showProjections ? 'Hide Projections' : 'Show Projections'}
           </Button>
           <Button
@@ -100,7 +104,11 @@ export default function TargetPool({
             onClick={toggleGroups}
             className="text-xs px-4 py-2 duration-300 transition-colors hover:text-foreground hover:bg-background-secondary"
           >
-            {showGroups ? <Boxes className="w-4 h-4 mr-2 text-accent" /> : <Component className="w-4 h-4 mr-2" />}
+            {showGroups ? (
+              <Boxes className="w-4 h-4 mr-2 text-accent" />
+            ) : (
+              <Component className="w-4 h-4 mr-2" />
+            )}
             {showGroups ? 'Ungroup Targets' : 'Group Targets'}
           </Button>
         </div>
@@ -128,7 +136,9 @@ export default function TargetPool({
           const tabLabel = tab.label
           const tabValue = String(tab.value)
           const targetsForTab =
-            tabValue === 'ALL' ? filteredTargets : filteredTargets.filter(p => p.position === tabLabel)
+            tabValue === 'ALL'
+              ? filteredTargets
+              : filteredTargets.filter(p => p.position === tabLabel)
 
           return (
             <TabsContent
@@ -155,15 +165,69 @@ export default function TargetPool({
                 </div>
               ) : (
                 <>
-                  <TargetGroup label="Top Plays" icon="top" type="top" targets={targetsForTab} {...groupProps} />
-                  <TargetGroup label="Cash" icon="dollar-sign" type="cash" targets={targetsForTab} {...groupProps} />
-                  <TargetGroup label="Lock" icon="lock" type="lock" targets={targetsForTab} {...groupProps} />
-                  <TargetGroup label="GPP" icon="trophy" type="gpp" targets={targetsForTab} {...groupProps} />
-                  <TargetGroup label="Fade" icon="fade" type="fade" targets={targetsForTab} {...groupProps} />
-                  <TargetGroup label="Pivot" icon="pivot" type="pivot" targets={targetsForTab} {...groupProps} />
-                  <TargetGroup label="Injury" icon="ambulance" type="injury" targets={targetsForTab} {...groupProps} />
-                  <TargetGroup label="No Type" icon="none" type="none" targets={targetsForTab} {...groupProps} />
-                  <TargetGroup label="Bargain" icon="bargain" type="bargain" targets={targetsForTab} {...groupProps} />
+                  <TargetGroup
+                    label="Top Plays"
+                    icon="top"
+                    type="top"
+                    targets={targetsForTab}
+                    {...groupProps}
+                  />
+                  <TargetGroup
+                    label="Cash"
+                    icon="dollar-sign"
+                    type="cash"
+                    targets={targetsForTab}
+                    {...groupProps}
+                  />
+                  <TargetGroup
+                    label="Lock"
+                    icon="lock"
+                    type="lock"
+                    targets={targetsForTab}
+                    {...groupProps}
+                  />
+                  <TargetGroup
+                    label="GPP"
+                    icon="trophy"
+                    type="gpp"
+                    targets={targetsForTab}
+                    {...groupProps}
+                  />
+                  <TargetGroup
+                    label="Fade"
+                    icon="fade"
+                    type="fade"
+                    targets={targetsForTab}
+                    {...groupProps}
+                  />
+                  <TargetGroup
+                    label="Pivot"
+                    icon="pivot"
+                    type="pivot"
+                    targets={targetsForTab}
+                    {...groupProps}
+                  />
+                  <TargetGroup
+                    label="Injury"
+                    icon="ambulance"
+                    type="injury"
+                    targets={targetsForTab}
+                    {...groupProps}
+                  />
+                  <TargetGroup
+                    label="No Type"
+                    icon="none"
+                    type="none"
+                    targets={targetsForTab}
+                    {...groupProps}
+                  />
+                  <TargetGroup
+                    label="Bargain"
+                    icon="bargain"
+                    type="bargain"
+                    targets={targetsForTab}
+                    {...groupProps}
+                  />
                 </>
               )}
             </TabsContent>

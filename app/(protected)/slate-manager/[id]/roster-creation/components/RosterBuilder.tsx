@@ -7,9 +7,15 @@ import { Controller, useForm } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
-import { ROSTER_SLOTS } from '@/constants/slots'
+import { ROSTER_SLOTS } from '@/shared/constants/slots'
 import { toast } from '@/hooks/use-toast'
 
 import { useSaveRosterMutation } from '../../../_api/roster.api'
@@ -44,9 +50,14 @@ export default function RosterBuilder({
   const [rosterType, setRosterType] = useState('')
 
   const slots = useMemo(() => (sport ? ROSTER_SLOTS[sport] : []), [sport])
-  const formDefaults = useMemo(() => Object.fromEntries(slots.map(s => [s.key, null] as const)), [slots])
+  const formDefaults = useMemo(
+    () => Object.fromEntries(slots.map(s => [s.key, null] as const)),
+    [slots],
+  )
 
-  const { control, reset, handleSubmit, watch, setValue } = useForm<Record<string, TargetPool | null>>({
+  const { control, reset, handleSubmit, watch, setValue } = useForm<
+    Record<string, TargetPool | null>
+  >({
     defaultValues: formDefaults,
     shouldUnregister: true,
   })
@@ -64,14 +75,22 @@ export default function RosterBuilder({
     })
   }, [roster, setValue])
 
-  const getName = (first_name: string, last_name: string, positionKey: string, team_name: string) => {
+  const getName = (
+    first_name: string,
+    last_name: string,
+    positionKey: string,
+    team_name: string,
+  ) => {
     if (positionKey === 'DST') return team_name || ''
     if (!first_name || !last_name) return ''
     return `${first_name} ${last_name}`
   }
 
   const totalSalary = Object.values(values).reduce((sum, player) => sum + (player?.salary || 0), 0)
-  const totalProjection = Object.values(values).reduce((sum, player) => sum + (player?.projection || 0), 0)
+  const totalProjection = Object.values(values).reduce(
+    (sum, player) => sum + (player?.projection || 0),
+    0,
+  )
   const isOverCap = totalSalary > SALARY_CAP
   const isIncomplete = Object.values(values).some(player => player == null)
 
@@ -203,7 +222,9 @@ export default function RosterBuilder({
                             <span className="text-[11px] font-bold text-muted uppercase">Proj</span>
                             {showProjections && field.value ? (
                               <>
-                                <p className="font-bold text-xs">{field.value?.projection ?? '—'}</p>
+                                <p className="font-bold text-xs">
+                                  {field.value?.projection ?? '—'}
+                                </p>
                               </>
                             ) : !showProjections && field.value ? (
                               <Lock className="w-4 h-4 mx-auto text-muted" />
@@ -217,7 +238,9 @@ export default function RosterBuilder({
                         <>
                           <span className="text-[11px] font-bold text-muted uppercase">Salary</span>
                           <p className="font-bold text-xs">
-                            {field.value?.salary ? `$${field.value.salary.toLocaleString('en-US')}` : '—'}
+                            {field.value?.salary
+                              ? `$${field.value.salary.toLocaleString('en-US')}`
+                              : '—'}
                           </p>
                         </>
                       )}
@@ -251,10 +274,14 @@ export default function RosterBuilder({
         </div>
 
         <div className="flex justify-between gap-4 mt-6 items-center">
-          <div className={`px-2 text-sm font-bold ${isOverCap ? 'text-destructive' : 'text-foreground'}`}>
+          <div
+            className={`px-2 text-sm font-bold ${isOverCap ? 'text-destructive' : 'text-foreground'}`}
+          >
             <div className="flex flex-col items-start gap-1">
               <div className="text-lg">Total Salary: ${totalSalary.toLocaleString('en-US')}</div>
-              <div className="text-sm text-muted">Remaining: ${(SALARY_CAP - totalSalary).toLocaleString('en-US')}</div>
+              <div className="text-sm text-muted">
+                Remaining: ${(SALARY_CAP - totalSalary).toLocaleString('en-US')}
+              </div>
             </div>
           </div>
           <div className="flex gap-4">
@@ -272,7 +299,11 @@ export default function RosterBuilder({
             >
               Clear Roster
             </Button>
-            <Button className="btn-accent" type="submit" disabled={isOverCap || isIncomplete || isSaving}>
+            <Button
+              className="btn-accent"
+              type="submit"
+              disabled={isOverCap || isIncomplete || isSaving}
+            >
               {isSaving ? (
                 <>
                   <Loader className="w-4 h-4 mr-2 animate-spin" /> Saving...

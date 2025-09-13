@@ -72,7 +72,9 @@ export default function MatchupCard({ matchup }: { matchup: Matchup }) {
           </div>
           <div className="flex flex-col items-left text-left text-lg font-bold ml-4">
             <div>{matchup.away_team_city}</div>
-            <h3 className="uppercase text-3xl font-black hidden md:block">{matchup.away_team_name}</h3>
+            <h3 className="uppercase text-3xl font-black hidden md:block">
+              {matchup.away_team_name}
+            </h3>
           </div>
         </div>
 
@@ -83,12 +85,24 @@ export default function MatchupCard({ matchup }: { matchup: Matchup }) {
           </div>
           {matchup.game_total && matchup.sport === 'NFL' && matchup.game_total > 48 && (
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-30">
-              <Image src="/fire.png" alt="Fire Matchup" width={300} height={300} className="scale-[1.5]" />
+              <Image
+                src="/fire.png"
+                alt="Fire Matchup"
+                width={300}
+                height={300}
+                className="scale-[1.5]"
+              />
             </div>
           )}
           {matchup.game_total && matchup.sport === 'CFB' && matchup.game_total > 55 && (
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-30">
-              <Image src="/fire.png" alt="Fire Matchup" width={300} height={300} className="scale-[1.5]" />
+              <Image
+                src="/fire.png"
+                alt="Fire Matchup"
+                width={300}
+                height={300}
+                className="scale-[1.5]"
+              />
             </div>
           )}
         </div>
@@ -107,7 +121,9 @@ export default function MatchupCard({ matchup }: { matchup: Matchup }) {
           </div>
           <div className="flex flex-col items-right text-lg ml-4 md:mr-4">
             <div>{matchup.home_team_city}</div>
-            <h3 className="uppercase text-3xl font-bold hidden md:block">{matchup.home_team_name}</h3>
+            <h3 className="uppercase text-3xl font-bold hidden md:block">
+              {matchup.home_team_name}
+            </h3>
           </div>
         </div>
       </div>
@@ -117,13 +133,15 @@ export default function MatchupCard({ matchup }: { matchup: Matchup }) {
         className={`flex items-end bg-card font-bold text-sm justify-between rounded-t text-muted px-4 py-2 border-t border-border overflow-hidden`}
       >
         <div className="relative">
-          <div className="z-20 relative text-foreground">Team Total: {matchup.away_team_total ?? 'N/A'} </div>
+          <div className="z-20 relative text-foreground">
+            Team Total: {matchup.away_team_total ?? 'N/A'}{' '}
+          </div>
           {matchup.away_team_total && matchup.sport === 'NFL' && matchup.away_team_total > 24 && (
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-60 z-0">
               <Image src="/fire.png" alt="Fire Matchup" width={100} height={100} />
             </div>
           )}
-          {matchup.away_team_total && matchup.sport === 'CFB' && matchup.away_team_total > 30 && (
+          {matchup.away_team_total && matchup.sport === 'CFB' && matchup.away_team_total > 27 && (
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-60 z-0">
               <Image src="/fire.png" alt="Fire Matchup" width={100} height={100} />
             </div>
@@ -133,13 +151,15 @@ export default function MatchupCard({ matchup }: { matchup: Matchup }) {
           <span className="z-10 text-foreground">Game Total: {matchup.game_total ?? 'N/A'} </span>
         </div>
         <div className="relative">
-          <div className="z-20 relative text-foreground">Team Total: {matchup.home_team_total ?? 'N/A'} </div>
+          <div className="z-20 relative text-foreground">
+            Team Total: {matchup.home_team_total ?? 'N/A'}{' '}
+          </div>
           {matchup.home_team_total && matchup.sport === 'NFL' && matchup.home_team_total > 24 && (
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-60 z-0">
               <Image src="/fire.png" alt="Fire Matchup" width={100} height={100} />
             </div>
           )}
-          {matchup.home_team_total && matchup.sport === 'CFB' && matchup.home_team_total > 30 && (
+          {matchup.home_team_total && matchup.sport === 'CFB' && matchup.home_team_total > 27 && (
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-60 z-0">
               <Image src="/fire.png" alt="Fire Matchup" width={100} height={100} />
             </div>

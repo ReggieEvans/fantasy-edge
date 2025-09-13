@@ -33,14 +33,14 @@ type NavLink =
   | { href: string; label: string; icon: keyof typeof ICONS; disabled?: boolean }
   | { href: string; label: string; icon: LucideIcon; disabled?: boolean }
 
-const links: NavLink[] = [
-  { href: '/', label: 'Dashboard', icon: 'home' }, // use string keys OR
+const links = [
+  { href: '/', label: 'Dashboard', icon: 'home' },
   { href: '/n-slate-manager', label: 'Slate Manager', icon: 'hammer' },
-  { href: '/pickem', label: 'Pickem', icon: Pickaxe }, // direct component also OK
+  { href: '/pickem', label: 'Pickem', icon: Pickaxe },
   { href: '/study-hub', label: 'Study Hub', icon: 'brain', disabled: true },
   { href: '/props', label: 'Props', icon: 'pencil', disabled: true },
   { href: '/bankroll-tracker', label: 'Bankroll Tracker', icon: 'banknote', disabled: true },
-]
+] as const satisfies readonly NavLink[]
 
 export default function Header() {
   const pathname = usePathname()

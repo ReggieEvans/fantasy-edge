@@ -5,7 +5,7 @@ import { Boxes, Component, Loader, Lock, PlusCircle, Unlock, Users } from 'lucid
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ROSTER_SLOTS } from '@/constants/slots'
+import { ROSTER_SLOTS } from '@/shared/constants/slots'
 
 import type { TargetPool } from '../../_types/targetPool'
 import TargetGroup from './TargetGroup'

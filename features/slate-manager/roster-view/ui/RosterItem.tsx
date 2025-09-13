@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 
 import { ROSTER_SLOTS } from '@/shared/constants/slots'
 
-import { RosterSlot } from '../../../_types/roster'
+import { RosterSlot } from '../../_types/roster'
 
 type Sport = 'NFL' | 'CFB'
 

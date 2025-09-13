@@ -15,11 +15,11 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
-import { ROSTER_SLOTS } from '@/constants/slots'
+import { ROSTER_SLOTS } from '@/shared/constants/slots'
 import { toast } from '@/shared/hooks/useToast'
 
+import { useSaveRosterMutation } from '../../_api/roster.api'
 import { TargetPool } from '../../_types/targetPool'
-import { useSaveRosterMutation } from '../api/roster.api'
 
 const SALARY_CAP = 50000
 

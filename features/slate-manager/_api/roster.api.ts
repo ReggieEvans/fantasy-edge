@@ -1,6 +1,6 @@
 import { baseApi } from '@/store/api/baseApi'
 
-import { Roster, RosterView } from '../types/roster'
+import { Roster, RosterView } from '../roster-construction/types/roster'
 
 export const rostersApi = baseApi.injectEndpoints({
   endpoints: builder => ({
