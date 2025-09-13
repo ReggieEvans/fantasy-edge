@@ -5,7 +5,13 @@ import { useParams } from 'next/navigation'
 import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import useTargetPoolControls from '@/hooks/use-target-pool-controls'
 import { toast } from '@/hooks/use-toast'
@@ -34,15 +40,15 @@ export default function PlayerPoolPage() {
   const { data: targets, isLoading } = useGetTargetPoolQuery(id)
   const [addTarget] = useAddTargetMutation()
 
-  const { filterPosition, setFilterPosition, sortKey, setSortKey, groupedTargets } = useTargetPoolControls(
-    targets || [],
-  )
+  const { filterPosition, setFilterPosition, sortKey, setSortKey, groupedTargets } =
+    useTargetPoolControls(targets || [])
 
   const handleTargetingPlayer = (player: TargetPool) => {
     setSelectedPlayer(player)
 
     const targetForPlayer =
-      targets?.find(t => t.slate_player_id === player.id || t.player_id === player.player_id) ?? null
+      targets?.find(t => t.slate_player_id === player.id || t.player_id === player.player_id) ??
+      null
 
     setExistingTarget(targetForPlayer)
     setOpen(true)
@@ -141,8 +147,8 @@ export default function PlayerPoolPage() {
             <h1 className="text-xl font-bold uppercase">Player Pool</h1>
           </div>
           <p className="text-muted text-sm">
-            The player pool is a list of players that you have targeted for your slate. From here you can filter, sort,
-            edit and delete targets in your pool.
+            The player pool is a list of players that you have targeted for your slate. From here
+            you can filter, sort, edit and delete targets in your pool.
           </p>
         </div>
         {/* Filters */}
@@ -191,13 +197,17 @@ export default function PlayerPoolPage() {
         {/* Render groups */}
         <div className="flex flex-col gap-8 max-h-[calc(100vh-300px)] overflow-y-auto">
           {isLoading ? (
-            [...Array(3)].map((_, i) => <Skeleton key={i} className="h-32 w-full bg-card rounded animate-pulse" />)
+            [...Array(3)].map((_, i) => (
+              <Skeleton key={i} className="h-32 w-full bg-card rounded animate-pulse" />
+            ))
           ) : targets?.length === 0 ? (
             <div className="flex flex-col items-center justify-center max-w-[350px] mx-auto pt-24 space-y-2">
-              <h2 className="text-muted text-center text-lg font-bold opacity-70">No targets found</h2>
+              <h2 className="text-muted text-center text-lg font-bold opacity-70">
+                No targets found
+              </h2>
               <p className="text-muted text-center text-sm opacity-50">
-                You currently have no targets in your player pool. You can add targets by clicking the target icon next
-                to a player on the matchup page.
+                You currently have no targets in your player pool. You can add targets by clicking
+                the target icon next to a player on the matchup page.
               </p>
             </div>
           ) : (
@@ -208,7 +218,11 @@ export default function PlayerPoolPage() {
                 </div>
                 <div className="space-y-4">
                   {items.map((target: TargetPool) => (
-                    <TargetCard key={target.id} target={target} handleTargetingPlayer={handleTargetingPlayer} />
+                    <TargetCard
+                      key={target.id}
+                      target={target}
+                      handleTargetingPlayer={handleTargetingPlayer}
+                    />
                   ))}
                 </div>
               </div>

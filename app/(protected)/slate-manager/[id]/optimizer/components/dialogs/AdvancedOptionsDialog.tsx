@@ -3,7 +3,7 @@ import { useReducer } from 'react'
 
 import { setConstraints } from '@/app/(protected)/slate-manager/_state/optimizerConstraints.slice'
 import { Matchup } from '@/app/(protected)/slate-manager/_types/matchup'
-import { Info } from '@/components/Info'
+import { Info } from '@/shared/ui/Info'
 import { DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'

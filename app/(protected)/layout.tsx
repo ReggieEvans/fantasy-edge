@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 
-import Header from '@/components/Header'
+import Header from '@/shared/ui/Header'
 import { createServerSupabaseClient } from '@/libs/supabase/server'
 
 export default async function ProtectedLayout({ children }: { children: React.ReactNode }) {

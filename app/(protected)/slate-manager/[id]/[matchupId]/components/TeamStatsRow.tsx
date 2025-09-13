@@ -1,4 +1,4 @@
-import { getDefensiveDeltaGrade, getOffensiveDeltaGrade } from '@/utils/delta-grade'
+import { getDefensiveDeltaGrade, getOffensiveDeltaGrade } from '@/shared/utils'
 
 import { TeamStats } from '../../../_types/stats'
 
@@ -15,13 +15,18 @@ const TeamStatRow = ({
 }) => {
   const teamDelta = stats.current_year - stats.current_year_avg
 
-  const isDefensiveStat = label.toUpperCase().includes('PASS DEF') || label.toUpperCase().includes('RUSH DEF')
+  const isDefensiveStat =
+    label.toUpperCase().includes('PASS DEF') || label.toUpperCase().includes('RUSH DEF')
 
-  const { grade, bgClass } = isDefensiveStat ? getDefensiveDeltaGrade(teamDelta) : getOffensiveDeltaGrade(teamDelta)
+  const { grade, bgClass } = isDefensiveStat
+    ? getDefensiveDeltaGrade(teamDelta)
+    : getOffensiveDeltaGrade(teamDelta)
 
   return (
     <div className="flex flex-col gap-2">
-      <div className={`uppercase text-sm font-bold ${isReverse ? 'text-right' : 'text-left'}`}>{label}</div>
+      <div className={`uppercase text-sm font-bold ${isReverse ? 'text-right' : 'text-left'}`}>
+        {label}
+      </div>
       <div className={`flex flex-wrap ${isReverse ? 'flex-row-reverse' : ''}`}>
         <div className="flex flex-col text-sm font-medium w-12 mb-3">
           <div
@@ -30,7 +35,9 @@ const TeamStatRow = ({
             Delta
           </div>
           <div className={`flex p-1 ${isReverse ? 'justify-end' : 'justify-start'}`}>
-            <span className={`flex justify-center px-1 py-[1px] rounded text-sm font-bold w-8 ${bgClass}`}>
+            <span
+              className={`flex justify-center px-1 py-[1px] rounded text-sm font-bold w-8 ${bgClass}`}
+            >
               {grade}
             </span>
           </div>
@@ -45,11 +52,15 @@ const TeamStatRow = ({
           { key: 'rank' as const, label: 'Rank' },
         ].map(({ key, label }) => (
           <div key={key} className="flex flex-col text-sm font-medium w-16 mb-3">
-            <div className={`text-muted uppercase border-b-2 border-border text-[10px] font-bold text-center`}>
+            <div
+              className={`text-muted uppercase border-b-2 border-border text-[10px] font-bold text-center`}
+            >
               {label}
             </div>
             <div className={`p-1 text-center`}>
-              {isPercent && label !== 'Rank' ? `${(stats[key] ?? 0 * 100).toFixed(1)}%` : stats[key]}
+              {isPercent && label !== 'Rank'
+                ? `${(((stats[key] as number) ?? 0) * 100).toFixed(1)}%`
+                : stats[key]}
             </div>
           </div>
         ))}

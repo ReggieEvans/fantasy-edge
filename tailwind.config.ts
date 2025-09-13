@@ -8,6 +8,8 @@ export default {
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx,css}',
     './utils/**/*.{js,ts,jsx,tsx,mdx,css}',
+    './shared/**/*.{js,ts,jsx,tsx,mdx,css}',
+    './features/**/*.{js,ts,jsx,tsx,mdx,css}',
   ],
   images: {
     remotePatterns: [

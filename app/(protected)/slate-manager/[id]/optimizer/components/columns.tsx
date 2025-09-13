@@ -2,8 +2,8 @@ import { ColumnDef } from '@tanstack/react-table'
 import { Lock, RefreshCcw } from 'lucide-react'
 
 import { Player } from '@/app/(protected)/slate-manager/_types/player'
-import { getColorByValue, pffGradeConfig } from '@/utils/color-coding'
-import { getLetterGrade } from '@/utils/letter-grade'
+import { getColorByValue, pffGradeConfig } from '@/shared/utils/colorCoding'
+import { getLetterGrade } from '@/shared/utils/letterGrade'
 
 import { ExcludeCell, LockCell, PlayerNameCell, PositionCell, ROICell } from './cells/PlayerCell'
 
@@ -36,7 +36,9 @@ export function makePlayerColumns({
             </div>
           ),
           meta: 'Exclude',
-          cell: ({ row }) => <ExcludeCell player={row.original} onToggleExclude={onToggleExclude} />,
+          cell: ({ row }) => (
+            <ExcludeCell player={row.original} onToggleExclude={onToggleExclude} />
+          ),
         },
         {
           id: 'lock',
@@ -86,7 +88,8 @@ export function makePlayerColumns({
           cell: ({ row }) => {
             const dropbacks = row.original.passing?.dropbacks
             const player_game_count = row.original.passing?.player_game_count
-            const val = dropbacks && player_game_count ? (dropbacks / player_game_count).toFixed(1) : '-'
+            const val =
+              dropbacks && player_game_count ? (dropbacks / player_game_count).toFixed(1) : '-'
             return <div>{val}</div>
           },
         },
@@ -107,7 +110,8 @@ export function makePlayerColumns({
           cell: ({ row }) => {
             const attempts = row.original.rushing?.attempts
             const player_game_count = row.original.rushing?.player_game_count
-            const val = attempts && player_game_count ? (attempts / player_game_count).toFixed(1) : '-'
+            const val =
+              attempts && player_game_count ? (attempts / player_game_count).toFixed(1) : '-'
             return <div>{val}</div>
           },
         },
@@ -128,7 +132,8 @@ export function makePlayerColumns({
           cell: ({ row }) => {
             const touchdowns = row.original.passing?.touchdowns
             const player_game_count = row.original.passing?.player_game_count
-            const val = touchdowns && player_game_count ? (touchdowns / player_game_count).toFixed(1) : '-'
+            const val =
+              touchdowns && player_game_count ? (touchdowns / player_game_count).toFixed(1) : '-'
             return <div>{val}</div>
           },
         },
@@ -168,7 +173,9 @@ export function makePlayerColumns({
           header: 'BTT',
           meta: 'Big time throws',
           cell: ({ row }) => {
-            const big_time_throws = row.original.passing?.big_time_throws ? row.original.passing?.big_time_throws : '-'
+            const big_time_throws = row.original.passing?.big_time_throws
+              ? row.original.passing?.big_time_throws
+              : '-'
             return <div>{big_time_throws}</div>
           },
         },
@@ -180,7 +187,9 @@ export function makePlayerColumns({
             const val = row.original.passing?.grades_pass ?? '-'
             const letterGrade = getLetterGrade(val)
             return (
-              <div className={`flex items-center justify-center rounded w-9 ${getColorByValue(val, pffGradeConfig)}`}>
+              <div
+                className={`flex items-center justify-center rounded w-9 ${getColorByValue(val, pffGradeConfig)}`}
+              >
                 {letterGrade}
               </div>
             )
@@ -194,7 +203,9 @@ export function makePlayerColumns({
             const val = row.original.rushing?.grades_run ?? '-'
             const letterGrade = getLetterGrade(val)
             return (
-              <div className={`flex items-center justify-center rounded w-9 ${getColorByValue(val, pffGradeConfig)}`}>
+              <div
+                className={`flex items-center justify-center rounded w-9 ${getColorByValue(val, pffGradeConfig)}`}
+              >
                 {letterGrade}
               </div>
             )
@@ -207,7 +218,8 @@ export function makePlayerColumns({
           cell: ({ row }) => {
             const first_downs = row.original.passing?.first_downs
             const player_game_count = row.original.passing?.player_game_count
-            const val = first_downs && player_game_count ? (first_downs / player_game_count).toFixed(1) : '-'
+            const val =
+              first_downs && player_game_count ? (first_downs / player_game_count).toFixed(1) : '-'
             return <div>{val}</div>
           },
         },
@@ -218,7 +230,10 @@ export function makePlayerColumns({
           cell: ({ row }) => {
             const interceptions = row.original.passing?.interceptions
             const player_game_count = row.original.passing?.player_game_count
-            const val = interceptions && player_game_count ? (interceptions / player_game_count).toFixed(1) : '-'
+            const val =
+              interceptions && player_game_count
+                ? (interceptions / player_game_count).toFixed(1)
+                : '-'
             return <div>{val}</div>
           },
         },
@@ -230,7 +245,9 @@ export function makePlayerColumns({
             const turnover_worthy_plays = row.original.passing?.turnover_worthy_plays
             const player_game_count = row.original.passing?.player_game_count
             const val =
-              turnover_worthy_plays && player_game_count ? (turnover_worthy_plays / player_game_count).toFixed(1) : '-'
+              turnover_worthy_plays && player_game_count
+                ? (turnover_worthy_plays / player_game_count).toFixed(1)
+                : '-'
             return <div>{val}</div>
           },
         },
@@ -276,7 +293,8 @@ export function makePlayerColumns({
           cell: ({ row }) => {
             const attempts = row.original.rushing?.attempts
             const player_game_count = row.original.rushing?.player_game_count
-            const val = attempts && player_game_count ? (attempts / player_game_count).toFixed(1) : '-'
+            const val =
+              attempts && player_game_count ? (attempts / player_game_count).toFixed(1) : '-'
             return <div>{val}</div>
           },
         },
@@ -309,7 +327,8 @@ export function makePlayerColumns({
           cell: ({ row }) => {
             const touchdowns = row.original.rushing?.touchdowns
             const player_game_count = row.original.rushing?.player_game_count
-            const val = touchdowns && player_game_count ? (touchdowns / player_game_count).toFixed(1) : '-'
+            const val =
+              touchdowns && player_game_count ? (touchdowns / player_game_count).toFixed(1) : '-'
             return <div>{val}</div>
           },
         },
@@ -348,7 +367,8 @@ export function makePlayerColumns({
           cell: ({ row }) => {
             const targets = row.original.receiving?.targets
             const player_game_count = row.original.receiving?.player_game_count
-            const val = targets && player_game_count ? (targets / player_game_count).toFixed(1) : '-'
+            const val =
+              targets && player_game_count ? (targets / player_game_count).toFixed(1) : '-'
             return <div>{val}</div>
           },
         },
@@ -400,7 +420,9 @@ export function makePlayerColumns({
             const letterGrade = getLetterGrade(val)
             return (
               <div className="flex justify-center">
-                <div className={`flex items-center justify-center rounded w-9 ${getColorByValue(val, pffGradeConfig)}`}>
+                <div
+                  className={`flex items-center justify-center rounded w-9 ${getColorByValue(val, pffGradeConfig)}`}
+                >
                   {letterGrade}
                 </div>
               </div>
@@ -416,7 +438,9 @@ export function makePlayerColumns({
             const letterGrade = getLetterGrade(val)
             return (
               <div className="flex justify-center">
-                <div className={`flex items-center justify-center rounded w-9 ${getColorByValue(val, pffGradeConfig)}`}>
+                <div
+                  className={`flex items-center justify-center rounded w-9 ${getColorByValue(val, pffGradeConfig)}`}
+                >
                   {letterGrade}
                 </div>
               </div>
@@ -435,7 +459,8 @@ export function makePlayerColumns({
           cell: ({ row }) => {
             const targets = row.original.receiving?.targets
             const player_game_count = row.original.receiving?.player_game_count
-            const val = targets && player_game_count ? (targets / player_game_count).toFixed(1) : '-'
+            const val =
+              targets && player_game_count ? (targets / player_game_count).toFixed(1) : '-'
             return <div>{val}</div>
           },
         },
@@ -446,7 +471,8 @@ export function makePlayerColumns({
           cell: ({ row }) => {
             const receptions = row.original.receiving?.receptions
             const player_game_count = row.original.receiving?.player_game_count
-            const val = receptions && player_game_count ? (receptions / player_game_count).toFixed(1) : '-'
+            const val =
+              receptions && player_game_count ? (receptions / player_game_count).toFixed(1) : '-'
             return <div>{val}</div>
           },
         },
@@ -479,7 +505,8 @@ export function makePlayerColumns({
           cell: ({ row }) => {
             const touchdowns = row.original.receiving?.touchdowns
             const player_game_count = row.original.receiving?.player_game_count
-            const val = touchdowns && player_game_count ? (touchdowns / player_game_count).toFixed(1) : '-'
+            const val =
+              touchdowns && player_game_count ? (touchdowns / player_game_count).toFixed(1) : '-'
             return <div>{val}</div>
           },
         },
@@ -520,7 +547,9 @@ export function makePlayerColumns({
             const letterGrade = getLetterGrade(val)
             return (
               <div className="flex justify-center">
-                <div className={`flex items-center justify-center rounded w-9 ${getColorByValue(val, pffGradeConfig)}`}>
+                <div
+                  className={`flex items-center justify-center rounded w-9 ${getColorByValue(val, pffGradeConfig)}`}
+                >
                   {letterGrade}
                 </div>
               </div>

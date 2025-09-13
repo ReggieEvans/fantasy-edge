@@ -7,7 +7,11 @@ import { useParams } from 'next/navigation'
 import React, { useState } from 'react'
 
 import { useGetMatchupQuery } from '@/app/(protected)/slate-manager/_api/matchups.api'
-import { NestedStatKey, StatGroupKey, TeamSide } from '@/app/(protected)/slate-manager/_types/diffRow'
+import {
+  NestedStatKey,
+  StatGroupKey,
+  TeamSide,
+} from '@/app/(protected)/slate-manager/_types/diffRow'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Switch } from '@/components/ui/switch'
@@ -18,7 +22,9 @@ import { DiffRow } from './components/DiffRow'
 import PlayerTable from './components/PlayerTable'
 import TeamStatRow from './components/TeamStatsRow'
 
-const sportPositions: { [key: string]: { position: string; positionAbb: 'QB' | 'RB' | 'WR' | 'TE' | 'DST' }[] } = {
+const sportPositions: {
+  [key: string]: { position: string; positionAbb: 'QB' | 'RB' | 'WR' | 'TE' | 'DST' }[]
+} = {
   NFL: [
     {
       position: 'Quarterback',
@@ -57,7 +63,7 @@ const sportPositions: { [key: string]: { position: string; positionAbb: 'QB' | '
   ],
 }
 
-export default function MatchupPage() {
+export default function ScoutingPage() {
   const [value, setValue] = useState('both')
   const [showPlayersWithNoStats, setShowPlayersWithNoStats] = useState(false)
   const { id, matchupId } = useParams() as {
@@ -100,9 +106,9 @@ export default function MatchupPage() {
           </div>
         </div>
         <p className="max-w-[1200px] text-sm">
-          The following stat breakdown provides insights into team performance and can help you identify key players for
-          your lineup. See a good matchup? Scroll down and click the target icon next to a player to add them to your
-          player pool.
+          The following stat breakdown provides insights into team performance and can help you
+          identify key players for your lineup. See a good matchup? Scroll down and click the target
+          icon next to a player to add them to your player pool.
         </p>
       </div>
 
@@ -117,7 +123,9 @@ export default function MatchupPage() {
           <div className="flex flex-col gap-2 items-center justify-center py-12 w-[600px] mx-auto">
             <Alert variant="destructive">
               <Bug size={20} />
-              <AlertTitle className="text-lg font-bold">Something went wrong while loading the matchup.</AlertTitle>
+              <AlertTitle className="text-lg font-bold">
+                Something went wrong while loading the matchup.
+              </AlertTitle>
               <AlertDescription className="py-2">
                 <p>{getErrorMessage(error)}</p>
               </AlertDescription>
@@ -146,11 +154,20 @@ export default function MatchupPage() {
                 <div className="p-2">
                   <div className="flex items-center gap-4 mb-8">
                     <div>
-                      <Image src={getTeamLogo(data.matchup.away_team_logo)} alt="Team Logo" width={80} height={80} />
+                      <Image
+                        src={getTeamLogo(data.matchup.away_team_logo)}
+                        alt="Team Logo"
+                        width={80}
+                        height={80}
+                      />
                     </div>
                     <div className="flex flex-col">
-                      <div className="text-xl font-bold uppercase">{data.matchup.away_team_city}</div>
-                      <div className="text-3xl font-black uppercase">{data.matchup.away_team_name}</div>
+                      <div className="text-xl font-bold uppercase">
+                        {data.matchup.away_team_city}
+                      </div>
+                      <div className="text-3xl font-black uppercase">
+                        {data.matchup.away_team_name}
+                      </div>
                     </div>
                   </div>
                   <TeamStatRow stats={data.teamPassing.away} label="PASSING" />
@@ -193,17 +210,36 @@ export default function MatchupPage() {
                 <div className="p-2">
                   <div className="flex flex-row-reverse items-center gap-4 mb-8">
                     <div>
-                      <Image src={getTeamLogo(data.matchup.home_team_logo)} alt="Team Logo" width={80} height={80} />
+                      <Image
+                        src={getTeamLogo(data.matchup.home_team_logo)}
+                        alt="Team Logo"
+                        width={80}
+                        height={80}
+                      />
                     </div>
                     <div className="flex flex-col items-end">
-                      <div className="text-xl uppercase font-bold">{data.matchup.home_team_city}</div>
-                      <div className="text-3xl font-black uppercase">{data.matchup.home_team_name}</div>
+                      <div className="text-xl uppercase font-bold">
+                        {data.matchup.home_team_city}
+                      </div>
+                      <div className="text-3xl font-black uppercase">
+                        {data.matchup.home_team_name}
+                      </div>
                     </div>
                   </div>
                   <TeamStatRow stats={data.teamPassing.home} label="PASSING" isReverse={true} />
                   <TeamStatRow stats={data.teamRushing.home} label="RUSHING" isReverse={true} />
-                  <TeamStatRow stats={data.passingRate.home} label="PASS RATE" isPercent={true} isReverse={true} />
-                  <TeamStatRow stats={data.rushingRate.home} label="RUSH RATE" isPercent={true} isReverse={true} />
+                  <TeamStatRow
+                    stats={data.passingRate.home}
+                    label="PASS RATE"
+                    isPercent={true}
+                    isReverse={true}
+                  />
+                  <TeamStatRow
+                    stats={data.rushingRate.home}
+                    label="RUSH RATE"
+                    isPercent={true}
+                    isReverse={true}
+                  />
                   <TeamStatRow stats={data.passingDefense.home} label="PASS DEF" isReverse={true} />
                   <TeamStatRow stats={data.rushingDefense.home} label="RUSH DEF" isReverse={true} />
                 </div>
@@ -211,7 +247,9 @@ export default function MatchupPage() {
               <div className="flex justify-center gap-24 bg-card pb-2 pt-6 border-t border-border">
                 <div className="flex flex-col items-center justify-center">
                   <div className="uppercase text-xs font-bold">Team Total</div>
-                  <div className="text-3xl font-black py-2">{data.matchup.away_team_total ?? 'N/A'}</div>
+                  <div className="text-3xl font-black py-2">
+                    {data.matchup.away_team_total ?? 'N/A'}
+                  </div>
                 </div>
                 <div className="flex flex-col items-center justify-center">
                   <div className="uppercase text-xs font-bold">Game Total</div>
@@ -219,7 +257,9 @@ export default function MatchupPage() {
                 </div>
                 <div className="flex flex-col items-center justify-center">
                   <div className="uppercase text-xs font-bold">Team Total</div>
-                  <div className="text-3xl font-black py-2">{data.matchup.home_team_total ?? 'N/A'}</div>
+                  <div className="text-3xl font-black py-2">
+                    {data.matchup.home_team_total ?? 'N/A'}
+                  </div>
                 </div>
               </div>
             </section>
@@ -276,37 +316,51 @@ export default function MatchupPage() {
               </div>
 
               <div className="flex flex-col gap-8">
-                {sportPositions[data.matchup.sport].map((position: { position: string; positionAbb: string }) => (
-                  <div className="flex flex-col bg-card rounded" key={position.positionAbb}>
-                    <div className="px-4 py-3">
-                      <h5 className="uppercase text-sm font-bold">{position.position}</h5>
-                    </div>
-                    <div className="flex flex-row gap-2 bg-background-secondary rounded pb-4 p-2">
-                      {(value === 'both' || value === 'away_team') && (
-                        <div className={`flex ${value === 'both' ? 'w-1/2' : 'w-full'} px-2 min-w-0`}>
-                          <div className="w-full overflow-x-auto border border-background-darker rounded">
-                            <PlayerTable
-                              data={data.awayRoster[position.positionAbb as keyof typeof data.awayRoster]}
-                              position={position.positionAbb as 'QB' | 'RB' | 'WR' | 'TE' | 'DST'}
-                              showPlayersWithNoStats={showPlayersWithNoStats}
-                            />
+                {sportPositions[data.matchup.sport].map(
+                  (position: { position: string; positionAbb: string }) => (
+                    <div className="flex flex-col bg-card rounded" key={position.positionAbb}>
+                      <div className="px-4 py-3">
+                        <h5 className="uppercase text-sm font-bold">{position.position}</h5>
+                      </div>
+                      <div className="flex flex-row gap-2 bg-background-secondary rounded pb-4 p-2">
+                        {(value === 'both' || value === 'away_team') && (
+                          <div
+                            className={`flex ${value === 'both' ? 'w-1/2' : 'w-full'} px-2 min-w-0`}
+                          >
+                            <div className="w-full overflow-x-auto border border-background-darker rounded">
+                              <PlayerTable
+                                data={
+                                  data.awayRoster[
+                                    position.positionAbb as keyof typeof data.awayRoster
+                                  ]
+                                }
+                                position={position.positionAbb as 'QB' | 'RB' | 'WR' | 'TE' | 'DST'}
+                                showPlayersWithNoStats={showPlayersWithNoStats}
+                              />
+                            </div>
                           </div>
-                        </div>
-                      )}
-                      {(value === 'both' || value === 'home_team') && (
-                        <div className={`flex ${value === 'both' ? 'w-1/2' : 'w-full'} px-2 min-w-0`}>
-                          <div className="w-full overflow-x-auto border border-background-darker rounded">
-                            <PlayerTable
-                              data={data.homeRoster[position.positionAbb as keyof typeof data.homeRoster]}
-                              position={position.positionAbb as 'QB' | 'RB' | 'WR' | 'TE' | 'DST'}
-                              showPlayersWithNoStats={showPlayersWithNoStats}
-                            />
+                        )}
+                        {(value === 'both' || value === 'home_team') && (
+                          <div
+                            className={`flex ${value === 'both' ? 'w-1/2' : 'w-full'} px-2 min-w-0`}
+                          >
+                            <div className="w-full overflow-x-auto border border-background-darker rounded">
+                              <PlayerTable
+                                data={
+                                  data.homeRoster[
+                                    position.positionAbb as keyof typeof data.homeRoster
+                                  ]
+                                }
+                                position={position.positionAbb as 'QB' | 'RB' | 'WR' | 'TE' | 'DST'}
+                                showPlayersWithNoStats={showPlayersWithNoStats}
+                              />
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ),
+                )}
               </div>
             </section>
           </div>

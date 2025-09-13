@@ -1,6 +1,6 @@
 import { MatchupDTO } from '@/app/(protected)/slate-manager/_dto/matchup.dto'
 import { NestedStatKey } from '@/app/(protected)/slate-manager/_types/diffRow'
-import { getMatchupGrade } from '@/utils/matchup-grade'
+import { getMatchupGrade } from '@/shared/utils/matchupGrade'
 
 interface DiffRowProps {
   label: string
@@ -12,9 +12,18 @@ interface DiffRowProps {
   isReversed?: boolean
 }
 
-export const DiffRow = ({ label, data, homeOffense, homeDefense, awayOffense, awayDefense }: DiffRowProps) => {
-  const getCurrentYear = ([statType, side]: NestedStatKey) => data[statType][side]?.current_year ?? 0
-  const getCurrentYearAvg = ([statType, side]: NestedStatKey) => data[statType][side]?.current_year_avg ?? 0
+export const DiffRow = ({
+  label,
+  data,
+  homeOffense,
+  homeDefense,
+  awayOffense,
+  awayDefense,
+}: DiffRowProps) => {
+  const getCurrentYear = ([statType, side]: NestedStatKey) =>
+    data[statType][side]?.current_year ?? 0
+  const getCurrentYearAvg = ([statType, side]: NestedStatKey) =>
+    data[statType][side]?.current_year_avg ?? 0
 
   const homeCurrentOffense = getCurrentYear(homeOffense)
   const homeCurrentOffenseAvg = getCurrentYearAvg(homeOffense)
@@ -42,7 +51,9 @@ export const DiffRow = ({ label, data, homeOffense, homeDefense, awayOffense, aw
       <div className="uppercase text-sm font-bold">{label}</div>
       <div className="flex gap-8 ">
         <div className={`flex`}>
-          <span className={`flex justify-center px-4 py-2 rounded text-2xl font-bold w-16 ${awayMatchupGrade.bgClass}`}>
+          <span
+            className={`flex justify-center px-4 py-2 rounded text-2xl font-bold w-16 ${awayMatchupGrade.bgClass}`}
+          >
             {awayMatchupGrade.grade}
           </span>
         </div>

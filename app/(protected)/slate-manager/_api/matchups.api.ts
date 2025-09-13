@@ -9,8 +9,8 @@ export const matchupsApi = baseApi.injectEndpoints({
       query: id => `/api/matchups/${id}`,
       providesTags: ['Matchups'],
     }),
-    getMatchup: builder.query<MatchupDTO, { id: string; matchupId: string }>({
-      query: ({ id, matchupId }) => `/api/matchups/${id}/${matchupId}`,
+    getMatchup: builder.query<MatchupDTO, { id: string; mid: string }>({
+      query: ({ id, mid }) => `/api/matchups/${id}/${mid}`,
       providesTags: ['Matchups'],
     }),
   }),

@@ -1,5 +1,5 @@
-import { PickemOptimizer } from './components/PickemOptimizer'
+import PickemPage from '@/features/pickem/view/PickemPage'
 
-export default function PickemPage() {
-  return <PickemOptimizer />
+export default function Page() {
+  return <PickemPage />
 }

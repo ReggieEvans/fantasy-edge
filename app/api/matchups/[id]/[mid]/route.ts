@@ -3,12 +3,19 @@
 import { NextResponse } from 'next/server'
 
 import { Player } from '@/app/(protected)/slate-manager/_types/player'
-import { PassingStats, ReceivingStats, RushingStats } from '@/app/(protected)/slate-manager/_types/stats'
+import {
+  PassingStats,
+  ReceivingStats,
+  RushingStats,
+} from '@/app/(protected)/slate-manager/_types/stats'
 import { createServerSupabaseClient } from '@/libs/supabase/server'
 
-export const GET = async (_req: Request, { params }: { params: Promise<{ id: string; matchupId: string }> }) => {
+export const GET = async (
+  _req: Request,
+  { params }: { params: Promise<{ id: string; mid: string }> },
+) => {
   const supabase = await createServerSupabaseClient()
-  const { id: slateId, matchupId } = await params
+  const { id: slateId, mid } = await params
 
   const {
     data: { user },
@@ -23,10 +30,10 @@ export const GET = async (_req: Request, { params }: { params: Promise<{ id: str
       .from('slate_matchups')
       .select('*')
       .eq('slate_id', slateId)
-      .eq('id', matchupId)
+      .eq('id', mid)
       .single()
 
-    const { home_team_id, away_team_id, sport } = matchup
+    const { home_team_id, away_team_id } = matchup
     const teamIds = [home_team_id, away_team_id]
 
     const { data: allPlayers } = await supabase
@@ -75,7 +82,14 @@ export const GET = async (_req: Request, { params }: { params: Promise<{ id: str
       )
     }
 
-    if (!passingRate || !rushingRate || !teamPassing || !teamRushing || !passingDefense || !rushingDefense) {
+    if (
+      !passingRate ||
+      !rushingRate ||
+      !teamPassing ||
+      !teamRushing ||
+      !passingDefense ||
+      !rushingDefense
+    ) {
       return NextResponse.json({ error: 'Failed to fetch team stats' }, { status: 500 })
     }
 

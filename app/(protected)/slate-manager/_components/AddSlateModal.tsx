@@ -4,10 +4,22 @@ import { Loader, Plus, Star } from 'lucide-react'
 import { useState } from 'react'
 
 import { useAddSlateMutation } from '@/app/(protected)/slate-manager/_api/slates.api'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { toast } from '@/hooks/use-toast'
-import { formatDateTime } from '@/utils/formatDkTime'
+import { formatDateTime } from '@/shared/utils'
 
 import { useGetDkSlatesQuery } from '../_api/dk.api'
 import { DkSlateSelection } from '../_types/dkSlate'
@@ -117,8 +129,8 @@ export default function AddSlateModal({
                   {isAdding && slate.draftGroupId === selectedSlateId ? (
                     <div className="bg-[rgba(0,0,0,0.2)]">
                       <p>
-                        <span className="uppercase font-bold">One moment...</span> We&apos;re adding data to your slate
-                        🔥
+                        <span className="uppercase font-bold">One moment...</span> We&apos;re adding
+                        data to your slate 🔥
                       </p>
                     </div>
                   ) : (
@@ -138,10 +150,14 @@ export default function AddSlateModal({
                           {gameType === 'showdown' ? (
                             <div className="uppercase font-bold text-xs">Showdown Slate</div>
                           ) : (
-                            <div className="uppercase font-bold text-xs">{slate.games.length} Game Slate</div>
+                            <div className="uppercase font-bold text-xs">
+                              {slate.games.length} Game Slate
+                            </div>
                           )}
                           {gameType === 'showdown' && (
-                            <div className="uppercase font-bold text-xs">{slate.startTimeSuffix}</div>
+                            <div className="uppercase font-bold text-xs">
+                              {slate.startTimeSuffix}
+                            </div>
                           )}
                         </div>
                       </div>

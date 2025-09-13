@@ -16,7 +16,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toast } from '@/hooks/use-toast'
-import { formatDateTime } from '@/utils/formatDkTime'
+import { formatDateTime } from '@/shared/utils'
 
 import { useUploadProjectionsMutation } from '../_api/players.api'
 import { Slate } from '../_types/slate'
@@ -67,14 +67,18 @@ export default function AddProjectionsModal({
           </h2>
           <p className="text-foreground text-sm font-bold mb-4">{slate.gameCount} game slate</p>
           <p className="text-muted text-sm mb-4">
-            Upload a CSV file containing projections for the above slate. We will look for the following two columns:
-            &quot;Player Name&quot; and &quot;Pnts&quot;.
+            Upload a CSV file containing projections for the above slate. We will look for the
+            following two columns: &quot;Player Name&quot; and &quot;Pnts&quot;.
           </p>
           <div className="grid w-full max-w-sm items-center gap-3 py-4">
             <Label htmlFor="projections" className="px-1">
               College Football Projections
             </Label>
-            <Input id="projections" type="file" onChange={e => setFile(e.target.files?.[0] ?? null)} />
+            <Input
+              id="projections"
+              type="file"
+              onChange={e => setFile(e.target.files?.[0] ?? null)}
+            />
           </div>
         </div>
 

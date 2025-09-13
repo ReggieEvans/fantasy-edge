@@ -1,10 +1,22 @@
 'use client'
 
-import { ArrowRightCircle, CheckCircle, CloudUpload, MoreVertical, Trash2, XCircle } from 'lucide-react'
+import {
+  ArrowRightCircle,
+  CheckCircle,
+  CloudUpload,
+  MoreVertical,
+  Trash2,
+  XCircle,
+} from 'lucide-react'
 import Link from 'next/link'
 
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { formatDateTime } from '@/utils/formatDkTime'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { formatDateTime } from '@/shared/utils'
 
 import { Slate as SlateType } from '../_types/slate'
 
@@ -35,10 +47,16 @@ export default function Slate({ slate, onDeleteSlate, onAddProjections }: SlateP
 
           {/* Desktop Actions */}
           <div className="hidden md:flex gap-4 text-sm">
-            <button onClick={() => onAddProjections(slate)} className="flex items-center text-primary">
+            <button
+              onClick={() => onAddProjections(slate)}
+              className="flex items-center text-primary"
+            >
               <CloudUpload size={16} className="mr-2" /> Upload Projections
             </button>
-            <button onClick={() => onDeleteSlate(slate)} className="flex items-center text-destructive">
+            <button
+              onClick={() => onDeleteSlate(slate)}
+              className="flex items-center text-destructive"
+            >
               <Trash2 size={16} className="mr-2" /> Delete
             </button>
           </div>
@@ -55,7 +73,10 @@ export default function Slate({ slate, onDeleteSlate, onAddProjections }: SlateP
                 <DropdownMenuItem>
                   <CloudUpload size={16} className="mr-2" /> Upload Projections
                 </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => onDeleteSlate(slate)} className="text-destructive">
+                <DropdownMenuItem
+                  onSelect={() => onDeleteSlate(slate)}
+                  className="text-destructive"
+                >
                   <Trash2 size={16} className="mr-2" /> Delete
                 </DropdownMenuItem>
               </DropdownMenuContent>
