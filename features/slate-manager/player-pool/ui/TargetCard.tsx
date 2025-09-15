@@ -63,7 +63,7 @@ export function TargetCard({ target, handleTargetingPlayer }: Props) {
 
       <div className="relative p-2 border-l-4 border-background flex flex-col justify-start">
         <div className="text-sm font-bold text-foreground opacity-50 uppercase">Notes</div>
-        <div className="text-foreground">{target.target_notes}</div>
+        <div className="text-foreground whitespace-pre-wrap">{target.target_notes}</div>
       </div>
     </div>
   )
