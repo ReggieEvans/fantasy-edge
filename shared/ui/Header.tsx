@@ -36,10 +36,9 @@ type NavLink =
 const links: NavLink[] = [
   { href: '/', label: 'Dashboard', icon: 'home' },
   { href: '/slate-manager', label: 'Slate Manager', icon: 'hammer' },
-  { href: '/pickem', label: 'Pickem', icon: Pickaxe },
-  { href: '/study-hub', label: 'Study Hub', icon: 'brain', disabled: true },
-  { href: '/props', label: 'Props', icon: 'pencil', disabled: true },
+  { href: '/study-hub', label: 'Study Hub', icon: 'brain' },
   { href: '/bankroll-tracker', label: 'Bankroll Tracker', icon: 'banknote', disabled: true },
+  { href: '/pickem', label: 'Pickem', icon: Pickaxe },
 ]
 
 export default function Header() {
@@ -122,12 +121,12 @@ function NavMenu({
                   aria-disabled={link.disabled || undefined}
                   tabIndex={link.disabled ? -1 : undefined}
                   className={cn(
-                    'text-xs uppercase font-bold px-4 py-2 inline-flex items-center gap-2 transition-colors',
+                    'text-xs text-muted uppercase font-bold px-4 py-2 inline-flex items-center gap-2 transition-colors',
                     link.disabled
-                      ? 'pointer-events-none text-muted-foreground opacity-50'
+                      ? 'pointer-events-none text-muted opacity-50'
                       : isLinkActive(link.href)
                         ? 'text-accent'
-                        : 'text-muted-foreground hover:text-foreground',
+                        : 'text-muted hover:text-foreground',
                   )}
                   aria-current={isLinkActive(link.href) ? 'page' : undefined}
                 >
