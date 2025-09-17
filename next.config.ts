@@ -22,6 +22,11 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '64mb', // or '200mb' for huge DK CSVs
+    },
+  },
 }
 
 export default nextConfig
