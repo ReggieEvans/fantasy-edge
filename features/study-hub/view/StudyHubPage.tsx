@@ -68,8 +68,6 @@ export default function StudyHubPage() {
   const [playersPage, setPlayersPage] = useState(1)
   const [playersPageSize, setPlayersPageSize] = useState(50)
 
-  console.log('data', data)
-
   // reset page when filters change
   useEffect(() => {
     setUserPage(1)
@@ -438,10 +436,7 @@ export default function StudyHubPage() {
               <div className="flex items-center justify-start gap-4 text-sm font-bold">
                 <div className="flex flex-col gap-1">
                   <span className="text-xs text-muted">Total Spent</span>
-                  <Badge
-                    variant="outline"
-                    className="px-8 py-4 text-2xl font-black bg-gradient-to-br from-accent-gradient-1 to-accent-gradient-2 text-accent-foreground"
-                  >
+                  <Badge variant="outline" className="px-8 py-4 text-2xl font-black bg-accent">
                     ${(data?.usernameSummary?.Spent).toFixed(2)}
                   </Badge>
                 </div>

@@ -122,7 +122,6 @@ export default function AddSlateModal({
             </div>
           ) : slates && slates.length > 0 ? (
             slates.map((slate: DkSlateSelection) => {
-              console.log(slate)
               return (
                 <div
                   key={slate.draftGroupId}

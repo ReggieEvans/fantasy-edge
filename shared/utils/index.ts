@@ -1,5 +1,6 @@
 export * from './deltaGrade'
 export * from './formatDkTime'
 export * from './formatReadableDate'
+export * from './pct'
 export * from './sanitizeLogo'
 export * from './toISO'

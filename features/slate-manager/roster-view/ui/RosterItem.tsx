@@ -12,7 +12,6 @@ interface Props {
 }
 
 export function RosterItem({ player, sport }: Props) {
-  console.log(sport)
   const slots = useMemo(() => (sport ? ROSTER_SLOTS[sport] : []), [sport])
   const slot = slots.find(slot => slot.key === player.slot_key)
 

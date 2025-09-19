@@ -1,0 +1,10 @@
+export type Bucket =
+  | 'Cash'
+  | 'Cash+'
+  | 'WTA'
+  | 'Harris'
+  | 'Other'
+  | 'Sm SE'
+  | 'Lg SE'
+  | 'Sm 20 Max'
+  | 'Lg 20 Max'
