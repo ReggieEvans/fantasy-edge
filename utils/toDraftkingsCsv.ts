@@ -122,6 +122,5 @@ export function toDraftKingsCsvFromMatchups(
       cell(avg),
     ].join(',')
   })
-  console.log('rows', rows)
   return [header, ...rows].join('\r\n')
 }

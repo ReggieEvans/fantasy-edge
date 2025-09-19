@@ -9,6 +9,7 @@
     --background-darker: #0d0d18;
     --foreground: #e6e6ee;
     --muted: #a0a2b8;
+    --muted-bg: #353644;
     --card: #27283a;
     --card-foreground: #e6e6ee;
     /* --popover: #242424;
@@ -27,6 +28,7 @@
     --background-darker: #0d0d18;
     --foreground: #e6e6ee;
     --muted: #a0a2b8;
+    --muted-bg: #353644;
     --card: #27283a;
     --card-foreground: #e6e6ee;
     /* --popover: #242424;
@@ -57,6 +59,10 @@
 
   .btn-accent:hover {
     @apply brightness-90;
+  }
+
+  .bg-accent {
+    @apply bg-gradient-to-br from-accent-gradient-1 to-accent-gradient-2 text-accent-foreground;
   }
 }
 

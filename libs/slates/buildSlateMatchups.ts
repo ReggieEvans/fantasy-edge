@@ -86,7 +86,6 @@ export async function buildSlateMatchups(
           }
         }
       }
-      console.log(home, away)
       matchupRows.push({
         slate_id: slate.id,
         sport: slateSelection.sport,

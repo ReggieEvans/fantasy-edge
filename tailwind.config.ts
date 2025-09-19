@@ -49,6 +49,7 @@ export default {
         },
         muted: {
           DEFAULT: 'var(--muted)',
+          bg: 'var(--muted-bg)',
         },
         border: 'var(--border)',
         input: 'var(--input)',

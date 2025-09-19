@@ -37,8 +37,8 @@ const links: NavLink[] = [
   { href: '/', label: 'Dashboard', icon: 'home' },
   { href: '/slate-manager', label: 'Slate Manager', icon: 'hammer' },
   { href: '/study-hub', label: 'Study Hub', icon: 'brain' },
-  { href: '/bankroll-tracker', label: 'Bankroll Tracker', icon: 'banknote', disabled: true },
-  { href: '/pickem', label: 'Pickem', icon: Pickaxe },
+  { href: '/bankroll-tracker', label: 'Bankroll Tracker', icon: 'banknote' },
+  { href: '/pickem', label: 'Pickem', icon: 'pickaxe' },
 ]
 
 export default function Header() {
