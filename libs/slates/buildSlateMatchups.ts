@@ -39,6 +39,8 @@ export async function buildSlateMatchups(
 
       const home = teamByDkAbbr.get(abbrs.home)
       const away = teamByDkAbbr.get(abbrs.away)
+      console.log('home', home)
+      console.log('away', away)
       if (!home || !away) {
         console.log('Skipping game, missing team mapping:', {
           home: abbrs.home,
