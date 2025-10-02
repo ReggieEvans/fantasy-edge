@@ -2,6 +2,7 @@
 
 import { Banknote, Brain, Hammer, Home, LucideIcon, Pencil, Pickaxe } from 'lucide-react'
 import Link from 'next/link'
+import { useState } from 'react'
 
 import {
   NavigationMenu,
@@ -9,6 +10,13 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
 } from '@/components/ui/navigation-menu'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import FeatureHeader from '@/shared/ui/FeatureHeader'
 
 import DashboardLinks from '../ui/DashboardLinks'
@@ -36,9 +44,24 @@ const links: NavLink[] = [
 ]
 
 export default function DashboardPage() {
+  const [sport, setSport] = useState<'NFL' | 'CFB'>('NFL')
+
   return (
     <div className="px-6 bg-background pt-8 pb-16">
-      <FeatureHeader icon={<Home size={20} />} title="Dashboard" description="" />
+      <div className="flex items-start justify-between">
+        <FeatureHeader icon={<Home size={20} />} title="Dashboard" description="" />
+        <div className="w-[200px]">
+          <Select value={sport} onValueChange={setSport as (value: string) => void}>
+            <SelectTrigger className="bg-background-secondary">
+              <SelectValue placeholder="Select Sport" />
+            </SelectTrigger>
+            <SelectContent className="bg-background-secondary">
+              <SelectItem value="NFL">NFL</SelectItem>
+              <SelectItem value="CFB">CFB</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
       <div className="grid grid-cols-4 grid-rows-4 gap-4">
         <div className="bg-background-secondary rounded border border-muted-bg">
           <h2 className="text-lg font-bold text-foreground px-4 py-3 bg-card border-b border-accent">
@@ -75,16 +98,16 @@ export default function DashboardPage() {
           </div>
         </div>
         <div className="row-span-3 col-start-1 row-start-2">
-          <UpcomingSlates />
+          <UpcomingSlates sport={sport} />
         </div>
         <div className="col-span-2 row-span-3 col-start-2 row-start-1">
-          <YearToDateResults />
+          <YearToDateResults sport={sport} />
         </div>
         <div className="col-span-2 col-start-2 row-start-4">
           <DashboardLinks />
         </div>
         <div className="row-span-4 col-start-4 row-start-1">
-          <PlayerNews />
+          <PlayerNews sport={sport} />
         </div>
       </div>
     </div>

@@ -9,6 +9,7 @@ export const slateManagerTags = [
   'SlatePack',
   'SlatePlayers',
   'PlayerNews',
+  'ContestEntries',
 ] as const
 
 export type SlateManagerTag = (typeof slateManagerTags)[number]

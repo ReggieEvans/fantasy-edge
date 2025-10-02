@@ -1,39 +1,18 @@
 import { Loader } from 'lucide-react'
 import Image from 'next/image'
-import { useState } from 'react'
 
 import { Badge } from '@/components/ui/badge'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
-import { Sport } from '@/types/sport'
 
 import { useGetPlayerNewsQuery } from '../api/playerNews.api'
 
-export default function PlayerNews() {
-  const [sport, setSport] = useState<Sport>('NFL')
+export default function PlayerNews({ sport }: { sport: 'NFL' | 'CFB' }) {
   const { data: playerNews, isLoading } = useGetPlayerNewsQuery({ sport })
   console.log(playerNews)
   return (
     <div className="bg-background-secondary rounded border border-muted-bg">
       <div className="flex items-center justify-between px-4 py-2 bg-card border-b border-accent">
         <h2 className="text-lg font-bold text-foreground ">Player News</h2>
-        <div className="w-[100px]">
-          <Select value={sport} onValueChange={setSport}>
-            <SelectTrigger className="bg-background-secondary">
-              <SelectValue placeholder="Select Sport" />
-            </SelectTrigger>
-            <SelectContent className="bg-background-secondary">
-              <SelectItem value="NFL">NFL</SelectItem>
-              <SelectItem value="CFB">CFB</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
       </div>
       <div className="p-4">
         {isLoading && (

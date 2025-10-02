@@ -8,10 +8,17 @@ import { Input } from '@/components/ui/input'
 import { ErrorMessage } from '@/shared/ui/ErrorMessage'
 import FeatureHeader from '@/shared/ui/FeatureHeader'
 import { NoData } from '@/shared/ui/NoData'
+import { formatDateTime } from '@/shared/utils/formatDkTime'
 
-import { useDraftKingsCsv } from '../helpers/useDraftkingsCsv'
-// prettier-ignore
-import { useBankrollFilters, useBiggestWins, useChartData, useGroupedContests, useHeadline, useTopFinishes } from '../hooks/hooks'
+import { useGetContestEntriesQuery, useUploadContestEntriesMutation } from '../api/contests.api'
+import {
+  useBankrollFilters,
+  useBiggestWins,
+  useChartData,
+  useGroupedContests,
+  useHeadline,
+  useTopFinishes,
+} from '../hooks/hooks'
 import { Bucket } from '../types/bucket'
 import { GroupRow, GroupRowWithContests } from '../types/groupRow'
 import { Mode } from '../types/mode'
@@ -24,22 +31,41 @@ import ProfitChart from '../ui/ProfitChart'
 import TopFinishes from '../ui/TopFinishes'
 
 export default function BankrollTrackerPage() {
-  const { rows, error, onFile } = useDraftKingsCsv()
+  const {
+    data: contestEntries,
+    isLoading,
+    error: contestEntriesError,
+  } = useGetContestEntriesQuery()
+
+  const [uploadContestEntries, { isLoading: isUploading, error: uploadError }] =
+    useUploadContestEntriesMutation()
+
   const [file, setFile] = useState<File | null>(null)
+
+  const rows = useMemo(() => contestEntries?.rows ?? [], [contestEntries])
   const baseRows = useMemo(() => rows.filter(r => r.sport === 'NFL' || r.sport === 'CFB'), [rows])
+
   const seasons = useMemo(
     () =>
       Array.from(new Set(baseRows.map(r => r.season)))
+        .filter(Boolean)
         .sort()
-        .reverse(),
+        .reverse() as string[],
     [baseRows],
   )
+
   const [season, setSeason] = useState(seasons[0] || 'all')
   const [timePreset, setTimePreset] = useState<'season' | 'last-3' | 'last-7' | 'last-30' | 'all'>(
     'season',
   )
   const [modes, setModes] = useState<Mode[]>(['Classic'])
-  const [buckets, setBuckets] = useState<Bucket[]>(['Cash'])
+  const [buckets, setBuckets] = useState<Bucket[]>([
+    'Sm SE',
+    'Lg SE',
+    'Sm 20 Max',
+    'Lg 20 Max',
+    'Harris',
+  ])
   const [sports, setSports] = useState<('NFL' | 'CFB')[]>(['NFL'])
   const [open, setOpen] = useState(false)
   const [selected, setSelected] = useState<GroupRowWithContests | null>(null)
@@ -51,6 +77,12 @@ export default function BankrollTrackerPage() {
   const onSetSelected = (g: GroupRow) => {
     const groupedWithContests = filtered.filter(f => f.contest_key === g.contest_key)
     setSelected({ ...g, contests: groupedWithContests })
+  }
+
+  const onUpload = (file: File) => {
+    // kicks your upload route; make sure the mutation invalidates 'ContestEntries'
+    // so the list refetches
+    uploadContestEntries(file)
   }
 
   const filtered = useBankrollFilters(baseRows, { season, timePreset, modes, buckets, sports })
@@ -70,15 +102,35 @@ export default function BankrollTrackerPage() {
             description="Bankroll Tracker is a tool that allows you to track your roi over time."
           />
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <UploadCsv file={file} setFile={setFile} onFile={onFile} />
+            <UploadCsv
+              file={file}
+              setFile={setFile}
+              onUpload={onUpload}
+              isUploading={isUploading}
+              lastUpdated={contestEntries?.last_updated ?? null}
+            />
           </div>
         </div>
 
-        {/* Error */}
-        {error && <ErrorMessage errorTitle="Error" errorMessage={error} />}
+        {/* Errors */}
+        {contestEntriesError && (
+          <ErrorMessage
+            errorTitle="Error"
+            errorMessage={
+              'status' in contestEntriesError
+                ? String(contestEntriesError.status)
+                : 'Failed to load entries'
+            }
+          />
+        )}
+        {uploadError && (
+          <ErrorMessage errorTitle="Upload Error" errorMessage={'Failed to upload'} />
+        )}
 
-        {/* No data */}
-        {baseRows.length === 0 ? (
+        {/* Loading / No data */}
+        {isLoading ? (
+          <div className="text-muted text-sm mt-4">Loading entries…</div>
+        ) : baseRows.length === 0 ? (
           <NoData
             title="Upload Data"
             description="Upload your DraftKings contest CSV data to get started."
@@ -123,15 +175,23 @@ export default function BankrollTrackerPage() {
 function UploadCsv({
   file,
   setFile,
-  onFile,
+  onUpload,
+  isUploading,
+  lastUpdated,
 }: {
   file: File | null
   setFile: (file: File | null) => void
-  onFile: (file: File) => void
+  onUpload: (file: File) => void
+  isUploading: boolean
+  lastUpdated: string | null
 }) {
+  const lastUpdatedFormatted = lastUpdated ? formatDateTime(lastUpdated) : ''
+
   return (
     <div className="flex flex-col space-y-1">
-      <div className="flex justify-end text-xs text-muted">Last Updated: 9-18-25</div>
+      <div className="flex justify-end text-xs text-muted">
+        Last Updated: {lastUpdatedFormatted || ''}
+      </div>
       <div className="flex items-center gap-2">
         <Input
           type="file"
@@ -141,10 +201,10 @@ function UploadCsv({
         />
         <Button
           className="btn-accent px-4 rounded disabled:opacity-50"
-          onClick={() => file && onFile(file)}
+          onClick={() => file && onUpload(file)}
           disabled={!file}
         >
-          Save Results
+          {isUploading ? 'Saving…' : 'Save Results'}
         </Button>
       </div>
     </div>
