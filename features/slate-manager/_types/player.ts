@@ -23,6 +23,7 @@ export interface Player {
   isLocked?: boolean
   player_image: string
   showdown_position: string
+  team_abbr: string | null
 }
 
 export interface TeamRoster {

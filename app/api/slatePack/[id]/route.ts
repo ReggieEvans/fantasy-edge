@@ -54,6 +54,16 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: 
       new Set<string>(matchups.flatMap(m => [String(m.home_team_id), String(m.away_team_id)])),
     )
 
+    const { data: canonicalTeams, error: teamsErr } = await supabase
+      .from('teams')
+      .select('id, draftkings_abbreviation')
+      .in('id', teamIds)
+
+    if (teamsErr) return NextResponse.json({ error: teamsErr.message }, { status: 500 })
+
+    // Build lookup: team_id -> abbreviation
+    const teamAbbrById = new Map(canonicalTeams.map(t => [String(t.id), t.draftkings_abbreviation]))
+
     // 2) All slate players for these teams
     const { data: allPlayers, error: playersErr } = await supabase
       .from('slate_players')
@@ -131,11 +141,13 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: 
       const teamId = String(p.team_id)
       const oppId = opponentByTeamId.get(teamId) ?? null
       const teamImage = teamImageByTeamId.get(teamId) ?? null
+      const abbr = teamAbbrById.get(teamId) ?? null
 
       return {
         ...p,
         opponent_team_id: oppId,
         team_image: teamImage,
+        team_abbr: abbr,
         teamStats: {
           passingRate: passingRateByTeam.get(teamId) ?? null,
           rushingRate: rushingRateByTeam.get(teamId) ?? null,

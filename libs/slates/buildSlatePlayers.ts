@@ -56,6 +56,8 @@ export async function buildSlatePlayers(
         avg_points: avgPoints,
         is_showdown: isShowdown,
         showdown_position: showdownPosition,
+        status: p.status ?? null,
+        news_status: p.newsStatus ?? null,
       }
 
       if (isShowdown) {

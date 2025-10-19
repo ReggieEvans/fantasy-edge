@@ -1,6 +1,8 @@
 import { CircleX, Lock, Square, Unlock } from 'lucide-react'
 import { memo } from 'react'
 
+import { getColorByValue, projValueConfig } from '@/shared/utils/colorCoding'
+
 import { Player } from '../../_types/player'
 
 interface PlayerCellProps {
@@ -76,9 +78,16 @@ PositionCell.displayName = 'PositionCell'
 export const ROICell = memo(({ player }: Pick<PlayerCellProps, 'player'>) => {
   const salary = Number(player.salary)
   const projection = Number(player.projection)
+  const projVal = (projection / salary) * 1000
   if (!salary || isNaN(salary) || isNaN(projection)) return <div>-</div>
   const val = ((projection / salary) * 1000).toFixed(2)
-  return <div>{val}</div>
+  return (
+    <div
+      className={`flex items-center justify-center rounded w-9 ${getColorByValue(projVal, projValueConfig)}`}
+    >
+      {val}
+    </div>
+  )
 })
 
 ROICell.displayName = 'ROICell'

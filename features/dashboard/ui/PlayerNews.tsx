@@ -8,7 +8,6 @@ import { useGetPlayerNewsQuery } from '../api/playerNews.api'
 
 export default function PlayerNews({ sport }: { sport: 'NFL' | 'CFB' }) {
   const { data: playerNews, isLoading } = useGetPlayerNewsQuery({ sport })
-  console.log(playerNews)
   return (
     <div className="bg-background-secondary rounded border border-muted-bg">
       <div className="flex items-center justify-between px-4 py-2 bg-card border-b border-accent">

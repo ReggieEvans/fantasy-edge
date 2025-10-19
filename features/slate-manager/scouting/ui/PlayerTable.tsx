@@ -150,7 +150,7 @@ export default function PlayerTable({ data, position, showPlayersWithNoStats }: 
           <TableRow className="border-b border-background-secondary">
             {/* Fixed Target Column */}
             <TableHead
-              className="text-[12px] text-muted font-bold sticky min-w-[60px] right-[199px] z-10 ml-4 px-2 text-center rounded-t-md"
+              className="text-[12px] text-muted font-bold sticky min-w-[40px] w-[40px] right-[199px] z-10 ml-4 px-2 text-center rounded-t-md"
               title="Target Player"
             >
               <Crosshair size={14} className="mx-auto" />
@@ -161,7 +161,14 @@ export default function PlayerTable({ data, position, showPlayersWithNoStats }: 
               <TableHead
                 title={col.meta as string}
                 key={col.id}
-                className={`text-[12px] text-muted text-center font-bold text-xs  ${col.id === 'displayName' ? 'text-left min-w-[150px]' : 'text-center'}`}
+                className={`text-[12px] text-muted text-center font-bold text-xs  
+                  ${
+                    col.id === 'displayName'
+                      ? 'text-left min-w-[175px] w-[175px]'
+                      : col.id === 'news'
+                        ? 'text-center w-[60px] max-w-[60px]'
+                        : 'text-center w-[40px] max-w-[40px]'
+                  }`}
               >
                 {col.header as string}
               </TableHead>
@@ -171,7 +178,7 @@ export default function PlayerTable({ data, position, showPlayersWithNoStats }: 
         <TableBody>
           {filteredData.map((player: Player) => (
             <TableRow key={player.id} className="bg-card border-b border-background-secondary">
-              <TableCell className="sticky min-w-[60px] right-[199px] z-10 ml-4 px-2 text-center ">
+              <TableCell className="sticky min-w-[40px] w-[40px] right-[199px] z-10 ml-4 px-2 text-center ">
                 {!targets?.some(target => target.slate_player_id === player.id) ? (
                   <Button
                     variant="ghost"
@@ -210,7 +217,17 @@ export default function PlayerTable({ data, position, showPlayersWithNoStats }: 
                       : ''
 
                 return (
-                  <TableCell key={col.id} className="text-center">
+                  <TableCell
+                    key={col.id}
+                    className={`text-[12px] text-center font-bold text-xs  
+                  ${
+                    col.id === 'displayName'
+                      ? 'text-left min-w-[175px] w-[175px]'
+                      : col.id === 'news'
+                        ? 'text-center w-[60px] max-w-[60px]'
+                        : 'text-center w-[40px] max-w-[40px]'
+                  }`}
+                  >
                     {cellContent}
                   </TableCell>
                 )
