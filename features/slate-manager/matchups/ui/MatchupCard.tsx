@@ -15,7 +15,6 @@ export default function MatchupCard({ matchup }: { matchup: Matchup }) {
   const startISO = toISO(matchup.start_time)
   const startReadable = formatReadableDate(matchup.start_time)
   const sport = matchup.sport as Sport
-
   return (
     <Link
       href={href}
@@ -102,7 +101,9 @@ export default function MatchupCard({ matchup }: { matchup: Matchup }) {
 
         {/* game total */}
         <div className="relative flex items-center gap-2">
-          <span className="z-10 text-foreground">Game Total: {matchup.game_total ?? 'N/A'}</span>
+          <span className="z-10 text-foreground">
+            Game Total: {matchup.game_total ?? 'N/A'} ({matchup.home_team_spread})
+          </span>
         </div>
 
         {/* home total */}

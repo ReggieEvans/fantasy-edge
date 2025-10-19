@@ -21,6 +21,7 @@ export interface Player {
   avg_points: number | null
   isExcluded?: boolean
   isLocked?: boolean
+  news_status: string | null
 }
 
 export interface TeamRoster {

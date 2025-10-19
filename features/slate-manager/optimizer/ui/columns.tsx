@@ -53,6 +53,14 @@ export function makePlayerColumns({
           cell: ({ row }) => <PlayerNameCell player={row.original} />,
         },
         {
+          id: 'team',
+          header: 'TM',
+          meta: 'Team',
+          cell: ({ row }) => {
+            return <div>{row.original.team_abbr}</div>
+          },
+        },
+        {
           id: 'position',
           header: 'POS',
           meta: 'Position',
@@ -74,7 +82,14 @@ export function makePlayerColumns({
           id: 'roi',
           header: 'ROI',
           meta: 'FPTS/Salary',
+          accessorFn: row => {
+            const salary = Number(row.salary)
+            const projection = Number(row.projection)
+            if (!salary || isNaN(salary) || isNaN(projection)) return 0 // fallback for sorting
+            return (projection / salary) * 1000
+          },
           cell: ({ row }) => <ROICell player={row.original} />,
+          sortingFn: 'basic',
         },
       ],
     },
@@ -354,6 +369,7 @@ export function makePlayerColumns({
           id: 'rush_share',
           header: 'RUSH%',
           meta: 'Rush share',
+          accessorFn: row => row.rushing?.rushing_share ?? 0,
           cell: ({ row }) => {
             const mkt = row.original.rushing?.rushing_share
             const val = mkt ? (mkt * 100).toFixed() + '%' : '-'
@@ -456,6 +472,7 @@ export function makePlayerColumns({
           id: 'tgt_g',
           header: 'TGT/G',
           meta: 'Targets per game',
+          accessorKey: 'tgt_g',
           cell: ({ row }) => {
             const targets = row.original.receiving?.targets
             const player_game_count = row.original.receiving?.player_game_count
@@ -468,6 +485,7 @@ export function makePlayerColumns({
           id: 'rec_g',
           header: 'REC/G',
           meta: 'Receptions per game',
+          accessorKey: 'rec_g',
           cell: ({ row }) => {
             const receptions = row.original.receiving?.receptions
             const player_game_count = row.original.receiving?.player_game_count
@@ -532,10 +550,10 @@ export function makePlayerColumns({
           id: 'wr_target_share',
           header: 'TGT%',
           meta: 'Target share',
-          cell: ({ row }) => {
-            const mkt = row.original.receiving?.wr_target_share
-            const val = mkt ? (mkt * 100).toFixed() + '%' : '-'
-            return <div>{val}</div>
+          accessorFn: row => row.receiving?.wr_target_share ?? 0,
+          cell: ({ getValue }) => {
+            const val = getValue<number>()
+            return <div>{val ? (val * 100).toFixed() + '%' : '-'}</div>
           },
         },
         {

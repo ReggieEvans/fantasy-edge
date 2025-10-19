@@ -1,7 +1,14 @@
 import { ColumnDef } from '@tanstack/react-table'
+import { Newspaper, Siren } from 'lucide-react'
+import Image from 'next/image'
 
-import { getColorByValue, pffGradeConfig } from '@/shared/utils/colorCoding'
-import { getLetterGrade } from '@/shared/utils/letterGrade'
+import {
+  getColorByValue,
+  mktShareConfig,
+  pffGradeConfig,
+  targetsConfig,
+} from '@/shared/utils/colorCoding'
+import { fmtUSD } from '@/shared/utils/fmtUSD'
 
 import { Player } from '../types/player'
 
@@ -12,14 +19,65 @@ export const baseColumns: ColumnDef<Player>[] = [
     meta: 'Player',
     cell: ({ row }) => {
       const name = row.original.first_name + ' ' + row.original.last_name
-      return <div className="text-left">{name ?? '-'}</div>
+      const status = row.original.status
+      const newsStatus = row.original.news_status
+      const val = status === 'None' ? null : status
+      const breakingNews =
+        newsStatus === 'Breaking' ? (
+          <Siren size={14} className="text-red-500" />
+        ) : newsStatus === 'Recent' ? (
+          <Newspaper size={14} className="text-blue-500" />
+        ) : null
+      return (
+        <div className="flex items-center text-left">
+          {name ?? '-'}{' '}
+          {val && (
+            <span className="ml-3 text-[10px] bg-destructive rounded-sm px-2 font-bold">{val}</span>
+          )}
+          {breakingNews && <span className="ml-3">{breakingNews}</span>}
+        </div>
+      )
+    },
+  },
+  {
+    id: 'news',
+    header: 'NEWS',
+    meta: 'News Sources',
+    cell: ({ row }) => {
+      const name = row.original.first_name + ' ' + row.original.last_name
+      return (
+        <div className="flex items-center text-left">
+          <div className="ml-3">
+            <a
+              href={`https://www.google.com/search?q=${name}+pff`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Image src="/pff_250_250.png" alt="pff" width={14} height={14} />
+            </a>
+          </div>
+
+          <div className="ml-3">
+            <a
+              href={`https://www.google.com/search?q=${name}+rotowire+espn+player+news`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Image src="/rw_250_250.png" alt="rw" width={14} height={14} />
+            </a>
+          </div>
+        </div>
+      )
     },
   },
   {
     id: 'salary',
     header: '$',
     meta: 'Salary',
-    accessorFn: row => row.salary ?? '-',
+    cell: ({ row }) => {
+      const salary = row.original.salary ? Number(row.original.salary) : 0
+      return <div>{fmtUSD.format(salary)}</div>
+    },
   },
   {
     id: 'projection',
@@ -34,13 +92,22 @@ export const baseColumns: ColumnDef<Player>[] = [
     cell: ({ row }) => {
       const salary = row.original.salary
       const projection = row.original.projection
-      const val = salary && projection ? (projection / salary).toFixed(2) : '-'
+      const val = salary && projection ? ((projection / salary) * 1000).toFixed(2) : '-'
       return <div>{val}</div>
     },
   },
 ]
 
 export const quarterbackColumns: ColumnDef<Player>[] = [
+  {
+    id: 'player_game_count',
+    header: 'GP',
+    meta: 'Games played',
+    cell: ({ row }) => {
+      const player_game_count = row.original.passing?.player_game_count
+      return <div>{player_game_count}</div>
+    },
+  },
   {
     id: 'dropbacks',
     header: 'DROP',
@@ -79,8 +146,15 @@ export const quarterbackColumns: ColumnDef<Player>[] = [
     meta: 'Rush share',
     cell: ({ row }) => {
       const mkt = row.original.rushing?.rushing_share
+      const mktVal = mkt ? mkt : 0
       const val = mkt ? (mkt * 100).toFixed() + '%' : '-'
-      return <div className={`flex items-center justify-center rounded w-9`}>{val}</div>
+      return (
+        <div
+          className={`flex items-center justify-center rounded w-9 ${getColorByValue(mktVal, mktShareConfig)}`}
+        >
+          {val}
+        </div>
+      )
     },
   },
   {
@@ -130,12 +204,12 @@ export const quarterbackColumns: ColumnDef<Player>[] = [
   {
     id: 'big_time_throws',
     header: 'BTT',
-    meta: 'Big time throws',
+    meta: 'Big time throws %',
     cell: ({ row }) => {
-      const big_time_throws = row.original.passing?.big_time_throws
-        ? row.original.passing?.big_time_throws
-        : '-'
-      return <div>{big_time_throws}</div>
+      const pass_att = row.original.passing?.attempts
+      const btt = row.original.passing?.big_time_throws
+      const val = pass_att && btt ? ((btt / pass_att) * 100).toFixed(1) + '%' : '-'
+      return <div>{val}</div>
     },
   },
   {
@@ -144,12 +218,11 @@ export const quarterbackColumns: ColumnDef<Player>[] = [
     meta: 'Passing grade',
     cell: ({ row }) => {
       const val = row.original.passing?.grades_pass ?? '-'
-      const letterGrade = getLetterGrade(val)
       return (
         <div
           className={`flex items-center justify-center rounded w-9 ${getColorByValue(val, pffGradeConfig)}`}
         >
-          {letterGrade}
+          {val}
         </div>
       )
     },
@@ -160,12 +233,11 @@ export const quarterbackColumns: ColumnDef<Player>[] = [
     meta: 'Rushing grade',
     cell: ({ row }) => {
       const val = row.original.rushing?.grades_run ?? '-'
-      const letterGrade = getLetterGrade(val)
       return (
         <div
           className={`flex items-center justify-center rounded w-9 ${getColorByValue(val, pffGradeConfig)}`}
         >
-          {letterGrade}
+          {val}
         </div>
       )
     },
@@ -197,14 +269,12 @@ export const quarterbackColumns: ColumnDef<Player>[] = [
   {
     id: 'turnover_worthy_plays',
     header: 'TWP',
-    meta: 'Turnover Worthy Plays Per Game',
+    meta: 'Turnover Worthy Plays %',
     cell: ({ row }) => {
       const turnover_worthy_plays = row.original.passing?.turnover_worthy_plays
-      const player_game_count = row.original.passing?.player_game_count
+      const pass_att = row.original.passing?.attempts
       const val =
-        turnover_worthy_plays && player_game_count
-          ? (turnover_worthy_plays / player_game_count).toFixed(1)
-          : '-'
+        turnover_worthy_plays && pass_att ? (turnover_worthy_plays / pass_att).toFixed(1) : '-'
       return <div>{val}</div>
     },
   },
@@ -241,6 +311,15 @@ export const quarterbackColumns: ColumnDef<Player>[] = [
 ]
 
 export const runningbackColumns: ColumnDef<Player>[] = [
+  {
+    id: 'player_game_count',
+    header: 'GP',
+    meta: 'Games played',
+    cell: ({ row }) => {
+      const player_game_count = row.original.rushing?.player_game_count
+      return <div>{player_game_count}</div>
+    },
+  },
   {
     id: 'att_g',
     header: 'ATT/G',
@@ -310,8 +389,15 @@ export const runningbackColumns: ColumnDef<Player>[] = [
     meta: 'Rush share',
     cell: ({ row }) => {
       const mkt = row.original.rushing?.rushing_share
+      const mktVal = mkt ? mkt : 0
       const val = mkt ? (mkt * 100).toFixed() + '%' : '-'
-      return <div>{val}</div>
+      return (
+        <div
+          className={`flex items-center justify-center rounded w-9 ${getColorByValue(mktVal, mktShareConfig)}`}
+        >
+          {val}
+        </div>
+      )
     },
   },
   {
@@ -321,8 +407,15 @@ export const runningbackColumns: ColumnDef<Player>[] = [
     cell: ({ row }) => {
       const targets = row.original.receiving?.targets
       const player_game_count = row.original.receiving?.player_game_count
+      const targetsPerGame = targets && player_game_count ? targets / player_game_count : 0
       const val = targets && player_game_count ? (targets / player_game_count).toFixed(1) : '-'
-      return <div>{val}</div>
+      return (
+        <div
+          className={`flex items-center justify-center rounded w-9 ${getColorByValue(targetsPerGame, targetsConfig)}`}
+        >
+          {val}
+        </div>
+      )
     },
   },
   {
@@ -370,13 +463,12 @@ export const runningbackColumns: ColumnDef<Player>[] = [
     meta: 'Rushing grade',
     cell: ({ row }) => {
       const val = row.original.rushing?.grades_run ?? '-'
-      const letterGrade = getLetterGrade(val)
       return (
         <div className="flex justify-center">
           <div
             className={`flex items-center justify-center rounded w-9 ${getColorByValue(val, pffGradeConfig)}`}
           >
-            {letterGrade}
+            {val}
           </div>
         </div>
       )
@@ -388,13 +480,12 @@ export const runningbackColumns: ColumnDef<Player>[] = [
     meta: 'Hands grade',
     cell: ({ row }) => {
       const val = row.original.receiving?.grades_hands_fumble ?? '-'
-      const letterGrade = getLetterGrade(val)
       return (
         <div className="flex justify-center">
           <div
             className={`flex items-center justify-center rounded w-9 ${getColorByValue(val, pffGradeConfig)}`}
           >
-            {letterGrade}
+            {val}
           </div>
         </div>
       )
@@ -404,14 +495,47 @@ export const runningbackColumns: ColumnDef<Player>[] = [
 
 export const widereceiverColumns: ColumnDef<Player>[] = [
   {
+    id: 'player_game_count',
+    header: 'GP',
+    meta: 'Games played',
+    cell: ({ row }) => {
+      const player_game_count = row.original.receiving?.player_game_count
+      return <div>{player_game_count}</div>
+    },
+  },
+  {
     id: 'tgt_g',
     header: 'TGT/G',
     meta: 'Targets per game',
     cell: ({ row }) => {
       const targets = row.original.receiving?.targets
       const player_game_count = row.original.receiving?.player_game_count
+      const targetsPerGame = targets && player_game_count ? targets / player_game_count : 0
       const val = targets && player_game_count ? (targets / player_game_count).toFixed(1) : '-'
-      return <div>{val}</div>
+      return (
+        <div
+          className={`flex items-center justify-center rounded w-9 ${getColorByValue(targetsPerGame, targetsConfig)}`}
+        >
+          {val}
+        </div>
+      )
+    },
+  },
+  {
+    id: 'target_share',
+    header: 'TGT%',
+    meta: 'Target share',
+    cell: ({ row }) => {
+      const mkt = row.original.receiving?.wr_target_share
+      const mktVal = mkt ? mkt : 0
+      const val = mkt ? (mkt * 100).toFixed() + '%' : '-'
+      return (
+        <div
+          className={`flex items-center justify-center rounded w-9 ${getColorByValue(mktVal, mktShareConfig)}`}
+        >
+          {val}
+        </div>
+      )
     },
   },
   {
@@ -479,28 +603,17 @@ export const widereceiverColumns: ColumnDef<Player>[] = [
     },
   },
   {
-    id: 'target_share',
-    header: 'TGT%',
-    meta: 'Target share',
-    cell: ({ row }) => {
-      const mkt = row.original.receiving?.wr_target_share
-      const val = mkt ? (mkt * 100).toFixed() + '%' : '-'
-      return <div>{val}</div>
-    },
-  },
-  {
     id: 'hands',
     header: 'HANDS',
     meta: 'Hands grade',
     cell: ({ row }) => {
       const val = row.original.receiving?.grades_hands_drop ?? '-'
-      const letterGrade = getLetterGrade(val)
       return (
         <div className="flex justify-center">
           <div
             className={`flex items-center justify-center rounded w-9 ${getColorByValue(val, pffGradeConfig)}`}
           >
-            {letterGrade}
+            {val}
           </div>
         </div>
       )

@@ -31,7 +31,6 @@ export default function ScoutingPage() {
   const [showPlayersWithNoStats, setShowPlayersWithNoStats] = useState(false)
 
   const { data, isLoading, isError, error } = useGetMatchupQuery({ id, mid })
-
   return (
     <div className="bg-background px-6 pt-3 rounded-tl-[40px] min-h-[calc(100vh-90px)]">
       {/* Header */}

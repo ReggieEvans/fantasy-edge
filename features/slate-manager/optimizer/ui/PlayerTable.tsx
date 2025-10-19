@@ -5,7 +5,9 @@ import {
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
+  getSortedRowModel,
   PaginationState,
+  SortingState,
   useReactTable,
 } from '@tanstack/react-table'
 import { ArrowBigLeftDash, ArrowBigRightDash } from 'lucide-react'
@@ -48,6 +50,7 @@ export default function PlayerTable<TData extends PlayerWithFlags, TValue>({
   initialPageSize = 50,
   getRowId,
 }: DataTableProps<TData, TValue>) {
+  const [sorting, setSorting] = React.useState<SortingState>([])
   // remember page size locally
   const [pageSize, setPageSize] = React.useState<number>(() => {
     const stored =
@@ -74,13 +77,13 @@ export default function PlayerTable<TData extends PlayerWithFlags, TValue>({
   const table = useReactTable({
     data,
     columns,
-    state: { pagination },
+    state: { pagination, sorting },
     onPaginationChange: setPagination,
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(), // Ensure this is included
     getPaginationRowModel: getPaginationRowModel(),
-    // avoid jumping back to page 1 when flags/filters tweak data
     autoResetPageIndex: false,
-    // let parent define a stable row id (recommended)
     getRowId: getRowId ?? (row => String(row.id)),
   })
 
@@ -123,9 +126,18 @@ export default function PlayerTable<TData extends PlayerWithFlags, TValue>({
                     colSpan={header.colSpan}
                     className="first:sticky first:left-0 first:z-30 first:shadow-[inset_-6px_0_6px_-6px_rgba(0,0,0,0.15)] text-[11px] sticky"
                   >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(header.column.columnDef.header, header.getContext())}
+                    {header.isPlaceholder ? null : (
+                      <div
+                        className="flex items-center gap-1 cursor-pointer select-none"
+                        onClick={header.column.getToggleSortingHandler()}
+                      >
+                        {flexRender(header.column.columnDef.header, header.getContext())}
+                        {{
+                          asc: ' 🔼',
+                          desc: ' 🔽',
+                        }[header.column.getIsSorted() as string] ?? null}
+                      </div>
+                    )}
                   </TableHead>
                 ))}
               </TableRow>
@@ -134,7 +146,7 @@ export default function PlayerTable<TData extends PlayerWithFlags, TValue>({
 
           <TableBody
             className={`
-              bg-card
+              bg-card text-xs
               [&_td:first-child]:sticky [&_td:first-child]:left-0 [&_td:first-child]:z-10 [&_td:first-child]:bg-card 
               [&_td:nth-child(2)]:sticky [&_td:nth-child(2)]:left-[48px] [&_td:nth-child(2)]:z-10 [&_td:nth-child(2)]:bg-card 
               [&_td:nth-child(3)]:sticky [&_td:nth-child(3)]:left-[96px] [&_td:nth-child(3)]:z-10 [&_td:nth-child(3)]:bg-card 
