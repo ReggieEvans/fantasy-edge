@@ -2,7 +2,7 @@
 
 A modern web app for building better DFS lineups. Designed for speed, clarity, and iteration—pull in slates, study matchups, grade players, build lineups, and track your bankroll. Built with Next.js (App Router), Supabase, and a polished shadcn/ui interface—plus optional optimizer and data-sync services.
 
-[product-screenshot-1]: public/screenshos/fantasy-edge_dashboard.png
+[product-screenshot-1]: public/screenshots/fantasy-edge_dashboard.png
 
 ---
 
@@ -193,6 +193,6 @@ MIT — free for personal use.
 
 Built with ❤️ by Reggie Evans
 
-[product-screenshot-2]: public/screenshos/fantasy-edge_matchups.png
-[product-screenshot-3]: public/screenshos/fantasy-edge_study-hub.png
-[product-screenshot-4]: public/screenshos/fantasy-edge_bankroll-tracker.png
+[product-screenshot-2]: public/screenshots/fantasy-edge_matchups.png
+[product-screenshot-3]: public/screenshots/fantasy-edge_study-hub.png
+[product-screenshot-4]: public/screenshots/fantasy-edge_bankroll-tracker.png
