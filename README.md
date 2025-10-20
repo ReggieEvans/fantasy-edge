@@ -2,9 +2,7 @@
 
 A modern web app for building better DFS lineups. Designed for speed, clarity, and iteration—pull in slates, study matchups, grade players, build lineups, and track your bankroll. Built with Next.js (App Router), Supabase, and a polished shadcn/ui interface—plus optional optimizer and data-sync services.
 
-[product-screenshot-1]: public/screenshots/fantasy-edge_dashboard.png
-
----
+![Dashboard](/public/screenshots/fantasy-edge_dashboard.png)
 
 ## ✨ Features
 
@@ -55,16 +53,12 @@ One place to go from slate → research → builds → exports.
    - Highly configurable rules (stacks, exposures, salary bands, groups).
    - **CSV export** formatted for easy DK upload.
 
----
-
 ### 📊 Scouting & Player Hub
 
 - **Advanced Metrics**: sortable player tables with usage, rates, and context (e.g., team tendencies, pressure/coverage notes).
 - **Matchup Grades**: passing/rushing offense vs defense with **current vs prior-year** regression awareness.
 - **Actionable Color Bands**: configurable thresholds for value/ROI cells so top plays and traps pop instantly.
 - **Targeting Workflow**: toggle players into your pool from any table; tags (lock/like/fade) carry into lineup tools.
-
----
 
 ### 🧮 Optimizer
 
@@ -92,8 +86,6 @@ One place to go from slate → research → builds → exports.
 - Zod + React Hook Form for robust forms
 - Clean module aliases (`@/features/*`, `@/libs/*`, etc.)
 
----
-
 ## 🧱 Tech Stack
 
 - **Framework**: Next.js 15 (App Router), React 19, TypeScript
@@ -104,8 +96,6 @@ One place to go from slate → research → builds → exports.
 - **Charts**: Recharts
 - **Job/Sync**: Node/TypeScript data-sync worker (Separate python app)
 - **Optimizer**: Python (FastAPI) + `pydfs-lineup-optimizer` (Separate python app)
-
----
 
 ## 🚀 Getting Started
 
@@ -126,25 +116,21 @@ npm run dev
 
 Open http://localhost:3000 in your browser.
 
----
-
 ## 🛡️ Environment Variables
 
-# --- Supabase ---
+### --- Supabase ---
 
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 
-# --- Odds / External Data (optional) ---
+### --- Odds / External Data (optional) ---
 
 ODDS_API_KEY=your_the_odds_api_key (https://the-odds-api.com/)
 
-# --- Optimizer and DataSync (optional) ---
+### --- Optimizer and DataSync (optional) ---
 
 The optimizer and data sync are seperate python apps that I will link to in the future.
-
----
 
 ## 🛠 Folder Structure
 
@@ -181,18 +167,19 @@ The optimizer and data sync are seperate python apps that I will link to in the 
 └── types/                        # TypeScript types
 ```
 
----
+## 📷 Screenshots
+
+![Matchups](/public/screenshots/fantasy-edge_matchups.png)
+Matchups
+![Study Hub](/public/screenshots/fantasy-edge_study-hub.png)
+Study Hub
+![Bankroll Tracker](/public/screenshots/fantasy-edge_bankroll-tracker.png)
+Bankroll Tracker
 
 ## 📄 License
 
 MIT — free for personal use.
 
----
-
 ## 👋 Author
 
 Built with ❤️ by Reggie Evans
-
-[product-screenshot-2]: public/screenshots/fantasy-edge_matchups.png
-[product-screenshot-3]: public/screenshots/fantasy-edge_study-hub.png
-[product-screenshot-4]: public/screenshots/fantasy-edge_bankroll-tracker.png
