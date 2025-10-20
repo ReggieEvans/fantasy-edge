@@ -1,46 +1,109 @@
-# ⚡ Next.js 15 Full-Stack Starter Template
+# 🏈 FantasyEdge – DFS Toolkit for NFL & CFB
 
-A modern full-stack boilerplate powered by Next.js 15 (App Router), designed for building scalable web apps fast — with built-in authentication, theming, role-based access control, and testing.
+A modern web app for building better DFS lineups. Designed for speed, clarity, and iteration—pull in slates, study matchups, grade players, build lineups, and track your bankroll. Built with Next.js (App Router), Supabase, and a polished shadcn/ui interface—plus optional optimizer and data-sync services.
 
-![screenshot][product-screenshot-1]
+[product-screenshot-1]: public/screenshos/fantasy-edge_dashboard.png
 
 ---
 
 ## ✨ Features
 
-### ✅ Authentication & Authorization
+### 📋 Slate Manager
 
-- Email + password authentication
-- JWT token-based sessions (HttpOnly cookies)
-- Role-based access (e.g. admin, user)
-- Middleware-protected routes
+One place to go from slate → research → builds → exports.
 
-### 🎨 Styling & Theming
+**Sub-features**
 
-- Tailwind CSS with dark/light mode (system default)
-- Theme toggle dropdown (light / dark / system)
-- Custom Google + local fonts
-- Configurable color palette via CSS variables
+1. **Contest Selection**
 
-### 🧠 Developer Experience
+   - Recommends the best contests for your slate and bankroll.
+   - Compares rake, field size, payout curve (top % paid, % to first), min/avg cash, and entry caps.
+   - Surfaces +EV formats based on your risk profile (SE/3-Max/20-Max/MME).
 
-- App Router (Next.js 14)
-- TypeScript, Zod, React Hook Form
-- Path aliases (`@/`) for cleaner imports
-- File-based routing with layout support
+2. **Matchups (with Vegas)**
 
-### 🧪 Testing
+   - All games on the slate with spread, total, and implied team totals.
+   - Highlights best game environments (pace, total, delta from league avg).
+   - Quick sort toggles for shootouts, consolidation, and value signals.
 
-- ✅ Jest + React Testing Library for unit tests
-- ✅ Cypress for end-to-end testing
-- `start-server-and-test` script for seamless E2E flow
+3. **Scouting**
 
-### 📦 Full Stack Integration
+   - Click any matchup for team pages: efficiency + usage metrics, rates, and matchup grades.
+   - Full rosters for both teams with sortable stats and role/context notes.
+   - **Target players** directly from here to build your personal player pool.
 
-- MongoDB + Mongoose
-- Password hashing with bcrypt
-- Secure password reset via token
-- Toast notifications using ShadCN
+4. **Player Pool**
+
+   - Centralized list of all **targeted** players across the slate.
+   - Fast filters (team, position, salary tiers, projection/value bands).
+   - Tagging (lock, like, fade) and notes for later roster construction.
+
+5. **Roster Construction**
+
+   - Build and save lineups using your player pool.
+   - **Quick Add** menu to grab late adds without leaving the builder.
+   - Validates slot/position rules and salary; supports lineup templates.
+
+6. **Roster View**
+
+   - See every saved lineup; filter by lineup type.
+   - Sort by salary used, projection.
+   - **Export to CSV** for rapid DraftKings upload.
+
+7. **Optimizer (inline)**
+   - Multi-lineup generation inside Slate Manager.
+   - Highly configurable rules (stacks, exposures, salary bands, groups).
+   - **CSV export** formatted for easy DK upload.
+
+---
+
+### 📊 Scouting & Player Hub
+
+- **Advanced Metrics**: sortable player tables with usage, rates, and context (e.g., team tendencies, pressure/coverage notes).
+- **Matchup Grades**: passing/rushing offense vs defense with **current vs prior-year** regression awareness.
+- **Actionable Color Bands**: configurable thresholds for value/ROI cells so top plays and traps pop instantly.
+- **Targeting Workflow**: toggle players into your pool from any table; tags (lock/like/fade) carry into lineup tools.
+
+---
+
+### 🧮 Optimizer
+
+- **Rule Builder**: team/player stacks (QB+WR, bring-backs), max same-team, salary min/max, uniques, positional constraints.
+- **Exposure Controls**: global caps, group rules, lock/ban lists, and preset rule packs (SE / 3-Max / 20-Max / MME).
+- **Multi-Lineup Export**: generate at scale and export CSVs compatible with DK.
+- **Formats**: works for **NFL + CFB** slates, honoring site/slot rules.
+
+### 📚 Contest Study Hub
+
+- Import past entries & results for post-mortems
+- Ownership vs leverage views; compare to top-1% builds
+
+### 💰 Bankroll Tracker
+
+- Track entries, ROI by slate/contest type
+- Challenge modes (e.g., $400 → x) with time-scoped dashboards
+
+### 🧰 Built for Devs
+
+- Next.js 15 App Router + TypeScript
+- RTK Query + TanStack Table for fast data grids
+- Supabase (Postgres + Auth) with row-level security
+- shadcn/ui + Tailwind; Lucide icons
+- Zod + React Hook Form for robust forms
+- Clean module aliases (`@/features/*`, `@/libs/*`, etc.)
+
+---
+
+## 🧱 Tech Stack
+
+- **Framework**: Next.js 15 (App Router), React 19, TypeScript
+- **Data**: Supabase (Postgres, RLS)
+- **State / Data**: RTK Query, TanStack Table
+- **Styling**: Tailwind CSS, shadcn/ui, Radix primitives
+- **Auth**: Supabase Auth
+- **Charts**: Recharts
+- **Job/Sync**: Node/TypeScript data-sync worker (Separate python app)
+- **Optimizer**: Python (FastAPI) + `pydfs-lineup-optimizer` (Separate python app)
 
 ---
 
@@ -48,15 +111,14 @@ A modern full-stack boilerplate powered by Next.js 15 (App Router), designed for
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/your-username/nextjs-starter.git
-cd nextjs-starter
+git clone https://github.com/ReggieEvans/fantasy-edge.git
+cd fantasy-edge
 
 # 2. Install dependencies
 npm install
 
 # 3. Add your environment variables
-cp .env.example .env.local
-# Edit MONGO_URI and JWT_SECRET
+cp .env.local
 
 # 4. Run the dev server
 npm run dev
@@ -66,51 +128,64 @@ Open http://localhost:3000 in your browser.
 
 ---
 
-## 🧪 Run Tests
+## 🛡️ Environment Variables
 
-```bash
-npm run test
-```
+# --- Supabase ---
 
----
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 
-## ✅ E2E Tests (Cypress)
+# --- Odds / External Data (optional) ---
 
-```bash
-npm run test:e2e
-```
+ODDS_API_KEY=your_the_odds_api_key (https://the-odds-api.com/)
+
+# --- Optimizer and DataSync (optional) ---
+
+The optimizer and data sync are seperate python apps that I will link to in the future.
 
 ---
 
 ## 🛠 Folder Structure
 
 ```bash
-/app            # Next.js App Router structure
-/components     # Reusable UI components (ShadCN)
-/cypress        # Cypress E2E Testing
-/models         # DB Models (e.g., User)
-/lib            # JWT, DB, auth utilities
-/hooks          # Custom hooks (e.g., use-toast)
-app/api         # API routes for auth/reset
-/public         # Static files (e.g. logo, images)
-/types          # Typescript Type Definitions
-```
-
----
-
-## 🛡️ Environment Variables
-
-```bash
-MONGO_URI=<your-mongodb-uri>
-JWT_SECRET=<your-secret>
-RESEND_API_KEY=<resend-api-key>
+/
+├── app/                            # Next.js routes (App Router)
+│   ├── (auth)/                     # Authentication routes
+│   ├── (protected)/                # Protected Views
+│   ├── api/                        # Route handlers (server)
+│   ├── fonts/                      # Custom Fonts
+│   ├── layout.tsx                  # Base Layout
+│   ├── global.css                  # Global Styles and theme
+│   └── provider.tsx                # Redux Provider
+├── features/                       # Features
+│   ├── study-hub/
+│   ├── dashboard/
+│   ├── pickem/
+│   ├── bankroll-tracker/
+│   └── slate-manager/
+│       ├── contest-selection/
+│       ├── matchups/
+│       ├── optimizer/
+│       ├── player-pool/
+│       ├── roster-construction/
+│       ├── roster-view/
+│       └── scouting/
+├── components/                   # Shared UI components
+├── libs/                         # utils, supabase config, etc
+├── store/                        # Redux store, RTK Query api slices
+├── utils/                        # Utility functions
+├── hooks/                        # Shared Hooks
+├── shared/                       # Shared Files
+├── public/                       # Images and screenshots
+└── types/                        # TypeScript types
 ```
 
 ---
 
 ## 📄 License
 
-MIT — free for personal and commercial use.
+MIT — free for personal use.
 
 ---
 
@@ -118,4 +193,6 @@ MIT — free for personal and commercial use.
 
 Built with ❤️ by Reggie Evans
 
-[product-screenshot-1]: public/screenshot-1.png
+[product-screenshot-2]: public/screenshos/fantasy-edge_matchups.png
+[product-screenshot-3]: public/screenshos/fantasy-edge_study-hub.png
+[product-screenshot-4]: public/screenshos/fantasy-edge_bankroll-tracker.png
