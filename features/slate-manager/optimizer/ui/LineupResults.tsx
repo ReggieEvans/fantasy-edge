@@ -3,24 +3,7 @@ import Image from 'next/image'
 import { ErrorMessage } from '@/shared/ui/ErrorMessage'
 import { NoData } from '@/shared/ui/NoData'
 
-type LineupPlayer = {
-  name: string
-  team?: string
-  salary: number
-  lineup_position?: string
-  positions?: string[]
-  fe_player_id: string
-  fe: {
-    team_image: string
-    projection?: number
-  }
-}
-
-type Lineup = {
-  players: LineupPlayer[]
-  salary: number
-  projection: number
-}
+import { Lineup } from '../types/LineupType'
 
 export default function LineupResults({
   lineups,

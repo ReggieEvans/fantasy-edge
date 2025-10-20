@@ -6,12 +6,15 @@ import { useParams } from 'next/navigation'
 import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
+import { GameType } from '@/types/gameType'
+import { Sport } from '@/types/sport'
 import { makeLineupEnricher } from '@/utils/lineupEnricher'
 import { toDraftKingsCsvFromMatchups } from '@/utils/toDraftkingsCsv'
 
 import { useGetSlateQuery } from '../../_api/slates.api'
 import { Slate } from '../../_types/slate'
 import { useGetSlatePackQuery } from '../api/optimizer.api'
+import { exportLineupsToCsv } from '../helpers/exportLineupsToCsv'
 import {
   excludePlayer,
   includePlayer,
@@ -24,6 +27,7 @@ import {
   makeSelectExcludedPlayerCount,
   makeSelectVisiblePlayers,
 } from '../model/selectors'
+import { ExportLineup, Slot } from '../types'
 import { makePlayerColumns } from '../ui/columns'
 import { OptimizerErrorBoundary } from '../ui/ErrorBoundary'
 import ExposureSummary from '../ui/ExposureSummary'
@@ -60,6 +64,13 @@ type OptimizeResponse = {
   lineups: OptimizedLineup[]
   message?: string
 }
+
+const SLOT_PRESETS = {
+  'NFL:classic': ['QB', 'RB', 'RB', 'WR', 'WR', 'WR', 'TE', 'FLEX', 'DST'],
+  'NFL:showdown': ['CPT', 'UTIL', 'UTIL', 'UTIL', 'UTIL', 'UTIL'],
+  'CFB:classic': ['QB', 'RB', 'RB', 'WR', 'WR', 'WR', 'FLEX', 'SFLX'],
+  'CFB:showdown': ['CPT', 'UTIL', 'UTIL', 'UTIL', 'UTIL', 'UTIL'],
+} as const satisfies Record<`${Sport}:${GameType}`, readonly Slot[]>
 
 /* =========================
    Utils
@@ -102,6 +113,7 @@ export default function OptimizerPage() {
   )
 
   const [isBusy, setBusy] = useState(false)
+  const [isExporting, setExporting] = useState(false)
   const [expSearch, setExpSearch] = useState('')
 
   const [response, setResponse] = useState<OptimizeResponse | null>(null)
@@ -333,6 +345,24 @@ export default function OptimizerPage() {
     )
   }, [playerExposures, expSearch])
 
+  const onExportLineups = useCallback(() => {
+    if (!slate || !response?.lineups) return
+
+    const sport = slate.sport as Sport
+    const mode =
+      slate.contest_type_id === 94 || slate.contest_type_id === 21 ? 'classic' : 'showdown'
+
+    const key = `${sport}:${mode}` as const
+    const slotOrder = SLOT_PRESETS[key as keyof typeof SLOT_PRESETS] // type is readonly Slot[]
+
+    setExporting(true)
+    exportLineupsToCsv(response.lineups as unknown as ExportLineup[], {
+      slotOrder,
+      filename: `${sport}-${mode}-lineups.csv`,
+    })
+    setExporting(false)
+  }, [response?.lineups, slate])
+
   return (
     <div className="flex flex-col bg-background pt-3 rounded-tl-[40px] min-h-[calc(100vh-90px)] overflow-y-auto">
       <div className="flex flex-col py-4 px-6 text-muted">
@@ -375,7 +405,13 @@ export default function OptimizerPage() {
         </OptimizerErrorBoundary>
 
         <OptimizerErrorBoundary>
-          <GenerateLineups onGenerateLineups={onGenerateLineups} isBusy={isBusy} />
+          <GenerateLineups
+            onGenerateLineups={onGenerateLineups}
+            isBusy={isBusy}
+            isExporting={isExporting}
+            onExportLineups={onExportLineups}
+            lineups={response?.lineups ?? []}
+          />
         </OptimizerErrorBoundary>
 
         {response && (
@@ -403,8 +439,7 @@ export default function OptimizerPage() {
   )
 }
 
-/** Small helper to keep useGetSlatePackQuery call typed when skipping */
+// Small helper to keep useGetSlatePackQuery call typed when skipping
 function skipArg(): { id: string; gameType: string } {
-  // value never used (skipped), but satisfies the TS signature
   return { id: '', gameType: '' }
 }
