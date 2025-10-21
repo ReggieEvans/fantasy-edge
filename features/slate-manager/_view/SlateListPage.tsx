@@ -1,11 +1,14 @@
 'use client'
 
 import { Bolt } from 'lucide-react'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { ErrorMessage } from '@/shared/ui/ErrorMessage'
 import FeatureHeader from '@/shared/ui/FeatureHeader'
 import { NoData } from '@/shared/ui/NoData'
+import { RootState } from '@/store'
+import { setGameType, setSport } from '@/store/slices/gameTypeSlice'
 import { GameType } from '@/types/gameType'
 import { Sport } from '@/types/sport'
 import { getErrorMessage } from '@/utils/getErrorMessage'
@@ -20,9 +23,10 @@ import FilterBar from '../_ui/FilterBar'
 import SlatesList from '../_ui/SlatesList'
 
 export default function SlateListPage() {
+  const dispatch = useDispatch()
   const { data: slates, isLoading, isError, error } = useGetSlatesQuery()
-  const [sport, setSport] = useState<Sport>('NFL')
-  const [gameType, setGameType] = useState<GameType>('classic')
+  const gameType = useSelector((state: RootState) => state.gameType.gameType)
+  const sport = useSelector((state: RootState) => state.gameType.sport)
   const { modal, openAdd, openDelete, openProjections, close } = useSlateManagerModals()
 
   const filteredSlates = useMemo(() => {
@@ -60,9 +64,9 @@ export default function SlateListPage() {
 
       <FilterBar
         sport={sport}
-        setSport={setSport}
         gameType={gameType}
-        setGameType={setGameType}
+        setGameType={(gt: GameType) => dispatch(setGameType(gt))}
+        setSport={(s: Sport) => dispatch(setSport(s))}
         onAddClick={() => openAdd()}
       />
 

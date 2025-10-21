@@ -35,11 +35,21 @@ const NAVIGATION_LINKS: NavLink[] = [
   { segment: 'contest-selection', label: 'Contests', Icon: MousePointerClick },
 ]
 
+const startsWithPath = (path: string, href: string) => path === href || path.startsWith(`${href}/`)
+
 export default function SlateManagerShell({ children }: { children: ReactNode }) {
   const pathname = usePathname()
   const id = useSlateId()
 
   const basePath = useMemo(() => `/slate-manager/${id}`, [id])
+
+  const inNamedSection = useMemo(
+    () =>
+      NAVIGATION_LINKS.filter(l => !!l.segment).some(l =>
+        startsWithPath(pathname, `${basePath}/${l.segment}`),
+      ),
+    [pathname, basePath],
+  )
 
   return (
     <div className="flex">
@@ -47,7 +57,11 @@ export default function SlateManagerShell({ children }: { children: ReactNode })
         <nav className="flex flex-col items-center">
           {NAVIGATION_LINKS.map(({ segment, label, Icon }) => {
             const href = segment ? `${basePath}/${segment}` : basePath
-            const isActive = pathname === href
+
+            const isActive = segment
+              ? startsWithPath(pathname, href)
+              : startsWithPath(pathname, basePath) && !inNamedSection
+
             return (
               <Link
                 key={segment || 'root'}

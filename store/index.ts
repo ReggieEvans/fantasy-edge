@@ -7,9 +7,11 @@ import optimizerPoolSlice from '@/features/slate-manager/optimizer/model/optimiz
 import { baseApi } from './api/baseApi'
 import { profileApi } from './api/profileApi'
 import { authSlice } from './slices/authSlice'
+import { gameTypeSlice } from './slices/gameTypeSlice'
 
 const rootReducer = combineReducers({
   auth: authSlice.reducer,
+  gameType: gameTypeSlice.reducer,
   [profileApi.reducerPath]: profileApi.reducer,
   [baseApi.reducerPath]: baseApi.reducer,
   optimizerFilters: optimizerFiltersSlice,
