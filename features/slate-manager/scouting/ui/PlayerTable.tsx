@@ -57,6 +57,7 @@ export default function PlayerTable({ data, position, showPlayersWithNoStats }: 
     if (position === 'QB') return !!player.projection
     if (position === 'RB') return !!player.projection
     if (position === 'WR') return !!player.projection
+    if (position === 'TE') return !!player.projection
     return true
   }
 
