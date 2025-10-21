@@ -28,6 +28,7 @@ interface TargetPoolProps {
   tabs: { value: string; label: string }[]
   tabValue: string
   setTabValue: React.Dispatch<React.SetStateAction<string>>
+  remainingSalary: number
 }
 
 export default function TargetPool({
@@ -46,6 +47,7 @@ export default function TargetPool({
   tabs,
   tabValue,
   setTabValue,
+  remainingSalary,
 }: TargetPoolProps) {
   const rosterSlots = ROSTER_SLOTS[sport]
 
@@ -74,6 +76,7 @@ export default function TargetPool({
     showProjections,
     showGroups,
     addPlayerToRoster,
+    remainingSalary,
   }
 
   return (
@@ -122,117 +125,129 @@ export default function TargetPool({
         </Button>
       </div>
 
-      <Tabs defaultValue={'ALL'} value={tabValue} onValueChange={setTabValue}>
-        <TabsList className="gap-2 bg-background-secondary">
-          {tabs.map(tab => (
-            <TabsTrigger key={tab.value} value={String(tab.value)} className="text-xs font-bold">
-              {tab.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+      {isLoading ? (
+        <div className="flex flex-col gap-2">
+          <p className="flex items-center text-sm text-muted h-8 p-2 bg-background-secondary rounded-md animate-pulse">
+            <Loader className="w-4 h-4 mr-2 animate-spin" /> Loading player pool...
+          </p>
+          <div>
+            {Array.from({ length: 10 }).map((_, i) => (
+              <div key={i} className="h-12 bg-background-secondary rounded animate-pulse mb-2" />
+            ))}
+          </div>
+        </div>
+      ) : (
+        <Tabs defaultValue={'ALL'} value={tabValue} onValueChange={setTabValue}>
+          <TabsList className="gap-2 bg-background-secondary">
+            {tabs.map(tab => (
+              <TabsTrigger key={tab.value} value={String(tab.value)} className="text-xs font-bold">
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
 
-        {tabs.map(tab => {
-          const tabLabel = tab.label
-          const tabValue = String(tab.value)
-          const targetsForTab =
-            tabValue === 'ALL'
-              ? filteredTargets
-              : filteredTargets.filter(p => p.position === tabLabel)
+          {tabs.map(tab => {
+            const tabLabel = tab.label
+            const tabValue = String(tab.value)
+            const targetsForTab =
+              tabValue === 'ALL'
+                ? filteredTargets
+                : filteredTargets.filter(p => p.position === tabLabel)
 
-          return (
-            <TabsContent
-              key={tab.value}
-              value={tabValue}
-              className={`mt-4 ${showGroups ? 'space-y-6' : 'space-y-2'} max-h-[500px] overflow-y-auto`}
-            >
-              {isLoading ? (
-                <div className="flex flex-col gap-2">
-                  <p className="flex items-center text-sm text-muted">
-                    <Loader className="w-4 h-4 mr-2 animate-spin" /> Loading player pool...
-                  </p>
-                  {Array.from({ length: 8 }).map((_, i) => (
-                    <div key={i} className="h-12 bg-background-secondary rounded animate-pulse" />
-                  ))}
-                </div>
-              ) : isError ? (
-                <div className="text-sm text-destructive font-semibold p-4 rounded bg-muted">
-                  Failed to load player pool. Please try again later.
-                </div>
-              ) : targetsForTab.length === 0 ? (
-                <div className="text-muted-foreground text-center text-sm py-4">
-                  No players available for this position.
-                </div>
-              ) : (
-                <>
-                  <TargetGroup
-                    label="Top Plays"
-                    icon="top"
-                    type="top"
-                    targets={targetsForTab}
-                    {...groupProps}
-                  />
-                  <TargetGroup
-                    label="Cash"
-                    icon="dollar-sign"
-                    type="cash"
-                    targets={targetsForTab}
-                    {...groupProps}
-                  />
-                  <TargetGroup
-                    label="Lock"
-                    icon="lock"
-                    type="lock"
-                    targets={targetsForTab}
-                    {...groupProps}
-                  />
-                  <TargetGroup
-                    label="GPP"
-                    icon="trophy"
-                    type="gpp"
-                    targets={targetsForTab}
-                    {...groupProps}
-                  />
-                  <TargetGroup
-                    label="Fade"
-                    icon="fade"
-                    type="fade"
-                    targets={targetsForTab}
-                    {...groupProps}
-                  />
-                  <TargetGroup
-                    label="Pivot"
-                    icon="pivot"
-                    type="pivot"
-                    targets={targetsForTab}
-                    {...groupProps}
-                  />
-                  <TargetGroup
-                    label="Injury"
-                    icon="ambulance"
-                    type="injury"
-                    targets={targetsForTab}
-                    {...groupProps}
-                  />
-                  <TargetGroup
-                    label="No Type"
-                    icon="none"
-                    type="none"
-                    targets={targetsForTab}
-                    {...groupProps}
-                  />
-                  <TargetGroup
-                    label="Bargain"
-                    icon="bargain"
-                    type="bargain"
-                    targets={targetsForTab}
-                    {...groupProps}
-                  />
-                </>
-              )}
-            </TabsContent>
-          )
-        })}
-      </Tabs>
+            return (
+              <TabsContent
+                key={tab.value}
+                value={tabValue}
+                className={`mt-4 ${showGroups ? 'space-y-6' : 'space-y-2'} max-h-[568px] min-h-[568px] h-[568px] overflow-y-auto`}
+              >
+                {isError ? (
+                  <div className="text-sm text-destructive font-semibold p-4 rounded bg-muted">
+                    Failed to load player pool. Please try again later.
+                  </div>
+                ) : targetsForTab.length === 0 ? (
+                  <div className="text-muted-foreground text-center text-sm py-4">
+                    No players available for this position.
+                  </div>
+                ) : (
+                  <>
+                    <TargetGroup
+                      label="Top Plays"
+                      icon="top"
+                      type="top"
+                      targets={targetsForTab}
+                      {...groupProps}
+                    />
+                    <TargetGroup
+                      label="Cash"
+                      icon="dollar-sign"
+                      type="cash"
+                      targets={targetsForTab}
+                      {...groupProps}
+                    />
+                    <TargetGroup
+                      label="Lock"
+                      icon="lock"
+                      type="lock"
+                      targets={targetsForTab}
+                      {...groupProps}
+                    />
+                    <TargetGroup
+                      label="GPP"
+                      icon="trophy"
+                      type="gpp"
+                      targets={targetsForTab}
+                      {...groupProps}
+                    />
+                    <TargetGroup
+                      label="Fade"
+                      icon="fade"
+                      type="fade"
+                      targets={targetsForTab}
+                      {...groupProps}
+                    />
+                    <TargetGroup
+                      label="Pivot"
+                      icon="pivot"
+                      type="pivot"
+                      targets={targetsForTab}
+                      {...groupProps}
+                    />
+                    <TargetGroup
+                      label="Injury"
+                      icon="ambulance"
+                      type="injury"
+                      targets={targetsForTab}
+                      {...groupProps}
+                    />
+                    <TargetGroup
+                      label="No Type"
+                      icon="none"
+                      type="none"
+                      targets={targetsForTab}
+                      {...groupProps}
+                    />
+                    <TargetGroup
+                      label="Bargain"
+                      icon="bargain"
+                      type="bargain"
+                      targets={targetsForTab}
+                      {...groupProps}
+                    />
+                  </>
+                )}
+              </TabsContent>
+            )
+          })}
+
+          <div className="flex justify-between gap-4 mt-6 items-center">
+            <div className={`px-2 text-sm font-bold text-foreground`}>
+              <div className="flex flex-col items-start gap-1">
+                <div className="text-lg">Targets in Pool: {playerPool.length}</div>
+              </div>
+            </div>
+          </div>
+        </Tabs>
+      )}
     </div>
   )
 }
