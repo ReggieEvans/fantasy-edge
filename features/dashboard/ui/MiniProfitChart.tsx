@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { Loader } from 'lucide-react'
 import React from 'react'
 import { ResponsiveContainer } from 'recharts'
 import {
@@ -43,9 +44,11 @@ const CustomizedAxisTick: React.FC<{ dy?: number; format?: (s: string) => string
 export default function MiniProfitChart({
   seriesKeys,
   data,
+  isLoading,
 }: {
   seriesKeys: string[]
   data: any[]
+  isLoading: boolean
 }) {
   const colorMap = React.useMemo(() => {
     const m: Record<string, string> = {}
@@ -55,56 +58,62 @@ export default function MiniProfitChart({
 
   return (
     <div className="h-[650px] rounded-md">
-      <ResponsiveContainer width="100%" height="100%">
-        <RechartsAreaChart data={data} margin={{ top: 8, right: 16, left: 8, bottom: 0 }}>
-          {/* one vertical gradient per series */}
-          <defs>
-            {seriesKeys.map(k => {
-              const id = `grad-${slug(k)}`
-              const c = colorMap[k]
-              return (
-                <linearGradient key={id} id={id} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={c} stopOpacity={0.35} />
-                  <stop offset="100%" stopColor={c} stopOpacity={0} />
-                </linearGradient>
-              )
-            })}
-          </defs>
+      {isLoading ? (
+        <div className="flex items-center gap-2 justify-center h-full">
+          <Loader className="w-4 h-4 animate-spin" /> <span>Loading chart...</span>
+        </div>
+      ) : (
+        <ResponsiveContainer width="100%" height="100%" className="h-[650px]">
+          <RechartsAreaChart data={data} margin={{ top: 8, right: 16, left: 8, bottom: 0 }}>
+            {/* one vertical gradient per series */}
+            <defs>
+              {seriesKeys.map(k => {
+                const id = `grad-${slug(k)}`
+                const c = colorMap[k]
+                return (
+                  <linearGradient key={id} id={id} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={c} stopOpacity={0.35} />
+                    <stop offset="100%" stopColor={c} stopOpacity={0} />
+                  </linearGradient>
+                )
+              })}
+            </defs>
 
-          <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="3 3" />
-          <XAxis dataKey="date" minTickGap={24} tick={<CustomizedAxisTick dy={16} />} />
-          <YAxis tickFormatter={v => `$${v}`} width={56} fontSize={13} stroke="#5c5d6f" />
-          <Tooltip
-            formatter={(v: any) =>
-              Number.isFinite(+v)
-                ? (+v).toLocaleString(undefined, {
-                    style: 'currency',
-                    currency: 'USD',
-                    maximumFractionDigits: 2,
-                  })
-                : v
-            }
-          />
-          <Legend verticalAlign="top" align="right" height={36} />
-
-          {/* translucent filled areas with a stroked outline */}
-          {seriesKeys.map(k => (
-            <Area
-              key={k}
-              type="monotone"
-              dataKey={k}
-              stroke={colorMap[k]}
-              strokeWidth={2}
-              fill={`url(#grad-${slug(k)})`}
-              fillOpacity={1}
-              connectNulls
-              isAnimationActive={false}
-              dot={false}
-              activeDot={{ r: 4 }}
+            <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="3 3" />
+            <XAxis dataKey="date" minTickGap={24} tick={<CustomizedAxisTick dy={16} />} />
+            <YAxis tickFormatter={v => `$${v}`} width={56} fontSize={13} stroke="#5c5d6f" />
+            <Tooltip
+              formatter={(v: any) =>
+                Number.isFinite(+v)
+                  ? (+v).toLocaleString(undefined, {
+                      style: 'currency',
+                      currency: 'USD',
+                      maximumFractionDigits: 2,
+                    })
+                  : v
+              }
             />
-          ))}
-        </RechartsAreaChart>
-      </ResponsiveContainer>
+            <Legend verticalAlign="top" align="right" height={36} />
+
+            {/* translucent filled areas with a stroked outline */}
+            {seriesKeys.map(k => (
+              <Area
+                key={k}
+                type="monotone"
+                dataKey={k}
+                stroke={colorMap[k]}
+                strokeWidth={2}
+                fill={`url(#grad-${slug(k)})`}
+                fillOpacity={1}
+                connectNulls
+                isAnimationActive={false}
+                dot={false}
+                activeDot={{ r: 4 }}
+              />
+            ))}
+          </RechartsAreaChart>
+        </ResponsiveContainer>
+      )}
     </div>
   )
 }
