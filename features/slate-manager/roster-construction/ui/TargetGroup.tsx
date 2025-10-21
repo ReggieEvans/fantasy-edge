@@ -40,6 +40,7 @@ interface TargetGroupProps {
   showProjections: boolean
   showGroups: boolean
   addPlayerToRoster: (player: TargetPool) => void
+  remainingSalary: number
 }
 
 export default function TargetGroup({
@@ -50,6 +51,7 @@ export default function TargetGroup({
   showProjections,
   showGroups,
   addPlayerToRoster,
+  remainingSalary,
 }: TargetGroupProps) {
   const Icon = ICONS[icon]
   const filteredTargets =
@@ -74,6 +76,7 @@ export default function TargetGroup({
             target={target}
             showProjections={showProjections}
             addPlayerToRoster={addPlayerToRoster}
+            remainingSalary={remainingSalary}
           />
         ))}
       </div>

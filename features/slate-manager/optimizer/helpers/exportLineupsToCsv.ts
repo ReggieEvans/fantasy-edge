@@ -1,13 +1,11 @@
 import { ExportLineup, ExportOptions, ExportPlayer, Slot } from '../types'
 
 export function exportLineupsToCsv(lineups: ExportLineup[], opts: ExportOptions) {
-  console.log(lineups)
   const {
     slotOrder,
     filename = 'lineups.csv',
     valueFormatter = (p?: ExportPlayer) => {
       if (!p) return ''
-      console.log(p)
       return p.fe_draftable_id ? `${p.name} (${p.fe_draftable_id})` : p.name
     },
   } = opts

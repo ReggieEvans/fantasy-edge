@@ -33,6 +33,9 @@ interface RosterBuilderProps {
   userTargets: TargetPool[]
   setPlayerPool: (playerPool: TargetPool[]) => void
   sport: Sport
+  isLoading: boolean
+  remainingSalary: number
+  setRemainingSalary: React.Dispatch<React.SetStateAction<number>>
 }
 
 export default function RosterBuilder({
@@ -43,6 +46,9 @@ export default function RosterBuilder({
   userTargets,
   setPlayerPool,
   sport,
+  isLoading,
+  remainingSalary,
+  setRemainingSalary,
 }: RosterBuilderProps) {
   const { id: slateId } = useParams() as { id: string }
   const [saveRoster, { isLoading: isSaving }] = useSaveRosterMutation()
@@ -91,6 +97,11 @@ export default function RosterBuilder({
     (sum, player) => sum + (player?.projection || 0),
     0,
   )
+
+  useEffect(() => {
+    setRemainingSalary(SALARY_CAP - totalSalary)
+  }, [totalSalary, setRemainingSalary])
+
   const isOverCap = totalSalary > SALARY_CAP
   const isIncomplete = Object.values(values).some(player => player == null)
 
@@ -175,6 +186,7 @@ export default function RosterBuilder({
               <SelectContent className="bg-background-darker">
                 <SelectItem value="cash">Cash</SelectItem>
                 <SelectItem value="gpp">GPP</SelectItem>
+                <SelectItem value="se">Single Entry</SelectItem>
                 <SelectItem value="hybrid">Hybrid</SelectItem>
                 <SelectItem value="20-max">20-Max</SelectItem>
                 <SelectItem value="150-max">150-Max</SelectItem>
@@ -183,94 +195,116 @@ export default function RosterBuilder({
           </div>
         </div>
         <div className="space-y-2">
-          {slots?.map(slot => {
-            return (
-              <Controller
-                key={slot.key}
-                name={slot.key}
-                control={control}
-                render={({ field }) => (
-                  <div className="flex items-center justify-center bg-background-secondary px-3 rounded text-sm">
-                    <div className="w-20 font-bold text-center">{slot.position}</div>
-                    <div className="w-[4px] h-[56px] bg-background mx-2" />
-                    <div className="flex flex-col w-full">
-                      <input
-                        type="text"
-                        value={
-                          field.value
-                            ? getName(
-                                field.value.first_name || '',
-                                field.value.last_name || '',
-                                slot.position,
-                                field.value.team_name || '',
-                              )
-                            : ''
-                        }
-                        readOnly
-                        className="bg-transparent border-none w-full text-foreground px-2 pointer-events-none"
-                      />
-                      {field.value && (
-                        <p className="px-2 text-xs text-muted">
-                          {field.value?.position} — {field.value?.team_name}
-                        </p>
-                      )}
-                    </div>
-                    <div className="w-14 text-center pr-4">
-                      <div className="flex flex-col items-center">
-                        {field.value && (
-                          <>
-                            <span className="text-[11px] font-bold text-muted uppercase">Proj</span>
-                            {showProjections && field.value ? (
-                              <>
-                                <p className="font-bold text-xs">
-                                  {field.value?.projection ?? '—'}
-                                </p>
-                              </>
-                            ) : !showProjections && field.value ? (
-                              <Lock className="w-4 h-4 mx-auto text-muted" />
-                            ) : null}
-                          </>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex flex-col items-center mr-4">
-                      {field.value && (
-                        <>
-                          <span className="text-[11px] font-bold text-muted uppercase">Salary</span>
-                          <p className="font-bold text-xs">
-                            {field.value?.salary
-                              ? `$${field.value.salary.toLocaleString('en-US')}`
-                              : '—'}
-                          </p>
-                        </>
-                      )}
-                    </div>
-                    <div className="w-24 text-center">
-                      {field.value && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setValue(slot.key, null)
-                            setRoster(prev => {
-                              const copy = { ...prev }
-                              delete copy[slot.key]
-                              return copy
-                            })
-                            if (field.value) {
-                              restorePlayerToPool(field.value)
+          {isLoading ? (
+            <div className="flex flex-col gap-2">
+              <p className="flex items-center text-sm text-muted h-8 p-2 bg-background-secondary rounded-md animate-pulse">
+                <Loader className="w-4 h-4 mr-2 animate-spin" /> Loading roster...
+              </p>
+              <div>
+                {Array.from({ length: 9 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-12 bg-background-secondary rounded animate-pulse mb-2"
+                  />
+                ))}
+              </div>
+            </div>
+          ) : (
+            <>
+              {slots?.map(slot => {
+                return (
+                  <Controller
+                    key={slot.key}
+                    name={slot.key}
+                    control={control}
+                    render={({ field }) => (
+                      <div className="flex items-center justify-center bg-background-secondary px-3 rounded text-sm">
+                        <div className="w-20 font-bold text-center">{slot.position}</div>
+                        <div className="w-[4px] h-[56px] bg-background mx-2" />
+                        <div className="flex flex-col w-full">
+                          <input
+                            type="text"
+                            value={
+                              field.value
+                                ? getName(
+                                    field.value.first_name || '',
+                                    field.value.last_name || '',
+                                    slot.position,
+                                    field.value.team_name || '',
+                                  )
+                                : ''
                             }
-                          }}
-                          className="bg-background-darker border border-destructive opacity-80 font-black py-1.5 px-2.5 rounded transition-all duration-300 hover:opacity-100"
-                        >
-                          <X className="w-4 h-4 text-destructive" />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                )}
-              />
-            )
-          })}
+                            readOnly
+                            className="bg-transparent border-none w-full text-foreground px-2 pointer-events-none"
+                          />
+                          {field.value && (
+                            <p className="px-2 text-xs text-muted">
+                              {field.value?.position} — {field.value?.team_name}
+                            </p>
+                          )}
+                        </div>
+                        <div className="w-14 text-center pr-4">
+                          <div className="flex flex-col items-center">
+                            {field.value && (
+                              <>
+                                <span className="text-[11px] font-bold text-muted uppercase">
+                                  Proj
+                                </span>
+                                {showProjections && field.value ? (
+                                  <>
+                                    <p className="font-bold text-xs">
+                                      {field.value?.projection ?? '—'}
+                                    </p>
+                                  </>
+                                ) : !showProjections && field.value ? (
+                                  <Lock className="w-4 h-4 mx-auto text-muted" />
+                                ) : null}
+                              </>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-center mr-4">
+                          {field.value && (
+                            <>
+                              <span className="text-[11px] font-bold text-muted uppercase">
+                                Salary
+                              </span>
+                              <p className="font-bold text-xs">
+                                {field.value?.salary
+                                  ? `$${field.value.salary.toLocaleString('en-US')}`
+                                  : '—'}
+                              </p>
+                            </>
+                          )}
+                        </div>
+                        <div className="w-24 text-center">
+                          {field.value && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setValue(slot.key, null)
+                                setRoster(prev => {
+                                  const copy = { ...prev }
+                                  delete copy[slot.key]
+                                  return copy
+                                })
+                                if (field.value) {
+                                  restorePlayerToPool(field.value)
+                                }
+                              }}
+                              className="bg-background-darker border border-destructive opacity-80 font-black py-1.5 px-2.5 rounded transition-all duration-300 hover:opacity-100"
+                            >
+                              <X className="w-4 h-4 text-destructive" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  />
+                )
+              })}
+            </>
+          )}
         </div>
 
         <div className="flex justify-between gap-4 mt-6 items-center">
@@ -280,7 +314,7 @@ export default function RosterBuilder({
             <div className="flex flex-col items-start gap-1">
               <div className="text-lg">Total Salary: ${totalSalary.toLocaleString('en-US')}</div>
               <div className="text-sm text-muted">
-                Remaining: ${(SALARY_CAP - totalSalary).toLocaleString('en-US')}
+                Remaining: ${remainingSalary.toLocaleString('en-US')}
               </div>
             </div>
           </div>

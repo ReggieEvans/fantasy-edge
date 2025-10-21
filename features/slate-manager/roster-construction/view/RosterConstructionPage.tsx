@@ -44,9 +44,10 @@ export default function RosterCreation() {
   const [playerPool, setPlayerPool] = useState<TargetPoolType[]>([])
   const hasInitialized = useRef(false)
   const [addingIds, setAddingIds] = useState<Set<number>>(new Set())
+  const [remainingSalary, setRemainingSalary] = useState(50000)
 
   const { data: userTargets = [], isLoading, isError } = useGetTargetPoolQuery(id)
-  const { data: slate } = useGetSlateQuery(id)
+  const { data: slate, isLoading: isSlateLoading } = useGetSlateQuery(id)
   const [addTarget] = useAddTargetMutation()
 
   // derive tabs from sport
@@ -148,6 +149,8 @@ export default function RosterCreation() {
     tabs,
     tabValue,
     setTabValue,
+    remainingSalary,
+    setRemainingSalary,
   }
 
   return (
@@ -175,7 +178,7 @@ export default function RosterCreation() {
               showGroups={showGroups}
               toggleGroups={() => setShowGroups(!showGroups)}
               openQuickTargetModal={() => setShowQuickTargetsModal(true)}
-              isLoading={isLoading}
+              isLoading={isLoading || isSlateLoading}
               isError={isError}
               sport={slate?.sport as Sport}
             />
@@ -186,6 +189,7 @@ export default function RosterCreation() {
               userTargets={userTargets}
               restorePlayerToPool={restorePlayerToPool}
               sport={slate?.sport as Sport}
+              isLoading={isLoading || isSlateLoading}
             />
           </div>
         </div>
