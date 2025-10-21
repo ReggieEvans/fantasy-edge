@@ -177,64 +177,79 @@ export default function PlayerTable({ data, position, showPlayersWithNoStats }: 
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredData.map((player: Player) => (
-            <TableRow key={player.id} className="bg-card border-b border-background-secondary">
-              <TableCell className="sticky min-w-[40px] w-[40px] right-[199px] z-10 ml-4 px-2 text-center ">
-                {!targets?.some(target => target.slate_player_id === player.id) ? (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-accent hover:text-accent-foreground"
-                    onClick={() => handleTargetingPlayer(player)}
-                  >
-                    {isSaving && selectedPlayer?.player_id === player.player_id ? (
-                      <Loader size={14} className="animate-spin" />
-                    ) : (
-                      <Crosshair size={14} className="mx-auto" />
-                    )}
-                  </Button>
-                ) : (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-green-400 hover:bg-destructive"
-                    onClick={() => handleTargetingPlayer(player)}
-                  >
-                    {isRemoving && selectedPlayer?.player_id === player.player_id ? (
-                      <Loader size={14} className="animate-spin" />
-                    ) : (
-                      <UserRoundCheck size={14} className="mx-auto" />
-                    )}
-                  </Button>
-                )}
-              </TableCell>
+          {filteredData.map((player: Player) => {
+            const isTargeted = !!targets?.some(t => t.slate_player_id === player.id)
 
-              {columns.map(col => {
-                const cellContent =
-                  typeof col.cell === 'function'
-                    ? col.cell({ row: { original: player } } as CellContext<Player, unknown>)
-                    : col.id && typeof col.id === 'string'
-                      ? String(player[col.id as keyof Player] ?? '')
-                      : ''
+            return (
+              <TableRow
+                key={player.id}
+                aria-selected={isTargeted || undefined}
+                className={[
+                  'relative bg-card border-b border-background-secondary transition-colors',
+                  !isTargeted && 'hover:bg-muted/20',
+                  isTargeted &&
+                    'bg-green-500/10 hover:bg-green-500/30 ring-1 ring-inset ring-green-500/30',
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
+              >
+                <TableCell className="sticky min-w-[40px] w-[40px] right-[199px] z-10 ml-4 px-2 text-center ">
+                  {!isTargeted ? (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-accent hover:text-accent-foreground"
+                      onClick={() => handleTargetingPlayer(player)}
+                    >
+                      {isSaving && selectedPlayer?.player_id === player.player_id ? (
+                        <Loader size={14} className="animate-spin" />
+                      ) : (
+                        <Crosshair size={14} className="mx-auto" />
+                      )}
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-green-400 hover:bg-destructive"
+                      onClick={() => handleTargetingPlayer(player)}
+                    >
+                      {isRemoving && selectedPlayer?.player_id === player.player_id ? (
+                        <Loader size={14} className="animate-spin" />
+                      ) : (
+                        <UserRoundCheck size={14} className="mx-auto" />
+                      )}
+                    </Button>
+                  )}
+                </TableCell>
 
-                return (
-                  <TableCell
-                    key={col.id}
-                    className={`text-[12px] text-center font-bold text-xs  
-                  ${
-                    col.id === 'displayName'
-                      ? 'text-left min-w-[175px] w-[175px]'
-                      : col.id === 'news'
-                        ? 'text-center w-[60px] max-w-[60px]'
-                        : 'text-center w-[40px] max-w-[40px]'
-                  }`}
-                  >
-                    {cellContent}
-                  </TableCell>
-                )
-              })}
-            </TableRow>
-          ))}
+                {columns.map(col => {
+                  const cellContent =
+                    typeof col.cell === 'function'
+                      ? col.cell({ row: { original: player } } as CellContext<Player, unknown>)
+                      : col.id && typeof col.id === 'string'
+                        ? String(player[col.id as keyof Player] ?? '')
+                        : ''
+
+                  return (
+                    <TableCell
+                      key={col.id}
+                      className={`text-[12px] text-center font-bold text-xs  
+                ${
+                  col.id === 'displayName'
+                    ? 'text-left min-w-[175px] w-[175px]'
+                    : col.id === 'news'
+                      ? 'text-center w-[60px] max-w-[60px]'
+                      : 'text-center w-[40px] max-w-[40px]'
+                }`}
+                    >
+                      {cellContent}
+                    </TableCell>
+                  )
+                })}
+              </TableRow>
+            )
+          })}
         </TableBody>
       </Table>
       <TargetPlayerModal
