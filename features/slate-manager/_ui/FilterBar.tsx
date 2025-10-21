@@ -11,16 +11,16 @@ import { GameType } from '@/types/gameType'
 import { Sport } from '@/types/sport'
 
 export default function FiltersBar({
-  sport,
-  setSport,
   gameType,
+  sport,
   setGameType,
+  setSport,
   onAddClick,
 }: {
   sport: Sport
-  setSport: (s: Sport) => void
   gameType: GameType
   setGameType: (g: GameType) => void
+  setSport: (s: Sport) => void
   onAddClick: () => void
 }) {
   return (

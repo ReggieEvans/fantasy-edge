@@ -2,7 +2,8 @@
 
 import { Banknote, Brain, Hammer, Home, LucideIcon, Pencil, Pickaxe } from 'lucide-react'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
 import {
   NavigationMenu,
@@ -18,6 +19,9 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import FeatureHeader from '@/shared/ui/FeatureHeader'
+import { RootState } from '@/store'
+import { setSport } from '@/store/slices/gameTypeSlice'
+import { Sport } from '@/types/sport'
 
 import DashboardLinks from '../ui/DashboardLinks'
 import PlayerNews from '../ui/PlayerNews'
@@ -44,14 +48,15 @@ const links: NavLink[] = [
 ]
 
 export default function DashboardPage() {
-  const [sport, setSport] = useState<'NFL' | 'CFB'>('NFL')
+  const dispatch = useDispatch()
+  const sport = useSelector((state: RootState) => state.gameType.sport)
 
   return (
     <div className="px-6 bg-background pt-8 pb-16">
       <div className="flex items-start justify-between">
         <FeatureHeader icon={<Home size={20} />} title="Dashboard" description="" />
         <div className="w-[200px]">
-          <Select value={sport} onValueChange={setSport as (value: string) => void}>
+          <Select value={sport} onValueChange={(s: Sport) => dispatch(setSport(s))}>
             <SelectTrigger className="bg-background-secondary">
               <SelectValue placeholder="Select Sport" />
             </SelectTrigger>
