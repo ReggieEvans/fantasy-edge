@@ -200,7 +200,7 @@ export default function PlayerPoolPage() {
         {/* Render groups */}
         <div className="flex flex-col gap-8 max-h-[calc(100vh-300px)] overflow-y-auto">
           {isLoading ? (
-            [...Array(3)].map((_, i) => (
+            Array.from({ length: 6 }).map((_, i) => (
               <Skeleton key={i} className="h-32 w-full bg-card rounded animate-pulse" />
             ))
           ) : targets?.length === 0 ? (
