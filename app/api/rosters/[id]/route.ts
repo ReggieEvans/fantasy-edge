@@ -1,53 +1,56 @@
 import { NextResponse } from 'next/server'
 
+import { RosterType } from '@/features/slate-manager/roster-view/ui/RosterTypeMeta'
 import { createServerSupabaseClient } from '@/libs/supabase/server'
 
-// @desc    Get roster
-// @route   GET /rosters/:id
-export const GET = async (_req: Request, { params }: { params: Promise<{ id: string }> }) => {
+export const PUT = async (req: Request, { params }: { params: Promise<{ id: string }> }) => {
   const supabase = await createServerSupabaseClient()
-  const { id: slateId } = await params
+  const { id: rosterId } = await params
 
   const {
     data: { user },
   } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const rosterValues: { name: string | undefined; type: RosterType | null | undefined } =
+    await req.json()
+
+  // 1) Update rosters table (partial update)
+  if (rosterValues.name != null || rosterValues.type != null) {
+    const updateFields: Record<string, unknown> = {}
+    if (rosterValues.name != null) updateFields.name = rosterValues.name
+    if (rosterValues.type != null) updateFields.type = rosterValues.type
+
+    const { error: updErr } = await supabase.from('rosters').update(updateFields).eq('id', rosterId)
+    if (updErr) return NextResponse.json({ error: updErr.message }, { status: 500 })
   }
 
-  const { data: rosters, error: queryError } = await supabase
-    .from('rosters')
-    .select(
-      `
-    id,
-    name,
-    type,
-    total_salary,
-    slate_id,
-    roster_players:roster_players!roster_players_roster_id_fkey (
-      id,
-      roster_id,
-      slot_key,
-      player_id,
-      salary,
-      position,
-      target_type,
-      stack_candidate,
-      player_name,
-      draftable_id,
-      slate_player_id,
-      projection,
-      team_name,
-      slot_position
-    )
-  `,
-    )
-    .eq('slate_id', slateId)
+  return NextResponse.json({ success: true })
+}
 
-  if (queryError) {
-    return NextResponse.json({ error: queryError.message }, { status: 500 })
-  }
+// ---------------------------------------------------------
+// @desc    Delete a roster (by rosterId)
+// @route   DELETE /rosters/:id
+// ---------------------------------------------------------
+export const DELETE = async (_req: Request, { params }: { params: Promise<{ id: string }> }) => {
+  const supabase = await createServerSupabaseClient()
+  const { id: rosterId } = await params
 
-  return NextResponse.json(rosters)
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  // If your FK has ON DELETE CASCADE, you can delete the roster only.
+  // To be safe across schemas, delete children first:
+  //   const { error: delChildrenErr } = await supabase
+  //     .from('roster_players')
+  //     .delete()
+  //     .eq('roster_id', rosterId)
+  //   if (delChildrenErr) return NextResponse.json({ error: delChildrenErr.message }, { status: 500 })
+
+  const { error: delRosterErr } = await supabase.from('rosters').delete().eq('id', rosterId)
+  if (delRosterErr) return NextResponse.json({ error: delRosterErr.message }, { status: 500 })
+
+  return NextResponse.json({ success: true })
 }

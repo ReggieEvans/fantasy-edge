@@ -132,6 +132,7 @@ export default function RosterBuilder({
               stack_candidate: player!.stack_candidate!,
               team_name: player!.team_name || '',
               slot_position: key,
+              projection: player!.projection || 0,
             },
           ]),
         ),
