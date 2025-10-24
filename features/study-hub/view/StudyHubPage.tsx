@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import Image from 'next/image'
 import { useEffect, useMemo, useState } from 'react'
+import { useSelector } from 'react-redux'
 
 import { Badge } from '@/components/ui/badge'
 import {
@@ -37,6 +38,7 @@ import type { EnrichedStudyUpload } from '@/shared/types/study-hub/types'
 import { ErrorMessage } from '@/shared/ui/ErrorMessage'
 import FeatureHeader from '@/shared/ui/FeatureHeader'
 import { NoData } from '@/shared/ui/NoData'
+import { RootState } from '@/store'
 import { cn } from '@/utils/cn'
 
 import { getTemplate } from '../lib/orderByTemplate'
@@ -49,6 +51,7 @@ export default function StudyHubPage() {
   const [data, setData] = useState<EnrichedStudyUpload | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const username = useSelector((state: RootState) => state.auth.user_name)
 
   // controls
   const [userFilter, setUserFilter] = useState('')
@@ -58,7 +61,6 @@ export default function StudyHubPage() {
   const [slotFilter, setSlotFilter] = useState<'ALL' | 'CPT' | 'FLEX'>('ALL')
   const [posFilter, setPosFilter] = useState<'ALL' | 'QB' | 'RB' | 'WR' | 'TE' | 'DST'>('ALL')
   const [usageView, setUsageView] = useState<'full' | 'all' | 'buckets'>('full')
-  const [username, setUsername] = useState<string | null>(null)
   const [file, setFile] = useState<File | null>(null)
   const active = usageView === 'full' ? data?.usage.full : data?.usage.all
 
@@ -96,7 +98,7 @@ export default function StudyHubPage() {
       if (opts?.sport) fd.set('sport', opts.sport)
       if (opts?.gameType) fd.set('gameType', opts.gameType)
       if (opts?.valueBaseline) fd.set('valueBaseline', String(opts.valueBaseline))
-      if (opts?.username) fd.set('username', opts.username)
+      if (username) fd.set('username', username)
       const res = await fetch('/api/study-hub', { method: 'POST', body: fd })
       if (!res.ok) throw new Error(await res.text())
       const json = (await res.json()) as EnrichedStudyUpload
@@ -346,28 +348,12 @@ export default function StudyHubPage() {
                     Upload CSV
                   </Label>
                   <Input
-                    className="md:text-xs md:leading-7 border border-card w-[200px] bg-background-darker"
+                    className="md:text-xs md:leading-7 border border-card bg-background-darker"
                     type="file"
                     accept=".csv"
                     onChange={e => {
                       setFile(e.target.files?.[0] ?? null)
                     }}
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center">
-                    <Label
-                      htmlFor="file-upload"
-                      className="text-xs font-bold text-muted-foreground pl-1"
-                    >
-                      DK Username <span className="text-[10px] text-muted">(Case Sensitive)</span>
-                    </Label>
-                  </div>
-                  <Input
-                    className="md:text-xs md:leading-7 border border-card w-[200px] bg-background-darker"
-                    type="text"
-                    placeholder="Optional"
-                    onChange={e => setUsername(e.target.value)}
                   />
                 </div>
                 <div className="flex items-end justify-end">
@@ -436,7 +422,10 @@ export default function StudyHubPage() {
               <div className="flex items-center justify-start gap-4 text-sm font-bold">
                 <div className="flex flex-col gap-1">
                   <span className="text-xs text-muted">Total Spent</span>
-                  <Badge variant="outline" className="px-8 py-4 text-2xl font-black bg-accent">
+                  <Badge
+                    variant="outline"
+                    className="px-8 py-4 text-2xl font-black text-accent-foreground bg-accent"
+                  >
                     ${(data?.usernameSummary?.Spent).toFixed(2)}
                   </Badge>
                 </div>
@@ -863,7 +852,7 @@ export default function StudyHubPage() {
               <div className="flex flex-wrap gap-2">
                 {/* slot filter (showdown) */}
                 {isShowdown && (
-                  <div className="flex gap-1">
+                  <div className="flex gap-1 pt-4">
                     {(['ALL', 'CPT', 'FLEX'] as const).map(v => (
                       <button
                         key={v}
