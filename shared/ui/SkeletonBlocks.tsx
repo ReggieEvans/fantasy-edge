@@ -6,5 +6,10 @@ type SkeletonRowProps = {
 }
 
 export const SkeletonBlocks = ({ height, width }: SkeletonRowProps) => {
-  return <Skeleton className={`h-${height} w-${width} bg-card rounded animate-pulse`} />
+  return (
+    <Skeleton
+      style={{ height: `${height}px`, width: `${width}px` }}
+      className="bg-card border border-card rounded animate-pulse"
+    />
+  )
 }

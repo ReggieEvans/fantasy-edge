@@ -107,6 +107,7 @@ export default function Slate({ slate, onDeleteSlate, onAddProjections }: SlateP
         <div className="grid grid-cols-2 md:flex md:flex-row gap-4 md:gap-10 pt-4 text-xs uppercase">
           <Count label="Games" value={slate.gameCount} />
           <Count label="Targeted Players" value={slate.targetCount} />
+          <Count label="Rosters Created" value={slate.rosterCount} />
           <div>
             <div className="text-foreground text-xs uppercase text-center font-bold z-20">
               Projections

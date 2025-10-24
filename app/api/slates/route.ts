@@ -40,11 +40,13 @@ export async function GET() {
     { data: games },
     { data: players },
     { data: targets },
+    { data: rosters },
   ] = await Promise.all([
     supabase.from('user_slates').select('*').in('id', slateIds),
     supabase.from('slate_matchups').select('slate_id').in('slate_id', slateIds),
     supabase.from('slate_players').select('slate_id').in('slate_id', slateIds),
     supabase.from('user_targeted_players').select('slate_id').in('slate_id', slateIds),
+    supabase.from('rosters').select('slate_id').in('slate_id', slateIds),
   ])
 
   if (slatesError) return NextResponse.json({ error: 'Error fetching slate data' }, { status: 500 })
@@ -58,12 +60,13 @@ export async function GET() {
   const gameCounts = countBySlate(games)
   const playerCounts = countBySlate(players)
   const targetCounts = countBySlate(targets)
-
+  const rosterCounts = countBySlate(rosters)
   const enriched = (slates ?? []).map(s => ({
     ...s,
     gameCount: gameCounts[s.id] ?? 0,
     playerCount: playerCounts[s.id] ?? 0,
     targetCount: targetCounts[s.id] ?? 0,
+    rosterCount: rosterCounts[s.id] ?? 0,
   }))
 
   return NextResponse.json(enriched)

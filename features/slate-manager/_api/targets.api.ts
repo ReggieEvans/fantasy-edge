@@ -14,7 +14,7 @@ export const targetsApi = baseApi.injectEndpoints({
         method: 'POST',
         body: player,
       }),
-      invalidatesTags: ['Targets', 'SlatePlayers'],
+      invalidatesTags: ['Targets', 'SlatePlayers', 'Slates'],
     }),
     updateTarget: builder.mutation<Target, Partial<Target>>({
       query: payload => ({

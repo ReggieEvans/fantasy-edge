@@ -15,7 +15,6 @@ export async function POST(req: Request) {
     totalSalary,
     roster, // object with keys = slot keys, values = player objects
   }: Roster = await req.json()
-
   const {
     data: { user },
     error: authError,
