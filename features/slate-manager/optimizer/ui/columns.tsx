@@ -21,6 +21,7 @@ export function makePlayerColumns({
   return [
     {
       header: 'Basic Info',
+      meta: { group: 'core' },
       columns: [
         {
           id: 'exc',
@@ -35,7 +36,7 @@ export function makePlayerColumns({
               </button>
             </div>
           ),
-          meta: 'Exclude',
+          meta: { group: 'core' },
           cell: ({ row }) => (
             <ExcludeCell player={row.original} onToggleExclude={onToggleExclude} />
           ),
@@ -43,19 +44,19 @@ export function makePlayerColumns({
         {
           id: 'lock',
           header: () => <Lock className="w-4 h-4 text-muted" />,
-          meta: 'Lock',
+          meta: { group: 'core' },
           cell: ({ row }) => <LockCell player={row.original} onToggleLock={onToggleLock} />,
         },
         {
           id: 'displayName',
           header: 'PLAYER',
-          meta: 'Player',
+          meta: { group: 'core' },
           cell: ({ row }) => <PlayerNameCell player={row.original} />,
         },
         {
           id: 'team',
           header: 'TM',
-          meta: 'Team',
+          meta: { group: 'core' },
           cell: ({ row }) => {
             return <div>{row.original.team_abbr}</div>
           },
@@ -63,25 +64,25 @@ export function makePlayerColumns({
         {
           id: 'position',
           header: 'POS',
-          meta: 'Position',
+          meta: { group: 'core' },
           cell: ({ row }) => <PositionCell player={row.original} />,
         },
         {
           id: 'salary',
           header: '$',
-          meta: 'Salary',
+          meta: { group: 'core' },
           accessorFn: row => row.salary ?? '-',
         },
         {
           id: 'projection',
           header: 'PROJ',
-          meta: 'Projected points',
+          meta: { group: 'core' },
           accessorFn: row => row.projection ?? '-',
         },
         {
           id: 'roi',
           header: 'ROI',
-          meta: 'FPTS/Salary',
+          meta: { group: 'core' },
           accessorFn: row => {
             const salary = Number(row.salary)
             const projection = Number(row.projection)
@@ -95,11 +96,12 @@ export function makePlayerColumns({
     },
     {
       header: 'Quarterback Stats',
+      meta: { group: 'passing' },
       columns: [
         {
           id: 'dropbacks',
           header: 'DROP',
-          meta: 'Dropbacks per game',
+          meta: { group: 'passing' },
           cell: ({ row }) => {
             const dropbacks = row.original.passing?.dropbacks
             const player_game_count = row.original.passing?.player_game_count
@@ -111,7 +113,7 @@ export function makePlayerColumns({
         {
           id: 'scrambles_g',
           header: 'SCR/G',
-          meta: 'Scrambles per game',
+          meta: { group: 'passing' },
           cell: ({ row }) => {
             const s = row.original.passing?.scrambles
             const g = row.original.passing?.player_game_count
@@ -121,7 +123,7 @@ export function makePlayerColumns({
         {
           id: 'rsh_g',
           header: 'RSH/G',
-          meta: 'Rush attempts per game',
+          meta: { group: 'passing' },
           cell: ({ row }) => {
             const attempts = row.original.rushing?.attempts
             const player_game_count = row.original.rushing?.player_game_count
@@ -133,7 +135,7 @@ export function makePlayerColumns({
         {
           id: 'qb_rush_share',
           header: 'RUSH%',
-          meta: 'Rush share',
+          meta: { group: 'passing' },
           cell: ({ row }) => {
             const mkt = row.original.rushing?.rushing_share
             const val = mkt ? (mkt * 100).toFixed() + '%' : '-'
@@ -143,7 +145,7 @@ export function makePlayerColumns({
         {
           id: 'ptd_g',
           header: 'TD/G',
-          meta: 'Touchdowns per game',
+          meta: { group: 'passing' },
           cell: ({ row }) => {
             const touchdowns = row.original.passing?.touchdowns
             const player_game_count = row.original.passing?.player_game_count
@@ -155,7 +157,7 @@ export function makePlayerColumns({
         {
           id: 'ypa',
           header: 'YPA',
-          meta: 'Yards per attempt',
+          meta: { group: 'passing' },
           cell: ({ row }) => {
             const ypa = row.original.passing?.ypa ? row.original.passing?.ypa : '-'
             return <div>{ypa}</div>
@@ -164,7 +166,7 @@ export function makePlayerColumns({
         {
           id: 'pyds_g',
           header: 'YDS/G',
-          meta: 'Yards per game',
+          meta: { group: 'passing' },
           cell: ({ row }) => {
             const yards = row.original.passing?.yards
             const player_game_count = row.original.passing?.player_game_count
@@ -175,7 +177,7 @@ export function makePlayerColumns({
         {
           id: 'avg_depth_of_target',
           header: 'ADOT',
-          meta: 'Average depth of target',
+          meta: { group: 'passing' },
           cell: ({ row }) => {
             const avg_depth_of_target = row.original.passing?.avg_depth_of_target
               ? row.original.passing?.avg_depth_of_target
@@ -186,7 +188,7 @@ export function makePlayerColumns({
         {
           id: 'big_time_throws',
           header: 'BTT',
-          meta: 'Big time throws',
+          meta: { group: 'passing' },
           cell: ({ row }) => {
             const big_time_throws = row.original.passing?.big_time_throws
               ? row.original.passing?.big_time_throws
@@ -197,7 +199,7 @@ export function makePlayerColumns({
         {
           id: 'pass',
           header: 'PASS',
-          meta: 'Passing grade',
+          meta: { group: 'passing' },
           cell: ({ row }) => {
             const val = row.original.passing?.grades_pass ?? '-'
             const letterGrade = getLetterGrade(val)
@@ -213,7 +215,7 @@ export function makePlayerColumns({
         {
           id: 'qbrush',
           header: 'RUSH',
-          meta: 'Rushing grade',
+          meta: { group: 'passing' },
           cell: ({ row }) => {
             const val = row.original.rushing?.grades_run ?? '-'
             const letterGrade = getLetterGrade(val)
@@ -229,7 +231,7 @@ export function makePlayerColumns({
         {
           id: 'first_downs',
           header: '1D',
-          meta: 'First Downs Per Game',
+          meta: { group: 'passing' },
           cell: ({ row }) => {
             const first_downs = row.original.passing?.first_downs
             const player_game_count = row.original.passing?.player_game_count
@@ -241,7 +243,7 @@ export function makePlayerColumns({
         {
           id: 'interceptions',
           header: 'INT',
-          meta: 'Interceptions Per Game',
+          meta: { group: 'passing' },
           cell: ({ row }) => {
             const interceptions = row.original.passing?.interceptions
             const player_game_count = row.original.passing?.player_game_count
@@ -255,7 +257,7 @@ export function makePlayerColumns({
         {
           id: 'turnover_worthy_plays',
           header: 'TWP',
-          meta: 'Turnover Worthy Plays Per Game',
+          meta: { group: 'passing' },
           cell: ({ row }) => {
             const turnover_worthy_plays = row.original.passing?.turnover_worthy_plays
             const player_game_count = row.original.passing?.player_game_count
@@ -269,7 +271,7 @@ export function makePlayerColumns({
         {
           id: 'drop_rate',
           header: 'DR',
-          meta: 'Drop Rate',
+          meta: { group: 'passing' },
           cell: ({ row }) => {
             const drop_rate = row.original.passing?.drop_rate
             const val = drop_rate ? drop_rate : '-'
@@ -279,7 +281,7 @@ export function makePlayerColumns({
         {
           id: 'avg_time_to_throw',
           header: 'ATtT',
-          meta: 'Average Time to Throw',
+          meta: { group: 'passing' },
           cell: ({ row }) => {
             const avg_time_to_throw = row.original.passing?.avg_time_to_throw
             const val = avg_time_to_throw ? avg_time_to_throw : '-'
@@ -289,7 +291,7 @@ export function makePlayerColumns({
         {
           id: 'qb_rating',
           header: 'QBR',
-          meta: 'QB Rating',
+          meta: { group: 'passing' },
           cell: ({ row }) => {
             const qb_rating = row.original.passing?.qb_rating
             const val = qb_rating ? qb_rating : '-'
@@ -300,11 +302,12 @@ export function makePlayerColumns({
     },
     {
       header: 'Running Back Stats',
+      meta: { group: 'rushing' },
       columns: [
         {
           id: 'ratt_g',
           header: 'ATT/G',
-          meta: 'Rush attempts per game',
+          meta: { group: 'rushing' },
           cell: ({ row }) => {
             const attempts = row.original.rushing?.attempts
             const player_game_count = row.original.rushing?.player_game_count
@@ -316,7 +319,7 @@ export function makePlayerColumns({
         {
           id: 'ryds_g',
           header: 'YDS/G',
-          meta: 'Rush yards per game',
+          meta: { group: 'rushing' },
           cell: ({ row }) => {
             const yards = row.original.rushing?.yards
             const player_game_count = row.original.rushing?.player_game_count
@@ -327,7 +330,7 @@ export function makePlayerColumns({
         {
           id: 'ryds_a',
           header: 'YDS/A',
-          meta: 'Rush yards per attempt',
+          meta: { group: 'rushing' },
           cell: ({ row }) => {
             const yards = row.original.rushing?.yards
             const attempts = row.original.rushing?.attempts
@@ -338,7 +341,7 @@ export function makePlayerColumns({
         {
           id: 'rtd_g',
           header: 'TD/G',
-          meta: 'Rush touchdowns per game',
+          meta: { group: 'rushing' },
           cell: ({ row }) => {
             const touchdowns = row.original.rushing?.touchdowns
             const player_game_count = row.original.rushing?.player_game_count
@@ -350,7 +353,7 @@ export function makePlayerColumns({
         {
           id: 'brk_pct',
           header: 'BRK%',
-          meta: 'Breakaway percentage',
+          meta: { group: 'rushing' },
           cell: ({ row }) => {
             const val = row.original.rushing?.breakaway_percent ?? '-'
             return <div>{val}</div>
@@ -359,7 +362,7 @@ export function makePlayerColumns({
         {
           id: 'elusiveness',
           header: 'ELUS',
-          meta: 'Elusiveness rating',
+          meta: { group: 'rushing' },
           cell: ({ row }) => {
             const val = row.original.rushing?.elusive_rating ?? '-'
             return <div>{val}</div>
@@ -368,7 +371,7 @@ export function makePlayerColumns({
         {
           id: 'rush_share',
           header: 'RUSH%',
-          meta: 'Rush share',
+          meta: { group: 'rushing' },
           accessorFn: row => row.rushing?.rushing_share ?? 0,
           cell: ({ row }) => {
             const mkt = row.original.rushing?.rushing_share
@@ -379,7 +382,7 @@ export function makePlayerColumns({
         {
           id: 'rtgt_g',
           header: 'TGT/G',
-          meta: 'Targets per game',
+          meta: { group: 'rushing' },
           cell: ({ row }) => {
             const targets = row.original.receiving?.targets
             const player_game_count = row.original.receiving?.player_game_count
@@ -391,7 +394,7 @@ export function makePlayerColumns({
         {
           id: 'rcv_g',
           header: 'RCV/G',
-          meta: 'Receptions per game',
+          meta: { group: 'rushing' },
           cell: ({ row }) => {
             const yards = row.original.receiving?.yards
             const player_game_count = row.original.receiving?.player_game_count
@@ -402,7 +405,7 @@ export function makePlayerColumns({
         {
           id: 'rush_rte_r',
           header: 'RTE%',
-          meta: 'Route rate',
+          meta: { group: 'rushing' },
           cell: ({ row }) => {
             const val = row.original.receiving?.route_rate ?? '-'
             return <div>{val}</div>
@@ -411,7 +414,7 @@ export function makePlayerColumns({
         {
           id: 'tqb_r',
           header: 'TQB%',
-          meta: 'Targeted QB rating',
+          meta: { group: 'rushing' },
           cell: ({ row }) => {
             const val = row.original.receiving?.targeted_qb_rating ?? '-'
             return <div>{val}</div>
@@ -420,7 +423,7 @@ export function makePlayerColumns({
         {
           id: 'rb_target_share',
           header: 'TGT%',
-          meta: 'Target share',
+          meta: { group: 'rushing' },
           cell: ({ row }) => {
             const mkt = row.original.receiving?.rb_target_share
             const val = mkt ? (mkt * 100).toFixed() + '%' : '-'
@@ -430,7 +433,7 @@ export function makePlayerColumns({
         {
           id: 'rush',
           header: 'RUSH',
-          meta: 'Rushing grade',
+          meta: { group: 'rushing' },
           cell: ({ row }) => {
             const val = row.original.rushing?.grades_run ?? '-'
             const letterGrade = getLetterGrade(val)
@@ -448,7 +451,7 @@ export function makePlayerColumns({
         {
           id: 'hands',
           header: 'HANDS',
-          meta: 'Hands grade',
+          meta: { group: 'rushing' },
           cell: ({ row }) => {
             const val = row.original.receiving?.grades_hands_fumble ?? '-'
             const letterGrade = getLetterGrade(val)
@@ -467,11 +470,12 @@ export function makePlayerColumns({
     },
     {
       header: 'Wide Receiver Stats',
+      meta: { group: 'receiving' },
       columns: [
         {
           id: 'tgt_g',
           header: 'TGT/G',
-          meta: 'Targets per game',
+          meta: { group: 'receiving' },
           accessorKey: 'tgt_g',
           cell: ({ row }) => {
             const targets = row.original.receiving?.targets
@@ -484,7 +488,7 @@ export function makePlayerColumns({
         {
           id: 'rec_g',
           header: 'REC/G',
-          meta: 'Receptions per game',
+          meta: { group: 'receiving' },
           accessorKey: 'rec_g',
           cell: ({ row }) => {
             const receptions = row.original.receiving?.receptions
@@ -497,7 +501,7 @@ export function makePlayerColumns({
         {
           id: 'recy_g',
           header: 'YDS/G',
-          meta: 'Receiving yards per game',
+          meta: { group: 'receiving' },
           cell: ({ row }) => {
             const yards = row.original.receiving?.yards
             const player_game_count = row.original.receiving?.player_game_count
@@ -508,7 +512,7 @@ export function makePlayerColumns({
         {
           id: 'recy_a',
           header: 'YDS/A',
-          meta: 'Receiving yards per reception',
+          meta: { group: 'receiving' },
           cell: ({ row }) => {
             const yards = row.original.receiving?.yards
             const receptions = row.original.receiving?.receptions
@@ -519,7 +523,7 @@ export function makePlayerColumns({
         {
           id: 'rectd_g',
           header: 'TD/G',
-          meta: 'Receiving touchdowns per game',
+          meta: { group: 'receiving' },
           cell: ({ row }) => {
             const touchdowns = row.original.receiving?.touchdowns
             const player_game_count = row.original.receiving?.player_game_count
@@ -531,7 +535,7 @@ export function makePlayerColumns({
         {
           id: 'rte_r',
           header: 'RTE%',
-          meta: 'Route rate',
+          meta: { group: 'receiving' },
           cell: ({ row }) => {
             const val = row.original.receiving?.route_rate ?? '-'
             return <div>{val}</div>
@@ -540,7 +544,7 @@ export function makePlayerColumns({
         {
           id: 'rtqb_r',
           header: 'TQB%',
-          meta: 'Targeted QB rating',
+          meta: { group: 'receiving' },
           cell: ({ row }) => {
             const val = row.original.receiving?.targeted_qb_rating ?? '-'
             return <div>{val}</div>
@@ -549,7 +553,7 @@ export function makePlayerColumns({
         {
           id: 'wr_target_share',
           header: 'TGT%',
-          meta: 'Target share',
+          meta: { group: 'receiving' },
           accessorFn: row => row.receiving?.wr_target_share ?? 0,
           cell: ({ getValue }) => {
             const val = getValue<number>()
@@ -559,7 +563,7 @@ export function makePlayerColumns({
         {
           id: 'rhands',
           header: 'HANDS',
-          meta: 'Hands grade',
+          meta: { group: 'receiving' },
           cell: ({ row }) => {
             const val = row.original.receiving?.grades_hands_drop ?? '-'
             const letterGrade = getLetterGrade(val)

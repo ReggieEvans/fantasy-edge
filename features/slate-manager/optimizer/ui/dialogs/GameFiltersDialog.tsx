@@ -16,12 +16,12 @@ export default function GameFiltersDialog({
 }) {
   if (!matchups) return null
   return (
-    <DialogContent>
-      <DialogHeader>
+    <DialogContent className="bg-background-darker p-0 m-0 max-w-[80vw]">
+      <DialogHeader className="border-b border-accent bg-card m-0 px-6 py-5 rounded-t">
         <DialogTitle>Game Filters</DialogTitle>
       </DialogHeader>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 p-6 min-h-[500px]">
         {matchups.map(m => (
           <div key={m.id} className="flex items-center uppercase text-xs my-1">
             <button

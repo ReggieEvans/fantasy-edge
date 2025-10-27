@@ -76,7 +76,8 @@ export function formFromConstraints(c: OptimizerConstraints | undefined): FormSt
     uniquePlayersPerLineup: c?.unique_players_per_lineup ?? 1,
     minSalary: c?.min_salary ?? null,
     maxSalary: c?.max_salary ?? null,
-    globalMaxExposure: c?.global_max_exposure ?? null,
+    globalMaxExposure:
+      c?.global_max_exposure != null ? Math.round(c.global_max_exposure * 100) : null,
     ownershipMin: c?.ownership_avg_min ?? null,
     ownershipMax: c?.ownership_avg_max ?? null,
     randomnessMode: c?.randomness?.mode ?? 'none',
@@ -97,7 +98,8 @@ export function constraintsFromForm(s: FormState): OptimizerConstraints {
     unique_players_per_lineup: s.uniquePlayersPerLineup,
     min_salary: s.minSalary ?? null,
     max_salary: s.maxSalary ?? null,
-    global_max_exposure: s.globalMaxExposure ?? null,
+    global_max_exposure:
+      s.globalMaxExposure == null ? null : clamp(Number(s.globalMaxExposure), 0, 100) / 100,
     ownership_avg_min: s.ownershipMin ?? null,
     ownership_avg_max: s.ownershipMax ?? null,
     randomness: {
@@ -123,3 +125,5 @@ export function useOptimizerForm(initial?: OptimizerConstraints) {
   }, [initial])
   return { state, dispatch }
 }
+
+const clamp = (n: number, min: number, max: number) => Math.min(max, Math.max(min, n))
