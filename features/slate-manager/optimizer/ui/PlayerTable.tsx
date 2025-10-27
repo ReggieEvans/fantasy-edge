@@ -6,9 +6,11 @@ import {
   getCoreRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  OnChangeFn,
   PaginationState,
   SortingState,
   useReactTable,
+  VisibilityState,
 } from '@tanstack/react-table'
 import { ArrowBigLeftDash, ArrowBigRightDash } from 'lucide-react'
 import React from 'react'
@@ -28,7 +30,6 @@ export interface PlayerWithFlags {
   id: string | number
   isExcluded?: boolean
   isLocked?: boolean
-  // add your common row fields if you want (id, name, etc.)
 }
 
 interface DataTableProps<TData extends PlayerWithFlags, TValue> {
@@ -36,10 +37,10 @@ interface DataTableProps<TData extends PlayerWithFlags, TValue> {
   data: TData[]
   isLoading?: boolean
   isFetching?: boolean
-  /** initial page size for client-side pagination */
   initialPageSize?: number
-  /** provide a stable row id to preserve selection/expansion across paging/filters */
   getRowId?: (row: TData, index: number) => string
+  columnVisibility?: VisibilityState
+  onColumnVisibilityChange?: OnChangeFn<VisibilityState>
 }
 
 export default function PlayerTable<TData extends PlayerWithFlags, TValue>({
@@ -49,9 +50,10 @@ export default function PlayerTable<TData extends PlayerWithFlags, TValue>({
   isFetching = true,
   initialPageSize = 50,
   getRowId,
+  columnVisibility,
+  onColumnVisibilityChange,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
-  // remember page size locally
   const [pageSize, setPageSize] = React.useState<number>(() => {
     const stored =
       typeof window !== 'undefined' ? window.localStorage.getItem('playerTable.pageSize') : null
@@ -77,14 +79,15 @@ export default function PlayerTable<TData extends PlayerWithFlags, TValue>({
   const table = useReactTable({
     data,
     columns,
-    state: { pagination, sorting },
+    state: { pagination, sorting, columnVisibility },
     onPaginationChange: setPagination,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(), // Ensure this is included
+    getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     autoResetPageIndex: false,
     getRowId: getRowId ?? (row => String(row.id)),
+    onColumnVisibilityChange,
   })
 
   const rows = table.getPaginationRowModel().rows
@@ -120,26 +123,30 @@ export default function PlayerTable<TData extends PlayerWithFlags, TValue>({
           >
             {table.getHeaderGroups().map(group => (
               <TableRow key={group.id}>
-                {group.headers.map(header => (
-                  <TableHead
-                    key={header.id}
-                    colSpan={header.colSpan}
-                    className="first:sticky first:left-0 first:z-30 first:shadow-[inset_-6px_0_6px_-6px_rgba(0,0,0,0.15)] text-[11px] sticky"
-                  >
-                    {header.isPlaceholder ? null : (
-                      <div
-                        className="flex items-center gap-1 cursor-pointer select-none"
-                        onClick={header.column.getToggleSortingHandler()}
-                      >
-                        {flexRender(header.column.columnDef.header, header.getContext())}
-                        {{
-                          asc: ' 🔼',
-                          desc: ' 🔽',
-                        }[header.column.getIsSorted() as string] ?? null}
-                      </div>
-                    )}
-                  </TableHead>
-                ))}
+                {group.headers.map(header => {
+                  const meta = header.column.columnDef.meta as { tooltip?: string } | undefined
+                  return (
+                    <TableHead
+                      key={header.id}
+                      title={meta?.tooltip ?? ''}
+                      colSpan={header.colSpan}
+                      className="first:sticky first:left-0 first:z-30 first:shadow-[inset_-6px_0_6px_-6px_rgba(0,0,0,0.15)] text-[11px] sticky"
+                    >
+                      {header.isPlaceholder ? null : (
+                        <div
+                          className="flex items-center gap-1 cursor-pointer select-none"
+                          onClick={header.column.getToggleSortingHandler()}
+                        >
+                          {flexRender(header.column.columnDef.header, header.getContext())}
+                          {{
+                            asc: ' 🔼',
+                            desc: ' 🔽',
+                          }[header.column.getIsSorted() as string] ?? null}
+                        </div>
+                      )}
+                    </TableHead>
+                  )
+                })}
               </TableRow>
             ))}
           </TableHeader>

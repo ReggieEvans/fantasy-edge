@@ -1,41 +1,50 @@
-interface ColorConfig {
-  thresholds: number[]
+type ColorConfig = {
+  thresholds: number[] // e.g. [104, 78, 52, 26]
   colors: {
-    positive: string[]
+    positive: string[] // same or fewer buckets than thresholds (excess thresholds collapse to last color)
     neutral: string
-    negative: string[]
+    negative: string[] // same note as positive
   }
-  isReversed?: boolean
+  isReversed?: boolean // negative numbers are “good”
 }
 
-export const getColorByValue = (value: number | '-', config: ColorConfig) => {
-  if (value === '-') return 'bg-grade-neutral'
+type ColorOverrides = Partial<Pick<ColorConfig, 'thresholds' | 'isReversed' | 'colors'>>
 
-  const { thresholds, colors, isReversed = false } = config
+const sortDesc = (arr: number[]) => [...arr].sort((a, b) => b - a)
 
-  // Sort thresholds in descending order
-  const sortedThresholds = [...thresholds].sort((a, b) => b - a)
+// Returns a safe index color from an array (clamps to last)
+const pick = (arr: string[], idx: number) =>
+  arr[Math.min(idx, arr.length - 1)] ?? arr[arr.length - 1]
 
-  // If reversed, negative numbers are good (like in defense stats)
-  const normalizedValue = isReversed ? -value : value
+export const getColorByValue = (
+  value: number | '-',
+  config: ColorConfig,
+  overrides?: ColorOverrides,
+): string => {
+  if (value === '-') return config.colors.neutral
 
-  if (normalizedValue === 0) return colors.neutral
+  // Apply overrides if provided; otherwise use config defaults
+  const thresholds = sortDesc(overrides?.thresholds ?? config.thresholds)
+  const isReversed = overrides?.isReversed ?? config.isReversed ?? false
+  const colors = overrides?.colors ?? config.colors
 
-  if (normalizedValue > 0) {
-    for (let i = 0; i < sortedThresholds.length; i++) {
-      if (normalizedValue > sortedThresholds[i]) {
-        return colors.positive[i]
-      }
-    }
-    return colors.positive[colors.positive.length - 1]
+  const v = isReversed ? -value : value
+  if (v === 0) return colors.neutral
+
+  // Choose bucket index by counting how many thresholds the value exceeds
+  const countExceeds = (n: number) => {
+    let i = 0
+    for (; i < thresholds.length; i++) if (n > thresholds[i]) break
+    return i
   }
 
-  for (let i = 0; i < sortedThresholds.length; i++) {
-    if (-normalizedValue > sortedThresholds[i]) {
-      return colors.negative[i]
-    }
+  if (v > 0) {
+    const idx = countExceeds(v) // 0 = top bucket
+    return pick(colors.positive, idx)
+  } else {
+    const idx = countExceeds(-v)
+    return pick(colors.negative, idx)
   }
-  return colors.negative[colors.negative.length - 1]
 }
 
 // Predefined configurations for different scenarios
@@ -116,5 +125,20 @@ export const projValueConfig: ColorConfig = {
     ],
     neutral: 'bg-grade-neutral', // Non-applicable
     negative: ['bg-grade-9-muted', 'bg-grade-7-muted', 'bg-grade-6-muted', 'bg-grade-neutral'], // Non-applicable
+  },
+}
+
+export const basicConfig: ColorConfig = {
+  thresholds: [25, 20, 15, 11],
+  colors: {
+    positive: [
+      'bg-cyan-800/60 text-foreground border border-cyan-700',
+      'bg-green-800/60 text-foreground border border-green-700',
+      'bg-orange-800/60 text-foreground border border-orange-700',
+      'bg-red-800/60 text-foreground border border-red-700',
+      'bg-transparent text-foreground',
+    ],
+    neutral: 'bg-grade-neutral',
+    negative: ['bg-grade-9-muted', 'bg-grade-7-muted', 'bg-grade-6-muted', 'bg-grade-neutral'],
   },
 }

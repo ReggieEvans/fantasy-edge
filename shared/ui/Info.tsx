@@ -8,7 +8,7 @@ export function Info(props: { title: string; content: string }) {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="ghost">
+        <Button variant="ghost" className="py-0 hover:bg-transparent hover:text-accent">
           <InfoIcon className="w-3 h-3" />
         </Button>
       </PopoverTrigger>

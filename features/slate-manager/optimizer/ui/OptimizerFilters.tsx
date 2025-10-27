@@ -12,10 +12,12 @@ export default function OptimizerFilters({
   slate,
   positionsArray,
   excludedCount,
+  lockedCount,
 }: {
   slate: Slate | undefined
   positionsArray: string[] | undefined
   excludedCount: number
+  lockedCount: number
 }) {
   const dispatch = useAppDispatch()
   const position = useAppSelector(s => s.optimizerFilters.position)
@@ -41,11 +43,11 @@ export default function OptimizerFilters({
             dispatch(setPosition((val as Position) || 'all' || 'cpt' || 'flex'))
           }
         >
-          <ToggleGroupItem value="all" aria-label="Toggle bold" className="text-xs">
+          <ToggleGroupItem value="all" aria-label="Toggle bold" className="text-xs rounded">
             ALL
           </ToggleGroupItem>
           {slateType === 'Showdown' && (
-            <ToggleGroupItem value="CPT" aria-label="Toggle bold" className="text-xs">
+            <ToggleGroupItem value="CPT" aria-label="Toggle bold" className="text-xs rounded">
               CPT
             </ToggleGroupItem>
           )}
@@ -54,40 +56,51 @@ export default function OptimizerFilters({
               key={position}
               value={position}
               aria-label={`Toggle ${position}`}
-              className="text-xs"
+              className="text-xs rounded"
             >
               {position}
             </ToggleGroupItem>
           ))}
           {slateType === 'Showdown' && (
-            <ToggleGroupItem value="FLEX" aria-label="Toggle bold" className="text-xs">
+            <ToggleGroupItem value="FLEX" aria-label="Toggle bold" className="text-xs rounded">
               FLEX
             </ToggleGroupItem>
           )}
         </ToggleGroup>
       </div>
       <div>
-        <Button variant="outline" className="text-xs">
+        <Button
+          variant="outline"
+          className="text-xs rounded disabled:opacity-80 disabled:cursor-not-allowed hover:cursor-not-allowed disabled:bg-gray-500/10 disabled:text-gray-500"
+          disabled={true}
+        >
           Lock Targets
         </Button>
       </div>
       <div>
-        <Button variant="outline" className="text-xs">
+        <Button
+          variant="outline"
+          className="text-xs disabled:opacity-80 rounded disabled:cursor-not-allowed hover:cursor-not-allowed disabled:bg-gray-500/10 disabled:text-gray-500"
+          disabled={true}
+        >
           Exclude Non-Targets
         </Button>
       </div>
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-1">
           <Label className="text-xs px-1 text-muted">Locks</Label>
-          <Badge variant="outline" className="bg-background-darker">
-            0
+          <Badge
+            variant="outline"
+            className={` ${lockedCount > 0 ? 'bg-accent text-accent-foreground' : 'bg-background-darker rounded'}`}
+          >
+            {lockedCount}
           </Badge>
         </div>
         <div className="flex items-center gap-1">
           <Label className="text-xs px-1 text-muted">Excluded</Label>
           <Badge
             variant="outline"
-            className={` ${excludedCount > 0 ? 'bg-destructive' : 'bg-background-darker'}`}
+            className={` ${excludedCount > 0 ? 'bg-destructive' : 'bg-background-darker rounded'}`}
           >
             {excludedCount}
           </Badge>

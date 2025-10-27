@@ -1,10 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import { Cog } from 'lucide-react'
+import { ColumnDef, VisibilityState } from '@tanstack/react-table'
+import { Cog, Loader } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useSelector } from 'react-redux'
 
+import { Skeleton } from '@/components/ui/skeleton'
+import { RootState } from '@/store'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { GameType } from '@/types/gameType'
 import { Sport } from '@/types/sport'
@@ -15,6 +19,7 @@ import { useGetSlateQuery } from '../../_api/slates.api'
 import { Slate } from '../../_types/slate'
 import { useGetSlatePackQuery } from '../api/optimizer.api'
 import { exportLineupsToCsv } from '../helpers/exportLineupsToCsv'
+import { mapLockedForOptimizer } from '../helpers/mapLockedForOptimizer'
 import {
   excludePlayer,
   includePlayer,
@@ -25,6 +30,7 @@ import {
 import {
   makeSelectEligiblePlayers,
   makeSelectExcludedPlayerCount,
+  makeSelectLockedPlayerCount,
   makeSelectVisiblePlayers,
 } from '../model/selectors'
 import { ExportLineup, Slot } from '../types'
@@ -86,18 +92,56 @@ const isCaptain = (p: unknown): boolean =>
 
 const isDst = (p: unknown): boolean => (p as { position?: string }).position === 'DST'
 
+// POS -> which column groups should be visible
+function groupsForPos(pos: string, showdown: boolean) {
+  const p = (pos ?? 'ALL').toUpperCase()
+  return {
+    core: true, // always on (name/team/salary/etc)
+    passing: p === 'QB' || p === 'ALL',
+    rushing: p === 'RB' || p === 'ALL',
+    receiving: p === 'WR' || p === 'TE' || p === 'ALL',
+    // If you ever add showdown-only columns:
+    showdown: showdown && (p === 'ALL' || p === 'CPT' || p === 'FLEX'),
+  }
+}
+
+/** Compute a VisibilityState from column meta tags. Supports `meta.group` (string) or `meta.groups` (string[]). */
+function computeVisibility(
+  columns: ColumnDef<any, any>[],
+  allowed: Record<string, boolean>,
+): VisibilityState {
+  const vis: VisibilityState = {}
+
+  const walk = (cols: ColumnDef<any, any>[]) => {
+    for (const c of cols) {
+      const anyC = c as any
+      if (anyC.columns) {
+        walk(anyC.columns) // header groups
+      } else {
+        const id = c.id as string | undefined
+        if (!id) continue
+        const meta = (c.meta ?? {}) as { group?: string; groups?: string[] }
+        const tags = meta.groups ?? (meta.group ? [meta.group] : ['core'])
+        const show = tags.some(t => allowed[t] !== false)
+        vis[id] = show
+      }
+    }
+  }
+
+  walk(columns)
+  return vis
+}
+
 /* =========================
    Component
 ========================= */
 export default function OptimizerPage() {
   const { id } = useParams() as { id: string }
 
-  // Slate (needed for sport + game_type)
-  const { data: slate } = useGetSlateQuery(id)
+  const { data: slate, isLoading: slateLoading, isFetching: slateFetching } = useGetSlateQuery(id)
 
   const lineupsRef = useRef<HTMLDivElement | null>(null)
 
-  // Slate pack (players/matchups) keyed by slate/game type
   const {
     data: slatePack = { players: [], matchups: [], positionsArray: [] },
     isLoading: slatePackLoading,
@@ -205,11 +249,41 @@ export default function OptimizerPage() {
     [onToggleExclude, onToggleLock, onExcludePlayersSubsetCb, isAllExcluded],
   )
 
-  const selectCount = useMemo(
+  // after `playerColumns` useMemo
+  const showdown = isShowdownMode(slate?.game_type)
+
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+
+  function shallowEqualVisibility(a: VisibilityState, b: VisibilityState) {
+    const aKeys = Object.keys(a)
+    const bKeys = Object.keys(b)
+    if (aKeys.length !== bKeys.length) return false
+    for (const k of aKeys) if (a[k] !== b[k]) return false
+    return true
+  }
+
+  useEffect(() => {
+    const allowed = groupsForPos(position, showdown)
+    setColumnVisibility(prev => {
+      const next = computeVisibility(playerColumns as any[], allowed)
+      return shallowEqualVisibility(prev, next) ? prev : next
+    })
+  }, [playerColumns, position, showdown])
+
+  const selectExcludedCount = useMemo(
     () => makeSelectExcludedPlayerCount(id, slate?.game_type ?? ''),
     [id, slate?.game_type],
   )
-  const excludedCount = useAppSelector(selectCount)
+
+  const selectLockedCount = useMemo(
+    () => makeSelectLockedPlayerCount(id, slate?.game_type ?? ''),
+    [id, slate?.game_type],
+  )
+
+  const excludedCount = useAppSelector(selectExcludedCount)
+  const lockedCount = useAppSelector(selectLockedCount)
+
+  const lockedPlayerIds = useSelector((s: RootState) => s.optimizerPool.lockedPlayerIds)
 
   const onGenerateLineups = useCallback(
     async (lineups: number): Promise<void> => {
@@ -238,11 +312,18 @@ export default function OptimizerPage() {
       try {
         setBusy(true)
 
+        const { lockedPlayer } = mapLockedForOptimizer(lockedPlayerIds, eligiblePlayers)
+
+        const constraintsOut = {
+          ...constraints,
+          locks: lockedPlayer,
+        }
+
         const form = new FormData()
         form.append('sport', slate.sport)
         form.append('mode', slateType.toLowerCase())
         form.append('n_lineups', String(lineups))
-        form.append('constraints_json', JSON.stringify(constraints))
+        form.append('constraints_json', JSON.stringify(constraintsOut))
         form.append('file', csvFile, 'draftkings_players.csv')
 
         const res = await fetch(`${process.env.NEXT_PUBLIC_PYTHON_URL}/optimize_upload`, {
@@ -265,7 +346,7 @@ export default function OptimizerPage() {
         setBusy(false)
       }
     },
-    [constraints, eligiblePlayers, slate, slatePack.matchups],
+    [constraints, eligiblePlayers, slate, slatePack.matchups, lockedPlayerIds],
   )
 
   /* =========================
@@ -390,18 +471,38 @@ export default function OptimizerPage() {
             slate={slate as Slate | undefined}
             positionsArray={slatePack.positionsArray}
             excludedCount={excludedCount}
+            lockedCount={lockedCount}
           />
         </OptimizerErrorBoundary>
 
         <OptimizerErrorBoundary>
-          <PlayerTable
-            columns={playerColumns as any}
-            data={tableRows}
-            isLoading={slatePackLoading}
-            isFetching={slatePackFetching}
-            initialPageSize={100}
-            getRowId={p => String((p as { id: string | number }).id)}
-          />
+          {slatePackLoading || slatePackFetching || slateLoading || slateFetching ? (
+            <div className="flex flex-col gap-1 justify-center items-center h-full">
+              <Skeleton className="h-10 w-full animate-pulse rounded bg-card" />
+              <Skeleton className="h-8 w-full animate-pulse rounded bg-card" />
+              <Skeleton className="h-[800px] w-full animate-pulse rounded bg-card">
+                <div className="flex flex-col gap-1 justify-center items-center h-full p-4">
+                  <span>
+                    <Loader className="w-6 h-6 animate-spin text-accent" />
+                  </span>
+                  <p className="text-muted uppercase font-black text-sm mt-2">
+                    Loading player table...
+                  </p>
+                </div>
+              </Skeleton>
+            </div>
+          ) : (
+            <PlayerTable
+              columns={playerColumns as any}
+              data={tableRows}
+              isLoading={slatePackLoading}
+              isFetching={slatePackFetching}
+              initialPageSize={100}
+              getRowId={p => String((p as { id: string | number }).id)}
+              columnVisibility={columnVisibility}
+              onColumnVisibilityChange={setColumnVisibility}
+            />
+          )}
         </OptimizerErrorBoundary>
 
         <OptimizerErrorBoundary>

@@ -40,7 +40,7 @@ export default function OptimizerOptions({
     <div className="text-sm rounded-t bg-background-secondary">
       <ul className="flex border-b-2 border-background">
         <li
-          className="flex items-center justify-center gap-2 w-48 py-3 border-r-2 border-background text-center text-xs uppercase font-bold hover:bg-background-darker hover:cursor-pointer transition-all"
+          className="flex items-center justify-center gap-2 w-56 py-3 border-r-2 border-background text-center text-xs uppercase font-bold hover:bg-background-darker hover:cursor-pointer hover:text-accent transition-all"
           onClick={() => setOpenDialog('game-filters')}
         >
           <span>Game Filters</span>
@@ -52,7 +52,7 @@ export default function OptimizerOptions({
           </Badge>
         </li>
         <li
-          className="flex items-center justify-center gap-2 w-48 py-3 border-r-2 border-background text-center text-xs uppercase font-bold hover:bg-background-darker hover:cursor-pointer transition-all"
+          className="flex items-center justify-center gap-2 w-56 py-3 border-r-2 border-background text-center text-xs uppercase font-bold hover:bg-background-darker hover:cursor-pointer hover:text-accent transition-all"
           onClick={() => setOpenDialog('advanced-options')}
         >
           <span>Advanced Options</span>
@@ -61,7 +61,7 @@ export default function OptimizerOptions({
           </Badge>
         </li>
         <li
-          className="flex items-center justify-center gap-2 w-48 py-3 border-r-2 border-background text-center text-xs uppercase font-bold hover:bg-background-darker hover:cursor-pointer transition-all"
+          className="flex items-center justify-center gap-2 w-56 py-3 border-r-2 border-background text-center text-xs uppercase font-bold hover:bg-background-darker hover:cursor-pointer hover:text-accent transition-all"
           onClick={() => setOpenDialog('upload-projections')}
         >
           <span>Upload Projections</span>
@@ -74,13 +74,13 @@ export default function OptimizerOptions({
           </Badge>
         </li>
         <li
-          className="w-48 py-3 border-r-2 border-background text-center text-xs uppercase font-bold hover:bg-background-darker hover:cursor-pointer transition-all"
+          className="flex items-center justify-center gap-2 w-56 py-3 border-r-2 border-background text-center text-xs uppercase font-bold hover:bg-background-darker hover:cursor-pointer hover:text-accent transition-all"
           onClick={() => setOpenDialog('contest-data')}
         >
           Contest Data
         </li>
         <li
-          className="w-48 py-3 border-r-2 border-background text-center text-xs uppercase font-bold hover:bg-background-darker hover:cursor-pointer transition-all"
+          className="flex items-center justify-center gap-2 w-56 py-3 border-r-2 border-background text-center text-xs uppercase font-bold hover:bg-background-darker hover:cursor-pointer hover:text-accent transition-all"
           onClick={() => setOpenDialog('player-pool')}
         >
           Player Pool
@@ -96,7 +96,11 @@ export default function OptimizerOptions({
           />
         )}
         {openDialog === 'advanced-options' && (
-          <AdvancedOptionsDialog matchups={matchups} excludedTeamIds={excludedTeamIds} />
+          <AdvancedOptionsDialog
+            matchups={matchups}
+            excludedTeamIds={excludedTeamIds}
+            close={() => setOpenDialog(null)}
+          />
         )}
         {openDialog === 'upload-projections' && <UploadProjectionsDialog />}
         {openDialog === 'contest-data' && <ContestDataDialog />}

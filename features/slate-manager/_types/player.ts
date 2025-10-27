@@ -24,6 +24,8 @@ export interface Player {
   player_image: string
   showdown_position: string
   team_abbr: string | null
+  game_total: number | null
+  team_total: number | null
 }
 
 export interface TeamRoster {

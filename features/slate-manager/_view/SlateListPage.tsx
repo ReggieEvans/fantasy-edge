@@ -77,7 +77,7 @@ export default function SlateListPage() {
         onAddProjections={onAddProjections}
       />
 
-      {filteredSlates.length === 0 && (
+      {filteredSlates.length === 0 && !isLoading && (
         <NoData
           title="No slates found."
           description="You currently have no slates. Click “Add Slate” above to create one."
