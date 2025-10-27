@@ -2,6 +2,7 @@ import { CircleX, Lock, Square, Unlock } from 'lucide-react'
 import { memo } from 'react'
 
 import { getColorByValue, projValueConfig } from '@/shared/utils/colorCoding'
+import { cn } from '@/utils/cn'
 
 import { Player } from '../../_types/player'
 
@@ -64,7 +65,21 @@ LockCell.displayName = 'LockCell'
 
 export const PlayerNameCell = memo(({ player }: Pick<PlayerCellProps, 'player'>) => {
   const name = player.first_name + ' ' + player.last_name
-  return <div className="text-left">{name ?? '-'}</div>
+  const status = player.status
+  return (
+    <div className="text-left">
+      {name ?? '-'}{' '}
+      {status ? (
+        <span
+          className={cn(
+            status === 'None' ? '' : 'ml-2 text-xs bg-destructive rounded-sm px-2 py-0.5 font-bold',
+          )}
+        >
+          {status === 'None' ? null : status}
+        </span>
+      ) : null}
+    </div>
+  )
 })
 
 PlayerNameCell.displayName = 'PlayerNameCell'

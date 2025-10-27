@@ -123,26 +123,30 @@ export default function PlayerTable<TData extends PlayerWithFlags, TValue>({
           >
             {table.getHeaderGroups().map(group => (
               <TableRow key={group.id}>
-                {group.headers.map(header => (
-                  <TableHead
-                    key={header.id}
-                    colSpan={header.colSpan}
-                    className="first:sticky first:left-0 first:z-30 first:shadow-[inset_-6px_0_6px_-6px_rgba(0,0,0,0.15)] text-[11px] sticky"
-                  >
-                    {header.isPlaceholder ? null : (
-                      <div
-                        className="flex items-center gap-1 cursor-pointer select-none"
-                        onClick={header.column.getToggleSortingHandler()}
-                      >
-                        {flexRender(header.column.columnDef.header, header.getContext())}
-                        {{
-                          asc: ' 🔼',
-                          desc: ' 🔽',
-                        }[header.column.getIsSorted() as string] ?? null}
-                      </div>
-                    )}
-                  </TableHead>
-                ))}
+                {group.headers.map(header => {
+                  const meta = header.column.columnDef.meta as { tooltip?: string } | undefined
+                  return (
+                    <TableHead
+                      key={header.id}
+                      title={meta?.tooltip ?? ''}
+                      colSpan={header.colSpan}
+                      className="first:sticky first:left-0 first:z-30 first:shadow-[inset_-6px_0_6px_-6px_rgba(0,0,0,0.15)] text-[11px] sticky"
+                    >
+                      {header.isPlaceholder ? null : (
+                        <div
+                          className="flex items-center gap-1 cursor-pointer select-none"
+                          onClick={header.column.getToggleSortingHandler()}
+                        >
+                          {flexRender(header.column.columnDef.header, header.getContext())}
+                          {{
+                            asc: ' 🔼',
+                            desc: ' 🔽',
+                          }[header.column.getIsSorted() as string] ?? null}
+                        </div>
+                      )}
+                    </TableHead>
+                  )
+                })}
               </TableRow>
             ))}
           </TableHeader>

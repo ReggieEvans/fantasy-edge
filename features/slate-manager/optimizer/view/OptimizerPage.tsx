@@ -95,7 +95,6 @@ const isDst = (p: unknown): boolean => (p as { position?: string }).position ===
 // POS -> which column groups should be visible
 function groupsForPos(pos: string, showdown: boolean) {
   const p = (pos ?? 'ALL').toUpperCase()
-  console.log('p', p)
   return {
     core: true, // always on (name/team/salary/etc)
     passing: p === 'QB' || p === 'ALL',
@@ -156,7 +155,6 @@ export default function OptimizerPage() {
       pollingInterval: 0,
     },
   )
-  console.log('slatePack', slatePack)
 
   const [isBusy, setBusy] = useState(false)
   const [isExporting, setExporting] = useState(false)
@@ -256,10 +254,20 @@ export default function OptimizerPage() {
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
 
-  // Recompute when columns or POS change
+  function shallowEqualVisibility(a: VisibilityState, b: VisibilityState) {
+    const aKeys = Object.keys(a)
+    const bKeys = Object.keys(b)
+    if (aKeys.length !== bKeys.length) return false
+    for (const k of aKeys) if (a[k] !== b[k]) return false
+    return true
+  }
+
   useEffect(() => {
     const allowed = groupsForPos(position, showdown)
-    setColumnVisibility(computeVisibility(playerColumns as any[], allowed))
+    setColumnVisibility(prev => {
+      const next = computeVisibility(playerColumns as any[], allowed)
+      return shallowEqualVisibility(prev, next) ? prev : next
+    })
   }, [playerColumns, position, showdown])
 
   const selectExcludedCount = useMemo(

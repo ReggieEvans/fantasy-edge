@@ -3,6 +3,7 @@ import { createSelector } from '@reduxjs/toolkit'
 
 import type { RootState } from '@/store'
 
+import { Matchup } from '../../matchups/types/matchup'
 import { optimizerApi } from '../api/optimizer.api'
 
 /* =========================
@@ -95,11 +96,16 @@ const selectOptimizerFilters = (s: RootState): OptimizerFiltersState =>
 // Stable empty singletons for defaults
 const EMPTY_IDS = Object.freeze([]) as readonly (string | number)[]
 const EMPTY_PLAYERS = Object.freeze([]) as readonly PackPlayer[]
-
+const EMPTY_MATCHUPS = Object.freeze([]) as readonly Matchup[]
 /** Get just the players array with a stable fallback (NO wrapper object). */
 const selectSlatePlayers = (slateId: string, gameType: string) => {
   const base = optimizerApi.endpoints.getSlatePack.select({ id: slateId, gameType })
   return (state: RootState): readonly PackPlayer[] => base(state)?.data?.players ?? EMPTY_PLAYERS
+}
+
+const selectSlateMatchups = (slateId: string, gameType: string) => {
+  const base = optimizerApi.endpoints.getSlatePack.select({ id: slateId, gameType })
+  return (s: RootState): readonly Matchup[] => base(s)?.data?.matchups ?? EMPTY_MATCHUPS
 }
 
 /** Pull arrays directly off the slice; default to stable singletons. */
@@ -113,16 +119,40 @@ const selectLockedPlayerIds = (s: RootState) =>
   (s as RootState & { optimizerPool: OptimizerPoolState }).optimizerPool.lockedPlayerIds ??
   EMPTY_IDS
 
+const up = (v: unknown) => (v ?? '').toString().toUpperCase()
+
 /** Server list + pool flags → rows with { id, isExcluded, isLocked }. */
 export const selectPlayersWithFlags = (slateId: string, gameType: string) =>
   createSelector(
     [
       selectSlatePlayers(slateId, gameType), // players[]
+      selectSlateMatchups(slateId, gameType),
       selectExcludedTeamIds, // ids[]
       selectExcludedPlayerIds, // ids[]
       selectLockedPlayerIds, // ids[]
     ],
-    (list, excludedTeamIds, excludedPlayerIds, lockedPlayerIds) => {
+    (list, matchups, excludedTeamIds, excludedPlayerIds, lockedPlayerIds) => {
+      const totalsByKey: Record<string, { game_total: number | null; team_total: number | null }> =
+        Object.create(null)
+
+      for (const m of matchups) {
+        const g = m.game_total ?? null
+        const hKeyId = m.home_team_id != null ? String(m.home_team_id) : ''
+        const aKeyId = m.away_team_id != null ? String(m.away_team_id) : ''
+        const hKeyAb = up(m.home_team_abbr)
+        const aKeyAb = up(m.away_team_abbr)
+
+        const set = (k: string, teamTotal: number | null) => {
+          if (!k) return
+          totalsByKey[k] = { game_total: g, team_total: teamTotal }
+        }
+
+        set(hKeyId, m.home_team_total ?? null)
+        set(aKeyId, m.away_team_total ?? null)
+        set(hKeyAb, m.home_team_total ?? null)
+        set(aKeyAb, m.away_team_total ?? null)
+      }
+
       // Build Sets inside the result function (this is memoized)
       const excludedTeams = new Set(excludedTeamIds.map(String))
       const excludedPlayers = new Set(excludedPlayerIds.map(String))
@@ -131,14 +161,23 @@ export const selectPlayersWithFlags = (slateId: string, gameType: string) =>
       const rows: PlayerRow[] = (list as PackPlayer[]).map(p => {
         const id = rowId(p)
         const teamId = p.team_id != null ? String(p.team_id) : ''
+        const teamAb = up(p.team)
+        const k = teamId || teamAb
+        const totals = k ? totalsByKey[k] : undefined
         const isExcluded =
           (teamId && excludedTeams.has(teamId)) ||
           excludedPlayers.has(String(p.id ?? '')) ||
           excludedPlayers.has(id)
 
         const isLocked = lockedPlayers.has(String(p.id ?? '')) || lockedPlayers.has(id)
-
-        return { ...p, id, isExcluded, isLocked }
+        return {
+          ...p,
+          id,
+          isExcluded,
+          isLocked,
+          game_total: totals?.game_total ?? null,
+          team_total: totals?.team_total ?? null,
+        }
       })
 
       return rows

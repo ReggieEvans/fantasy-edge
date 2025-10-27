@@ -117,9 +117,15 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: 
     }
 
     // 5) Build lookup maps
-    const passingStats = new Map(passingSummary.map(stat => [normalizeName(stat.player), stat]))
-    const rushingStats = new Map(rushingSummary.map(stat => [normalizeName(stat.player), stat]))
-    const receivingStats = new Map(receivingSummary.map(stat => [normalizeName(stat.player), stat]))
+    const passingStats = new Map(
+      passingSummary.map(stat => [normalizeName(stripSuffix(stat.player)), stat]),
+    )
+    const rushingStats = new Map(
+      rushingSummary.map(stat => [normalizeName(stripSuffix(stat.player)), stat]),
+    )
+    const receivingStats = new Map(
+      receivingSummary.map(stat => [normalizeName(stripSuffix(stat.player)), stat]),
+    )
 
     const toTeamMap = <T extends { team_id: string }>(rows: T[] = []) =>
       new Map(rows.map(r => [String(r.team_id), r]))
@@ -235,8 +241,15 @@ function normalizeName(name: string) {
   return name.toLowerCase().replace(/[^a-z]/g, '')
 }
 
+// remove common generational suffixes from the END of the last name
+const SUFFIX_RE = /\b(jr|sr|ii|iii|iv|v|vi|vii)\b\.?$/i
+function stripSuffix(last: string) {
+  return (last || '').replace(/\./g, '').replace(SUFFIX_RE, '').trim()
+}
+
+// ⬇️ just replace your current fullName() with this:
 function fullName(player: { first_name: string; last_name: string }) {
-  return normalizeName(`${player.first_name}${player.last_name}`)
+  return normalizeName(`${player.first_name} ${stripSuffix(player.last_name)}`)
 }
 
 function enrichPlayers(
