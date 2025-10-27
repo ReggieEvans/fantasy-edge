@@ -97,21 +97,30 @@ export default function LoginForm() {
       description: `Logged in as ${profile?.display_name ?? user.email}`,
     })
 
-    router.push('/dashboard')
+    router.push('/')
     setLoading(false)
   }
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full max-w-md bg-background border-none">
       <CardHeader>
-        <CardTitle className="text-center text-2xl">Welcome Back</CardTitle>
+        <CardTitle className="text-center text-xl">Welcome Back</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <Input placeholder="Email" {...register('email')} />
+          <Input
+            placeholder="Email"
+            {...register('email')}
+            className="bg-background-darker border border-muted-bg"
+          />
           {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
 
-          <Input type="password" placeholder="Password" {...register('password')} />
+          <Input
+            type="password"
+            placeholder="Password"
+            {...register('password')}
+            className="bg-background-darker border border-muted-bg"
+          />
           {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
 
           <button type="submit" className="btn-accent w-full" disabled={loading}>

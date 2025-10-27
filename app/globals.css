@@ -8,7 +8,8 @@
     --background-secondary: #1e202f;
     --background-darker: #0d0d18;
     --foreground: #e6e6ee;
-    --muted: #75787f;
+    --muted: #a0a2b8;
+    --muted-bg: #353644;
     --card: #27283a;
     --card-foreground: #e6e6ee;
     /* --popover: #242424;
@@ -17,7 +18,7 @@
     --accent-foreground: #0d0d15;
     --accent-gradient-1: #f7bf48;
     --accent-gradient-2: #ffe95c;
-    --border: #2e2e2e;
+    --border: #1e202f;
     --input: #2e2e2e;
     --destructive: #c3423f;
   }
@@ -26,7 +27,8 @@
     --background-secondary: #1e202f;
     --background-darker: #0d0d18;
     --foreground: #e6e6ee;
-    --muted: #75787f;
+    --muted: #a0a2b8;
+    --muted-bg: #353644;
     --card: #27283a;
     --card-foreground: #e6e6ee;
     /* --popover: #242424;
@@ -35,7 +37,7 @@
     --accent-foreground: #0d0d15;
     --accent-gradient-1: #f7bf48;
     --accent-gradient-2: #ffe95c;
-    --border: #2e2e2e;
+    --border: #0d0d18;
     --input: #2e2e2e;
     --destructive: #c3423f;
   }
@@ -46,21 +48,50 @@
     @apply font-sans border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background-darker text-foreground;
   }
 }
 
 @layer components {
   .btn-accent {
-    @apply bg-gradient-to-br from-accent-gradient-1 to-accent-gradient-2 text-sm text-accent-foreground font-semibold py-2 px-8 rounded transition-all duration-300;
+    @apply bg-gradient-to-br from-accent-gradient-1 to-accent-gradient-2 text-sm text-accent-foreground font-bold py-2 px-8 rounded transition-all duration-300;
   }
 
   .btn-accent:hover {
     @apply brightness-90;
+  }
+
+  .bg-accent {
+    @apply bg-gradient-to-br from-accent-gradient-1 to-accent-gradient-2 text-accent-foreground;
   }
 }
 
 
 .data-\[state\=open\]\:text-accent-foreground[data-state="open"] {
   color: white !important;
+}
+
+
+::-webkit-scrollbar {
+  width: 8px;
+  /* width of vertical scrollbar */
+  height: 8px;
+  /* height of horizontal scrollbar */
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background-darker);
+  /* background of track */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #3a3b50;
+  /* color of the thumb */
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--background-darker);
 }

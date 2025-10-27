@@ -7,7 +7,18 @@ export default {
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx,css}',
+    './utils/**/*.{js,ts,jsx,tsx,mdx,css}',
+    './shared/**/*.{js,ts,jsx,tsx,mdx,css}',
+    './features/**/*.{js,ts,jsx,tsx,mdx,css}',
   ],
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'a.espncdn.com',
+      },
+    ],
+  },
   theme: {
     extend: {
       fontFamily: {
@@ -38,6 +49,7 @@ export default {
         },
         muted: {
           DEFAULT: 'var(--muted)',
+          bg: 'var(--muted-bg)',
         },
         border: 'var(--border)',
         input: 'var(--input)',
@@ -71,11 +83,16 @@ export default {
             height: '0',
           },
         },
+        pulse: {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.5' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'pulse-slow': 'pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
     },
   },

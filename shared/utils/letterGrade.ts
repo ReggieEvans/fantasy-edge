@@ -1,0 +1,17 @@
+export function getLetterGrade(value: number | '-'): string {
+  if (value === '-') return '-'
+  if (value >= 95) return 'A+'
+  if (value >= 90) return 'A'
+  if (value >= 85) return 'A-'
+  if (value >= 87) return 'B+'
+  if (value >= 83) return 'B'
+  if (value >= 80) return 'B-'
+  if (value >= 75) return 'C+'
+  if (value >= 70) return 'C'
+  if (value >= 65) return 'C-'
+  if (value >= 60) return 'D+'
+  if (value >= 55) return 'D'
+  if (value >= 50) return 'D-'
+  if (value < 40) return 'F'
+  return '-'
+}

@@ -1,23 +1,22 @@
-import { createApi, fakeBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react'
 
-import { createClient } from "@/libs/supabase/client";
+import { createClient } from '@/libs/supabase/client'
 
 export const profileApi = createApi({
-  reducerPath: "profileApi",
+  reducerPath: 'profileApi',
   baseQuery: fakeBaseQuery(),
-  endpoints: (builder) => ({
+  endpoints: builder => ({
     getUserProfile: builder.query({
       queryFn: async () => {
-        const supabase = createClient();
+        const supabase = createClient()
         const {
           data: { session },
-        } = await supabase.auth.getSession();
+        } = await supabase.auth.getSession()
 
         if (!session?.access_token) {
-          return { error: { message: "No access token" } };
+          return { error: { message: 'No access token' } }
         }
 
-        // Make a direct fetch with the token manually added
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/profiles?select=*&id=eq.${session.user.id}`,
           {
@@ -26,17 +25,17 @@ export const profileApi = createApi({
               apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
             },
           },
-        );
+        )
 
         if (!res.ok) {
-          return { error: { message: `Request failed: ${res.statusText}` } };
+          return { error: { message: `Request failed: ${res.statusText}` } }
         }
 
-        const [data] = await res.json();
-        return { data };
+        const [data] = await res.json()
+        return { data }
       },
     }),
   }),
-});
+})
 
-export const { useGetUserProfileQuery } = profileApi;
+export const { useGetUserProfileQuery } = profileApi
