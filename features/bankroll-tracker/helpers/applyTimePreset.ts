@@ -1,5 +1,4 @@
 import { ContestRow } from '../types/contestRow'
-import { seasonForDate } from './seasonForData'
 
 export type TimePreset = 'last-3' | 'last-7' | 'last-30' | 'season' | 'all'
 
@@ -8,7 +7,7 @@ export const applyTimePreset = (rows: ContestRow[], preset: TimePreset) => {
   const since = (days: number) => new Date(now.getTime() - days * 24 * 60 * 60 * 1000)
   if (preset === 'all') return rows
   if (preset === 'season') {
-    const thisSeason = seasonForDate(now)
+    const thisSeason = `${new Date().getFullYear()}-${String((new Date().getFullYear() + 1) % 100).padStart(2, '0')}`
     return rows.filter(r => r.season === thisSeason)
   }
   const map: Record<Exclude<TimePreset, 'all' | 'season'>, number> = {
