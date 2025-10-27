@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 import { ContestEntry } from '@/features/bankroll-tracker/types/contestEntry'
 import { createServerSupabaseClient } from '@/libs/supabase/server'
-export const runtime = 'nodejs' // ensure Node runtime for parsing
+export const runtime = 'nodejs'
 
 export async function GET() {
   const supabase = await createServerSupabaseClient()
@@ -24,7 +24,6 @@ export async function GET() {
   let lastDate: string | null = null
   let lastKey: string | null = null
 
-  // Track the most recent uploaded_at we see (ISO string)
   let lastUpdated: string | null = null
   const updateLastUpdated = (iso?: string | null) => {
     if (!iso) return
@@ -54,7 +53,6 @@ export async function GET() {
 
       if (!batch || batch.length === 0) break
 
-      // update last_updated while we have the batch in hand
       for (const row of batch as ContestEntry[]) {
         updateLastUpdated(row.uploaded_at as unknown as string)
       }
@@ -105,7 +103,6 @@ export async function POST(req: NextRequest) {
 
   const csvBuffer = Buffer.from(await file.arrayBuffer())
 
-  // Map DK headers -> snake_case we expect
   const headerMap: Record<string, string> = {
     Sport: 'sport',
     Game_Type: 'game_type',
@@ -147,18 +144,15 @@ export async function POST(req: NextRequest) {
   }
   const toDateISO = (s: string | null | undefined) => {
     if (!s) return null
-    // DK strings like "09/16/2024 07:15 PM EDT"
-    // Let Date parse common formats; swap to date-fns-tz if you want strict EST handling.
     const d = new Date(s)
     return isNaN(d.getTime()) ? null : d.toISOString()
   }
 
-  // Parse CSV with header normalization
   type Rec = Record<string, string>
   let raw: Rec[]
   try {
     raw = parse(csvBuffer, {
-      columns: (hdrs: string[]) => hdrs.map(h => headerMap[h.trim()] ?? h.trim()), // normalize to our keys
+      columns: (hdrs: string[]) => hdrs.map(h => headerMap[h.trim()] ?? h.trim()),
       skip_empty_lines: true,
       trim: true,
     })
@@ -166,7 +160,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'CSV parse failed', details: String(e) }, { status: 400 })
   }
 
-  // Map to DB rows
   const rows = raw.map(r => ({
     user_id: user.id,
     sport: r.sport || null,
@@ -183,13 +176,10 @@ export async function POST(req: NextRequest) {
     entry_fee: toMoney(r.entry_fee),
     prize_pool: toMoney(r.prize_pool),
     places_paid: toInt(r.places_paid),
-    // uploaded_at defaults in DB
   }))
 
-  // Keep only valid rows (must have entry_key)
   const filtered = rows.filter(r => !!r.entry_key)
 
-  // Replace existing user data
   const { error: delErr } = await supabase.from('contest_entries').delete().eq('user_id', user.id)
   if (delErr) {
     return NextResponse.json(
@@ -198,7 +188,6 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  // Insert in chunks
   const chunk = <T>(arr: T[], size: number) =>
     Array.from({ length: Math.ceil(arr.length / size) }, (_, i) =>
       arr.slice(i * size, i * size + size),

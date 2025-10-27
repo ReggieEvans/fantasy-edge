@@ -140,7 +140,7 @@ export const GET = async (
 
 function normalizeName(name: string) {
   if (!name || typeof name !== 'string') return ''
-  return name.toLowerCase().replace(/[^a-z]/g, '') // strips spaces/punctuation
+  return name.toLowerCase().replace(/[^a-z]/g, '')
 }
 
 function fullName(player: { first_name: string; last_name: string }) {

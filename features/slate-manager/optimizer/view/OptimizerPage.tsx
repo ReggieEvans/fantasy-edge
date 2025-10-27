@@ -92,20 +92,17 @@ const isCaptain = (p: unknown): boolean =>
 
 const isDst = (p: unknown): boolean => (p as { position?: string }).position === 'DST'
 
-// POS -> which column groups should be visible
 function groupsForPos(pos: string, showdown: boolean) {
   const p = (pos ?? 'ALL').toUpperCase()
   return {
-    core: true, // always on (name/team/salary/etc)
+    core: true,
     passing: p === 'QB' || p === 'ALL',
     rushing: p === 'RB' || p === 'ALL',
     receiving: p === 'WR' || p === 'TE' || p === 'ALL',
-    // If you ever add showdown-only columns:
     showdown: showdown && (p === 'ALL' || p === 'CPT' || p === 'FLEX'),
   }
 }
 
-/** Compute a VisibilityState from column meta tags. Supports `meta.group` (string) or `meta.groups` (string[]). */
 function computeVisibility(
   columns: ColumnDef<any, any>[],
   allowed: Record<string, boolean>,
@@ -116,7 +113,7 @@ function computeVisibility(
     for (const c of cols) {
       const anyC = c as any
       if (anyC.columns) {
-        walk(anyC.columns) // header groups
+        walk(anyC.columns)
       } else {
         const id = c.id as string | undefined
         if (!id) continue
@@ -132,9 +129,6 @@ function computeVisibility(
   return vis
 }
 
-/* =========================
-   Component
-========================= */
 export default function OptimizerPage() {
   const { id } = useParams() as { id: string }
 
@@ -146,15 +140,12 @@ export default function OptimizerPage() {
     data: slatePack = { players: [], matchups: [], positionsArray: [] },
     isLoading: slatePackLoading,
     isFetching: slatePackFetching,
-  } = useGetSlatePackQuery(
-    slate?.game_type ? { id, gameType: slate.game_type } : skipArg(), // typed skip helper below
-    {
-      skip: !slate?.game_type,
-      refetchOnFocus: false,
-      refetchOnReconnect: false,
-      pollingInterval: 0,
-    },
-  )
+  } = useGetSlatePackQuery(slate?.game_type ? { id, gameType: slate.game_type } : skipArg(), {
+    skip: !slate?.game_type,
+    refetchOnFocus: false,
+    refetchOnReconnect: false,
+    pollingInterval: 0,
+  })
 
   const [isBusy, setBusy] = useState(false)
   const [isExporting, setExporting] = useState(false)
@@ -165,13 +156,10 @@ export default function OptimizerPage() {
 
   useEffect(() => {
     if (response) {
-      // if you have a sticky header ~90px tall:
       lineupsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      // If your header covers the top, add scroll margin on the target (see step 2)
     }
   }, [response])
 
-  // Selectors
   const selectVisible = useMemo(
     () => makeSelectVisiblePlayers(id, slate?.game_type ?? ''),
     [id, slate?.game_type],
@@ -210,7 +198,6 @@ export default function OptimizerPage() {
     [dispatch],
   )
 
-  // per-position subset toggle (Showdown-aware)
   const onExcludePlayersSubsetCb = useCallback(() => {
     const gameType = slate?.game_type
     const showdown = isShowdownMode(gameType)
@@ -237,7 +224,6 @@ export default function OptimizerPage() {
     })
   }, [dispatch, position, slate?.game_type, slatePack.players])
 
-  // columns memo depends on the stable callbacks (and any flags you pass)
   const playerColumns = useMemo(
     () =>
       makePlayerColumns({
@@ -249,7 +235,6 @@ export default function OptimizerPage() {
     [onToggleExclude, onToggleLock, onExcludePlayersSubsetCb, isAllExcluded],
   )
 
-  // after `playerColumns` useMemo
   const showdown = isShowdownMode(slate?.game_type)
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
@@ -349,9 +334,6 @@ export default function OptimizerPage() {
     [constraints, eligiblePlayers, slate, slatePack.matchups, lockedPlayerIds],
   )
 
-  /* =========================
-     Exposure calculations
-  ========================= */
   type PlayerKey = string
   type PlayerExposure = {
     key: PlayerKey
@@ -434,7 +416,7 @@ export default function OptimizerPage() {
       slate.contest_type_id === 94 || slate.contest_type_id === 21 ? 'classic' : 'showdown'
 
     const key = `${sport}:${mode}` as const
-    const slotOrder = SLOT_PRESETS[key as keyof typeof SLOT_PRESETS] // type is readonly Slot[]
+    const slotOrder = SLOT_PRESETS[key as keyof typeof SLOT_PRESETS]
 
     setExporting(true)
     exportLineupsToCsv(response.lineups as unknown as ExportLineup[], {
@@ -517,7 +499,6 @@ export default function OptimizerPage() {
 
         {response && (
           <OptimizerErrorBoundary>
-            {/* scroll-mt accounts for sticky header height */}
             <div ref={lineupsRef} id="lineups" className="scroll-mt-[96px]">
               <div className="flex gap-6">
                 <div className="w-[400px]">
@@ -540,7 +521,6 @@ export default function OptimizerPage() {
   )
 }
 
-// Small helper to keep useGetSlatePackQuery call typed when skipping
 function skipArg(): { id: string; gameType: string } {
   return { id: '', gameType: '' }
 }

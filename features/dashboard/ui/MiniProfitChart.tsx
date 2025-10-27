@@ -30,7 +30,7 @@ const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-')
 const CustomizedAxisTick: React.FC<{ dy?: number; format?: (s: string) => string }> = props => {
   const { x, y, payload, dy = 14, format } = props as any
   const raw = String(payload?.value ?? '')
-  const label = format ? format(raw) : raw.slice(5) // default: "YYYY-MM-DD" -> "MM-DD"
+  const label = format ? format(raw) : raw.slice(5)
 
   return (
     <g transform={`translate(${x},${y})`}>

@@ -15,13 +15,12 @@ import { ReactNode, useMemo } from 'react'
 
 import { useSlateId } from '../_hooks/useSlateId'
 
-// tiny classnames helper (or import your existing `cn`)
 function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(' ')
 }
 
 type NavLink = {
-  segment: string // '' means base route
+  segment: string
   label: string
   Icon: LucideIcon
 }
@@ -31,7 +30,7 @@ const NAVIGATION_LINKS: NavLink[] = [
   { segment: 'player-pool', label: 'Pool', Icon: Users },
   { segment: 'roster-construction', label: 'Build', Icon: Hammer },
   { segment: 'roster-view', label: 'Export', Icon: ClipboardCheck },
-  { segment: 'optimizer', label: 'Optimize', Icon: Cog }, // fixed typo
+  { segment: 'optimizer', label: 'Optimize', Icon: Cog },
   { segment: 'contest-selection', label: 'Contests', Icon: MousePointerClick },
 ]
 

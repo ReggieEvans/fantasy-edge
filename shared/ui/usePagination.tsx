@@ -10,7 +10,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-// Generic client-side paginator
 export function usePagination<T>(items: T[], initialPageSize = 10) {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(initialPageSize)
@@ -21,7 +20,6 @@ export function usePagination<T>(items: T[], initialPageSize = 10) {
 
   const pageItems = useMemo(() => items.slice(startIdx, endIdx), [items, startIdx, endIdx])
 
-  // reset to first page when the data set or size changes
   useEffect(() => {
     setPage(1)
   }, [items, pageSize])
@@ -41,7 +39,6 @@ export function usePagination<T>(items: T[], initialPageSize = 10) {
   }
 }
 
-// Pagination footer UI
 export function PaginationBar(props: {
   page: number
   setPage: (p: number) => void
@@ -59,7 +56,6 @@ export function PaginationBar(props: {
       <div className="text-xs text-muted-foreground w-24">{rangeLabel}</div>
 
       <div className="flex items-center gap-2 -ml-24">
-        {/* Prev / Next */}
         <Button variant="outline" size="icon" disabled={!canPrev} onClick={() => setPage(page - 1)}>
           <ChevronLeft className="h-4 w-4" />
         </Button>
@@ -71,7 +67,6 @@ export function PaginationBar(props: {
         </Button>
       </div>
 
-      {/* Page size */}
       <div className="flex items-center gap-2">
         {setPageSize && (
           <Select value={String(pageSize)} onValueChange={v => setPageSize(Number(v))}>

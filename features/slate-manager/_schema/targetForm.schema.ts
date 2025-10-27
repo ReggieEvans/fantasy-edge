@@ -10,7 +10,7 @@ export const TargetFormSchema = z.object({
     .trim()
     .max(10000, { message: 'Notes must be 10,000 characters or fewer.' })
     .optional()
-    .transform(v => (v ? v : undefined)), // empty string -> undefined
+    .transform(v => (v ? v : undefined)),
 })
 
 export type TargetPlayerFormValues = z.infer<typeof TargetFormSchema>

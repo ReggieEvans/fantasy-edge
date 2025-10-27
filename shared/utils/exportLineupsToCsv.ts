@@ -10,12 +10,9 @@ export function exportLineupsToCsv(lineups: ExportLineup[], opts: ExportOptions)
     },
   } = opts
 
-  // Build a lookup for each lineup: for duplicate slots we consume in order (RB, RB, etc.)
   const lineupValueForSlot = (lu: ExportLineup, slot: Slot) => {
     if (lu.slots) {
-      // Prefer explicit keys first (e.g. WR1/WR2) then fall back to matching pos
       if (lu.slots[slot]) return lu.slots[slot]
-      // Try WR1/WR2 style
       const numbered = Object.entries(lu.slots)
         .filter(([k]) => k.toUpperCase().startsWith(slot.toUpperCase()))
         .sort(([a], [b]) => a.localeCompare(b))
@@ -25,10 +22,8 @@ export function exportLineupsToCsv(lineups: ExportLineup[], opts: ExportOptions)
       }
     }
     if (lu.players?.length) {
-      // Consume players by matching position in encounter order
       const idx = lu.players.findIndex(p => p.lineup_position.toUpperCase() === slot.toUpperCase())
-      if (idx >= 0) return lu.players.splice(idx, 1)[0] // consume once
-      // Showdown: many sources use UTIL for all non-captain slots
+      if (idx >= 0) return lu.players.splice(idx, 1)[0]
       if (slot === 'UTIL') {
         const j = lu.players.findIndex(
           p => p.pos.toUpperCase() === 'UTIL' || p.pos.toUpperCase() === 'FLEX',
@@ -39,18 +34,16 @@ export function exportLineupsToCsv(lineups: ExportLineup[], opts: ExportOptions)
     return undefined
   }
 
-  const headers = [...slotOrder] // allow duplicate headers (e.g., RB, RB)
+  const headers = [...slotOrder]
   const escape = (v: string) => {
-    // Quote if comma, quote, or newline; double internal quotes
     if (/[",\n]/.test(v)) return `"${v.replace(/"/g, '""')}"`
     return v
   }
 
   const rows: string[] = []
-  rows.push(headers.join(',')) // header row
+  rows.push(headers.join(','))
 
   for (const lineup of lineups.map(l => ({
-    // Work on a shallow copy so we can "consume" players
     ...l,
     players: l.players ? [...l.players] : undefined,
   }))) {
@@ -58,7 +51,7 @@ export function exportLineupsToCsv(lineups: ExportLineup[], opts: ExportOptions)
     rows.push(values.join(','))
   }
 
-  const csv = '\uFEFF' + rows.join('\n') // BOM for Excel/Sheets
+  const csv = '\uFEFF' + rows.join('\n')
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')

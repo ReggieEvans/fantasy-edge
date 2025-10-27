@@ -1,8 +1,8 @@
 import { ColumnDef } from '@tanstack/react-table'
 
-// ...inside file:
+import { PickedContest } from '../libs/pickContests'
 
-const columns: ColumnDef<PickedContest>[] = [
+export const columns: ColumnDef<PickedContest>[] = [
   {
     accessorKey: 'name',
     header: 'Name',
@@ -64,7 +64,9 @@ const columns: ColumnDef<PickedContest>[] = [
     enableSorting: false,
     cell: ({ row }) => (
       <ul className="list-disc pl-4 text-sm text-muted-foreground">
-        {row.original.reason.map((r, i) => <li key={i}>{r}</li>)}
+        {row.original.reason.map((r, i) => (
+          <li key={i}>{r}</li>
+        ))}
       </ul>
     ),
   },

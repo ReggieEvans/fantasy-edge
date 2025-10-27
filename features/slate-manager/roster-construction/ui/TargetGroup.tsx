@@ -56,7 +56,7 @@ export default function TargetGroup({
   const Icon = ICONS[icon]
   const filteredTargets =
     type === 'none'
-      ? targets.filter(t => !t.target_type) // catches null, undefined, ''
+      ? targets.filter(t => !t.target_type)
       : targets.filter(t => t.target_type === type)
 
   if (!filteredTargets.length) return null

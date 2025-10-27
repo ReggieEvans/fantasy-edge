@@ -53,7 +53,6 @@ export default function StudyHubPage() {
   const [error, setError] = useState<string | null>(null)
   const username = useSelector((state: RootState) => state.auth.user_name)
 
-  // controls
   const [userFilter, setUserFilter] = useState('')
   const [playerFilter, setPlayerFilter] = useState('')
   const [selectedUser, setSelectedUser] = useState<string | null>(null)
@@ -70,7 +69,6 @@ export default function StudyHubPage() {
   const [playersPage, setPlayersPage] = useState(1)
   const [playersPageSize, setPlayersPageSize] = useState(50)
 
-  // reset page when filters change
   useEffect(() => {
     setUserPage(1)
   }, [userFilter, data])
@@ -103,7 +101,6 @@ export default function StudyHubPage() {
       if (!res.ok) throw new Error(await res.text())
       const json = (await res.json()) as EnrichedStudyUpload
       setData(json)
-      // auto select the most prolific user (or leave null)
       setSelectedEntryId(json.entries[0]?.entryId ?? null)
       setSelectedUser(json.entries[0]?.username ?? json.users[0]?.username ?? null)
     } catch (e: any) {
@@ -117,7 +114,6 @@ export default function StudyHubPage() {
     return s.toLowerCase().replace(/[^a-z0-9]/g, '')
   }
 
-  // ---- derived memo data ----
   const globalExposure = useMemo(() => {
     if (!data) return []
     const q = playerFilter.trim().toLowerCase()
@@ -164,23 +160,20 @@ export default function StudyHubPage() {
     return null
   }, [data, selectedEntryId, selectedUser])
 
-  // Build user exposure from selected user's entries + field pct from global
   const userExposure = useMemo(() => {
     if (!data || !selectedUser) return []
     const counts = new Map<string, number>()
-    const eligibleBySlot = new Map<string, Set<string>>() // CPT/FLEX
-    const eligibleByPos = new Map<string, Set<string>>() // QB/RB/WR/TE/DST
+    const eligibleBySlot = new Map<string, Set<string>>()
+    const eligibleByPos = new Map<string, Set<string>>()
 
     for (const e of selectedUserEntries) {
       const seen = new Set<string>()
       for (const p of e.lineup) {
         const key = normalizeName(p.name)
-        // only count presence once per entry
         if (!seen.has(key)) {
           seen.add(key)
           counts.set(key, (counts.get(key) ?? 0) + 1)
         }
-        // for filters
         if (!eligibleBySlot.has(p.slot)) eligibleBySlot.set(p.slot, new Set())
         eligibleBySlot.get(p.slot)!.add(key)
         const base = (p.position || '').toUpperCase()
@@ -191,7 +184,6 @@ export default function StudyHubPage() {
       }
     }
     const total = Math.max(1, selectedUserEntries.length)
-    // map global field % by normalized name
     const fieldPct = new Map<string, number>()
     for (const g of data.contestPlayerExposures) fieldPct.set(normalizeName(g.player), g.fieldPct)
 
@@ -206,7 +198,6 @@ export default function StudyHubPage() {
       teamUrl.set(normalizeName(g.player), g.team?.logos?.[1] ?? '')
     }
 
-    // apply filters
     let eligible: Set<string> | null = null
     if (isShowdown && slotFilter !== 'ALL')
       eligible = new Set(eligibleBySlot.get(slotFilter)?.values() ?? [])
@@ -218,7 +209,7 @@ export default function StudyHubPage() {
     const rows = Array.from(counts.entries()).map(([key, c]) => {
       return {
         playerKey: key,
-        player: key, // will be replaced by display name lookup below
+        player: key,
         user_pct: c / total,
         field_pct: fieldPct.get(key) ?? 0,
         expected: expected.get(key) ?? 0,
@@ -228,7 +219,6 @@ export default function StudyHubPage() {
       }
     })
 
-    // replace display name from any occurrence in entries or global
     const nameLookup = new Map<string, string>()
     for (const e of selectedUserEntries)
       for (const p of e.lineup) nameLookup.set(normalizeName(p.name), p.name)
@@ -268,7 +258,6 @@ export default function StudyHubPage() {
     }
   }, [selectedUserEntries])
 
-  // helper for lineup chip
   const findExposure = (playerName: string) => {
     const key = normalizeName(playerName)
     const field = data
@@ -278,7 +267,6 @@ export default function StudyHubPage() {
     return { field_pct: field, user_pct: user }
   }
 
-  // Users pagination
   const entriesTotal = entriesIndex.length
   const entriesPages = Math.max(1, Math.ceil(entriesTotal / userPageSize))
   const entriesStart = entriesTotal ? (userPage - 1) * userPageSize + 1 : 0
@@ -288,7 +276,6 @@ export default function StudyHubPage() {
     [entriesIndex, userPage, userPageSize],
   )
 
-  // Player exposures pagination
   const playersTotal = globalExposure.length
   const playersPages = Math.max(1, Math.ceil(playersTotal / playersPageSize))
   const playersStart = playersTotal ? (playersPage - 1) * playersPageSize + 1 : 0
@@ -331,7 +318,6 @@ export default function StudyHubPage() {
         title="Study Hub"
         description="Study Hub is a tool that allows you to study your results and your opponents results from past contests."
       />
-      {/* Upload */}
       <div className="grid grid-cols-12 gap-4 mb-8">
         <Card className="col-span-4 bg-background-secondary border border-background-darker rounded p-0">
           <CardHeader className="flex bg-card py-4 border-b border-background-darker">
@@ -469,7 +455,6 @@ export default function StudyHubPage() {
         </Card>
       </div>
 
-      {/* No data */}
       {!loading && !data && (
         <NoData
           title="Upload CSV Data"
@@ -477,7 +462,6 @@ export default function StudyHubPage() {
         />
       )}
 
-      {/* Loading */}
       {loading && (
         <div className="flex flex-col items-center justify-center max-w-[350px] mx-auto pt-24 space-y-2">
           <div className="flex items-center justify-center gap-2">
@@ -490,10 +474,8 @@ export default function StudyHubPage() {
         </div>
       )}
 
-      {/* Error */}
       {error && <ErrorMessage errorTitle="Error" errorMessage={error} />}
 
-      {/* Three-pane layout */}
       {data && (
         <div className="grid grid-cols-12 gap-4 mb-8">
           {/* LEFT: Users w/ spend, won, ROI */}
@@ -607,7 +589,6 @@ export default function StudyHubPage() {
             </CardFooter>
           </Card>
 
-          {/* MIDDLE: selected user's entries + chosen lineup w/ value icons */}
           <div className="col-span-5 space-y-4">
             <Card className="col-span-5 bg-background-secondary border border-background-darker rounded">
               <CardHeader className="flex flex-row items-center justify-between gap-2 py-4 bg-card border-b border-background-darker">
@@ -675,9 +656,7 @@ export default function StudyHubPage() {
                             onClick={() => setSelectedEntryId(e.entryId)}
                             className={[
                               'cursor-pointer text-xs',
-                              // base
                               'bg-card hover:bg-muted/60',
-                              // selected styles driven by state
                               isSelected
                                 ? 'bg-background-darker border-l-2 border-l-accent hover:bg-background-darker'
                                 : '',
@@ -707,7 +686,6 @@ export default function StudyHubPage() {
               </CardContent>
             </Card>
 
-            {/* Lineup detail: show value icons + expected/actual + slot */}
             {selectedEntry && (
               <Card
                 id="lineup-detail"
@@ -738,7 +716,6 @@ export default function StudyHubPage() {
                   </div>
                   {ordered.map((p, idx) => {
                     if (!p) {
-                      // optional: render an empty/missing row for that slot
                       const slot = template[idx]
                       return (
                         <div
@@ -821,7 +798,6 @@ export default function StudyHubPage() {
             )}
           </div>
 
-          {/* RIGHT: selected user's exposure + filters */}
           <Card className="col-span-4 bg-background-secondary border border-card rounded">
             <CardHeader className="flex flex-row items-center justify-between gap-2 py-4 bg-card border-b border-background-darker">
               <CardTitle>
@@ -850,7 +826,6 @@ export default function StudyHubPage() {
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
-                {/* slot filter (showdown) */}
                 {isShowdown && (
                   <div className="flex gap-1 pt-4">
                     {(['ALL', 'CPT', 'FLEX'] as const).map(v => (
@@ -867,7 +842,6 @@ export default function StudyHubPage() {
                     ))}
                   </div>
                 )}
-                {/* position filter */}
                 <div className="flex justify-between w-full gap-2 py-2">
                   {(data?.meta.sport === 'NFL' ? NFL_POSITION_FILTERS : CFB_POSITION_FILTERS).map(
                     v => (
@@ -931,7 +905,6 @@ export default function StudyHubPage() {
         </div>
       )}
 
-      {/* Global exposure with player search and salary/expected */}
       <div className="grid grid-cols-12 gap-4 mb-8">
         {data && (
           <Card className="col-span-8 bg-background-secondary border border-background-darker rounded">
@@ -1118,7 +1091,7 @@ export default function StudyHubPage() {
                       ['Running Backs', active.RB],
                       ['Wide Receivers', active.WR],
                       ['Tight Ends', active.TE],
-                      ['Defense', active.DST], // NEW
+                      ['Defense', active.DST],
                     ] as const
                   ).map(([label, stats]) => (
                     <div key={label} className="rounded-md border bg-card w-60">

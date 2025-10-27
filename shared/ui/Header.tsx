@@ -60,10 +60,8 @@ export default function Header() {
   }
 
   const isLinkActive = (href: string) => {
-    // Home should only be active on exact "/"
     if (href === '/') return pathname === '/'
 
-    // normalize trailing slashes for non-root paths
     const cur = pathname.endsWith('/') && pathname !== '/' ? pathname.slice(0, -1) : pathname
     const base = href.endsWith('/') && href !== '/' ? href.slice(0, -1) : href
 
@@ -73,7 +71,6 @@ export default function Header() {
   return (
     <header className="flex items-center justify-center md:justify-between w-full px-12 py-3">
       <div className="flex items-center gap-4">
-        {/* Brand */}
         <Link href="/">
           <Image
             src="/fantasyedge-logo-300-91.png"
@@ -88,7 +85,6 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Desktop Nav */}
       <div className="hidden sm:flex items-center space-x-6">
         {hasMounted && displayName && <Logout displayName={displayName} logout={handleLogout} />}
       </div>

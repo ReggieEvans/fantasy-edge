@@ -80,8 +80,6 @@ export default function BankrollTrackerPage() {
   }
 
   const onUpload = (file: File) => {
-    // kicks your upload route; make sure the mutation invalidates 'ContestEntries'
-    // so the list refetches
     uploadContestEntries(file)
   }
 

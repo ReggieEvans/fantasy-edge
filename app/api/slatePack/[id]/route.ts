@@ -19,7 +19,6 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: 
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   try {
-    // 1) All matchups for the slate
     const { data: matchups, error: matchupsErr } = await supabase
       .from('slate_matchups')
       .select('*')
@@ -32,7 +31,6 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: 
 
     sport = matchups[0].sport
 
-    // Build opponent lookup: team_id -> opponent_team_id
     const opponentByTeamId = new Map<string, string>()
     for (const m of matchups) {
       const home = String(m.home_team_id)
@@ -49,7 +47,6 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: 
       teamImageByTeamId.set(away, m.away_team_logo)
     }
 
-    // Unique team ids across all matchups
     const teamIds = Array.from(
       new Set<string>(matchups.flatMap(m => [String(m.home_team_id), String(m.away_team_id)])),
     )
@@ -61,10 +58,8 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: 
 
     if (teamsErr) return NextResponse.json({ error: teamsErr.message }, { status: 500 })
 
-    // Build lookup: team_id -> abbreviation
     const teamAbbrById = new Map(canonicalTeams.map(t => [String(t.id), t.draftkings_abbreviation]))
 
-    // 2) All slate players for these teams
     const { data: allPlayers, error: playersErr } = await supabase
       .from('slate_players')
       .select('*')
@@ -76,7 +71,6 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: 'No players found for this slate' }, { status: 404 })
     }
 
-    // 3) Per-player summaries
     const [{ data: passingSummary }, { data: rushingSummary }, { data: receivingSummary }] =
       await Promise.all([
         supabase.from('passing_summary').select('*').in('team_id', teamIds),
@@ -88,7 +82,6 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: 'Failed to fetch player stats' }, { status: 500 })
     }
 
-    // 4) Team-level stats
     const [
       { data: passingRate },
       { data: rushingRate },
@@ -116,7 +109,6 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: 'Failed to fetch team stats' }, { status: 500 })
     }
 
-    // 5) Build lookup maps
     const passingStats = new Map(
       passingSummary.map(stat => [normalizeName(stripSuffix(stat.player)), stat]),
     )
@@ -137,7 +129,6 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: 
     const passingDefenseByTeam = toTeamMap(passingDefense)
     const rushingDefenseByTeam = toTeamMap(rushingDefense)
 
-    // 6) Players: dedupe → enrich → attach teamStats (with OPPONENT defense)
     const deduped = gameType === 'classic' ? dedupePlayers(allPlayers) : allPlayers
     const enriched = enrichPlayers(deduped, {
       passing: passingStats,
@@ -165,16 +156,6 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: 
       }
     })
 
-    // 7) Filter out players with no passing, rushing, or receiving
-    // const [players, filteredOut] = partition(
-    //   enriched,
-    //   p => p.position === 'DST' || p.passing != null || p.rushing != null || p.receiving != null,
-    // )
-
-    // const filteredOutCount = filteredOut.length
-    // const filteredOutPlayers = filteredOut.map(p => `${p.first_name} ${p.last_name} (${p.position ?? 'UNKNOWN'})`)
-
-    // 8) Matchups with team stats
     const teamStatPair = <T extends { team_id: string }>(
       rows: T[] = [],
       homeId: string,
@@ -194,7 +175,6 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: 
       rushingDefense: teamStatPair(rushingDefense, m.home_team_id, m.away_team_id),
     }))
 
-    // 9) Projections flag
     const hasAnyProjection = enriched.some(p => (p as Player).projection != null)
     const isMissingProjections = !hasAnyProjection
 
@@ -209,13 +189,11 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: 
       if (p.position) available.add(toDst(norm(p.position)))
     }
 
-    // choose desired order by sport
     const ORDER: Record<'NFL' | 'CFB', readonly string[]> = {
       NFL: ['QB', 'RB', 'WR', 'TE', 'DST'],
       CFB: ['QB', 'RB', 'WR'],
     }
 
-    // `sport` can come from your slate
     const positionsArray = ORDER[sport as 'NFL' | 'CFB'].filter(pos => available.has(pos))
 
     const sortedPlayers = enriched.sort((a, b) => (b.salary ?? 0) - (a.salary ?? 0))
@@ -235,19 +213,16 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: 
   }
 }
 
-/** Helpers */
 function normalizeName(name: string) {
   if (!name || typeof name !== 'string') return ''
   return name.toLowerCase().replace(/[^a-z]/g, '')
 }
 
-// remove common generational suffixes from the END of the last name
 const SUFFIX_RE = /\b(jr|sr|ii|iii|iv|v|vi|vii)\b\.?$/i
 function stripSuffix(last: string) {
   return (last || '').replace(/\./g, '').replace(SUFFIX_RE, '').trim()
 }
 
-// ⬇️ just replace your current fullName() with this:
 function fullName(player: { first_name: string; last_name: string }) {
   return normalizeName(`${player.first_name} ${stripSuffix(player.last_name)}`)
 }

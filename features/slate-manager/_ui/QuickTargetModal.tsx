@@ -47,7 +47,7 @@ export default function QuickTargetsModal({
   const [q, setQ] = useState('')
   const [position, setPosition] = useState(initialPosition)
 
-  const debouncedQ = useDebouncedValue(q, 350) // tweak delay as you like
+  const debouncedQ = useDebouncedValue(q, 350)
   const isTyping = q !== debouncedQ
 
   const {
@@ -65,10 +65,8 @@ export default function QuickTargetsModal({
 
   const isInitialLoading = Boolean(rqIsLoading ?? rqIsPending)
 
-  // flatten pages
   const items = useMemo(() => (data?.pages ?? []).flatMap(p => p.items), [data])
 
-  // IntersectionObserver sentinel to load more
   const observerRef = useRef<IntersectionObserver | null>(null)
   const setObserverRef = useCallback(
     (node: HTMLDivElement | null) => {
@@ -113,7 +111,6 @@ export default function QuickTargetsModal({
         </DialogHeader>
 
         <div className="py-3 px-6 space-y-3">
-          {/* Controls */}
           <div className="flex flex-wrap items-end gap-2">
             <div className="flex flex-col gap-1 w-1/2">
               <p className="text-[11px] px-1 text-muted font-bold">SEARCH</p>
@@ -151,7 +148,6 @@ export default function QuickTargetsModal({
             </div>
           </div>
 
-          {/* Content area with states */}
           <div className="h-[520px] border rounded-md overflow-hidden">
             {isError ? (
               <div className="h-full flex flex-col items-center justify-center p-6">
@@ -166,19 +162,16 @@ export default function QuickTargetsModal({
                 </Button>
               </div>
             ) : isInitialLoading ? (
-              // Initial loading
               <div className="h-full flex flex-col items-center justify-center gap-3">
                 <Loader2 className="w-5 h-5 animate-spin" />
                 <p className="text-sm text-muted-foreground">Loading players…</p>
               </div>
             ) : items.length === 0 ? (
-              // Empty state
               <div className="h-full flex flex-col items-center justify-center gap-1">
                 <p className="text-sm font-medium">No players found</p>
                 <p className="text-xs text-muted-foreground">Try a different search or position.</p>
               </div>
             ) : (
-              // Virtualized list
               <>
                 {isRefetching && (
                   <div className="flex items-center justify-center gap-3 py-2">
@@ -245,7 +238,6 @@ export default function QuickTargetsModal({
             )}
           </div>
 
-          {/* Footer loader */}
           <div className="flex justify-center items-center py-2 h-4">
             {(isFetchingNextPage || isRefetching) && (
               <p className="text-center text-sm">Loading more…</p>

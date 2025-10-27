@@ -71,7 +71,6 @@ export default function PlayerTable<TData extends PlayerWithFlags, TValue>({
     pageSize,
   })
 
-  // keep state in sync if the user changes the dropdown
   React.useEffect(() => {
     setPagination(p => ({ ...p, pageSize }))
   }, [pageSize])

@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 export interface PoolState {
-  excludedTeamIds: string[] // store as strings for stable Set compares
+  excludedTeamIds: string[]
   excludedPlayerIds: string[]
   lockedPlayerIds: string[]
 }
@@ -38,15 +38,12 @@ const slice = createSlice({
       const allSubsetAlreadyExcluded = subset.every(id => set.has(id))
 
       if (allSubsetAlreadyExcluded) {
-        // UN-exclude just this subset
         subset.forEach(id => set.delete(id))
       } else {
-        // Exclude this subset, keep previous excludes
         subset.forEach(id => set.add(id))
       }
 
       s.excludedPlayerIds = Array.from(set)
-      // s.lockedPlayerIds = [] // optional, if you want to clear locks when excluding
     },
     resetPool: () => initial,
   },

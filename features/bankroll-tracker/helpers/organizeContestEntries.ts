@@ -6,7 +6,7 @@ export type DbRow = {
   game_type: string | null
   entry: string | null
   contest_key: string | null
-  contest_date_est: string | null // ISO string
+  contest_date_est: string | null
   place: number | null
   points: number | null
   winnings_non_ticket: number | null
@@ -33,11 +33,11 @@ export function organizeContestEntries(dbRows: DbRow[]): Row[] {
       game_type: String(r.game_type || ''),
       entry_name: String(r.entry || ''),
       contest_key: String(r.contest_key || ''),
-      dt: dIso || '', // ISO datetime
-      date: d ? ymd(d) : '', // your ymd(Date) util
+      dt: dIso || '',
+      date: d ? ymd(d) : '',
       place: r.place ?? null,
       points: r.points ?? null,
-      winnings, // numeric
+      winnings,
       winnings_ticket: r.winnings_ticket ?? 0,
       entries: r.contest_entries ?? null,
       entry_fee: entryFee,

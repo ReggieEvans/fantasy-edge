@@ -20,7 +20,6 @@ export async function GET() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // Get user's slate_ids
   const { data: userSlates, error: userSlatesError } = await supabase
     .from('user_slates')
     .select('id')
@@ -34,7 +33,6 @@ export async function GET() {
   const slateIds = (userSlates ?? []).map(r => r.id)
   if (slateIds.length === 0) return NextResponse.json([])
 
-  // Fetch the rest in parallel
   const [
     { data: slates, error: slatesError },
     { data: games },

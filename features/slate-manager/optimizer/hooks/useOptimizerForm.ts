@@ -23,7 +23,7 @@ type FormState = {
 
 type Action =
   | { type: 'SET_NUMBER'; key: keyof FormState; value: number | null }
-  | { type: 'SET_STRING_NUMBER'; key: keyof FormState; value: string } // for <Input type="number">
+  | { type: 'SET_STRING_NUMBER'; key: keyof FormState; value: string }
   | { type: 'SET_RANDOMNESS_MODE'; value: RandomnessMode }
   | { type: 'SET_TEAM_LIMIT'; teamId: string; field: 'min' | 'max'; value: number | null }
   | { type: 'SET_GAME_LIMIT'; matchupId: string; field: 'min' | 'max'; value: number | null }

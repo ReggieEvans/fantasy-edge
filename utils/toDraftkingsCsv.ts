@@ -23,12 +23,10 @@ function rosterPositionsFor(
 ) {
   const P = pos.toUpperCase()
 
-  // SHOWDOWN_POSITIONS
   if (isShowdown) {
     return showdownPosition
   }
 
-  // CLASSIC_POSITIONS
   if (sport === 'CFB') {
     if (P === 'QB') return 'QB/S-FLEX'
     if (P === 'RB' || P === 'WR' || P === 'TE') return `${P}/FLEX/S-FLEX`
@@ -53,7 +51,7 @@ function formatEtDateTime(iso: string) {
     minute: '2-digit',
     hour12: true,
   }).format(d)
-  return `${date} ${time.replace(' ', '')}` // "09/06/2025 12:00PM"
+  return `${date} ${time.replace(' ', '')}`
 }
 
 function cell(v: unknown) {
@@ -62,15 +60,12 @@ function cell(v: unknown) {
   return s.includes(',') || s.includes('"') || s.includes('\n') ? `"${s.replace(/"/g, '""')}"` : s
 }
 
-/**
- * Build a map: team_id -> { abbrev, gameBase: "AWY@HOME", start?: iso }
- */
 function buildTeamIndex(matchups: Matchup[], fallbackStartIso?: string) {
   const idx: Record<string | number, { abbrev: string; gameBase: string; start?: string }> = {}
 
   for (const m of matchups) {
     const base = `${m.away_team_abbr}@${m.home_team_abbr}`
-    const start = m.start_time || fallbackStartIso // use matchup start if present, else slate start if provided
+    const start = m.start_time || fallbackStartIso
     if (m.away_team_id != null)
       idx[m.away_team_id] = { abbrev: m.away_team_abbr, gameBase: base, start }
     if (m.home_team_id != null)
@@ -79,10 +74,6 @@ function buildTeamIndex(matchups: Matchup[], fallbackStartIso?: string) {
   return idx
 }
 
-/**
- * Create a DraftKings-compatible CSV from your players + matchups.
- * If your matchups don't include a per-game start time, pass a fallback (e.g., `slate.min_start_time`).
- */
 export function toDraftKingsCsvFromMatchups(
   players: any[],
   matchups: Matchup[],
@@ -100,14 +91,12 @@ export function toDraftKingsCsvFromMatchups(
     const namePlusId = `${name} (${id})`
     const rosterPos = rosterPositionsFor(pos, sport, isShowdown, p.showdown_position)
 
-    const teamInfo = teamIndex[p.team_id] // player’s own team
+    const teamInfo = teamIndex[p.team_id]
     const teamAbbrev = teamInfo?.abbrev ?? ''
     const startIso = teamInfo?.start
-    const gameBase = teamInfo?.gameBase ?? '' // "SJSU@TEX"
+    const gameBase = teamInfo?.gameBase ?? ''
     const gameInfo = startIso ? `${gameBase} ${formatEtDateTime(startIso)} ET` : gameBase
 
-    // TODO: Remove this once we have projections
-    // If theres no projection, use a random number between 0 and 25 for testing
     const avg = p.projection ?? (Number.isFinite(Number(p.avg_points)) ? Number(p.avg_points) : 0)
 
     return [

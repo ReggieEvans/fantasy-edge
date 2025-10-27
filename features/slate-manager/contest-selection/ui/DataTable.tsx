@@ -31,8 +31,6 @@ import {
   TableRow,
 } from '@/components/ui/table'
 
-// ...inside file:
-
 export const columns: ColumnDef<any>[] = [
   {
     accessorKey: 'name',
@@ -103,18 +101,6 @@ export const columns: ColumnDef<any>[] = [
     accessorKey: 'bucket',
     header: 'Bucket',
   },
-  //   {
-  //     id: 'why',
-  //     header: 'Why',
-  //     enableSorting: false,
-  //     cell: ({ row }) => (
-  //       <ul className="list-disc pl-4 text-sm text-muted-foreground">
-  //         {row.original.reason.map((r, i) => (
-  //           <li key={i}>{r}</li>
-  //         ))}
-  //       </ul>
-  //     ),
-  //   },
 ]
 
 type DataTableProps<TData> = {

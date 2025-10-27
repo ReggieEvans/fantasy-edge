@@ -8,13 +8,7 @@ import { createServerSupabaseClient } from '@/libs/supabase/server'
 export async function POST(req: Request) {
   const supabase = await createServerSupabaseClient()
 
-  const {
-    slateId,
-    name,
-    type,
-    totalSalary,
-    roster, // object with keys = slot keys, values = player objects
-  }: Roster = await req.json()
+  const { slateId, name, type, totalSalary, roster }: Roster = await req.json()
   const {
     data: { user },
     error: authError,
@@ -24,7 +18,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // Step 1: Insert into rosters
   const { data: rosterInsert, error: rosterError } = await supabase
     .from('rosters')
     .insert({
