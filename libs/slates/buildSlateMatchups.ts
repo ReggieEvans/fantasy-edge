@@ -78,11 +78,7 @@ export async function buildSlateMatchups(
           if (totals?.outcomes?.length) game_total = totals.outcomes[0]?.point ?? null
 
           if (game_total != null) {
-            const totalsCalc = impliedTotals(
-              game_total,
-              home_team_spread ?? 0,
-              away_team_spread ?? 0,
-            )
+            const totalsCalc = impliedTotals(game_total, home_team_spread ?? 0)
             home_team_total = Number(totalsCalc.home_total.toFixed(2))
             away_team_total = Number(totalsCalc.away_total.toFixed(2))
           }

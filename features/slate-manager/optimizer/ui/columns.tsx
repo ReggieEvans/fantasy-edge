@@ -9,11 +9,10 @@ import { ExcludeCell, LockCell, PlayerNameCell, PositionCell, ROICell } from './
 
 type Num = number | null
 
-// Numeric sort that sends null/undefined to the bottom
 const percentSort: SortingFn<Player> = (a, b, id) => {
   const av = a.getValue<Num>(id)
   const bv = b.getValue<Num>(id)
-  const an = typeof av === 'number' ? av : -Infinity // or Infinity if you want nulls LAST even on asc
+  const an = typeof av === 'number' ? av : -Infinity
   const bn = typeof bv === 'number' ? bv : -Infinity
   return an === bn ? 0 : an < bn ? -1 : 1
 }
@@ -119,7 +118,7 @@ export function makePlayerColumns({
           accessorFn: row => {
             const salary = Number(row.salary)
             const projection = Number(row.projection)
-            if (!salary || isNaN(salary) || isNaN(projection)) return 0 // fallback for sorting
+            if (!salary || isNaN(salary) || isNaN(projection)) return 0
             return (projection / salary) * 1000
           },
           cell: ({ row }) => <ROICell player={row.original} />,
@@ -129,7 +128,7 @@ export function makePlayerColumns({
         {
           id: 'game_total',
           header: 'TTL',
-          accessorFn: row => row.game_total, // number | null
+          accessorFn: row => row.game_total,
           meta: { group: 'core', tooltip: 'Total Points' },
           cell: ({ getValue }) => {
             const v = getValue<number | null>()
@@ -152,7 +151,7 @@ export function makePlayerColumns({
         {
           id: 'team_total',
           header: 'TM TTL',
-          accessorFn: row => row.team_total, // number | null
+          accessorFn: row => row.team_total,
           meta: { group: 'core', tooltip: 'Team Total Points' },
           cell: ({ getValue }) => {
             const v = getValue<number | null>()

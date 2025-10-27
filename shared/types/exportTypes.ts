@@ -1,14 +1,4 @@
-export type Slot =
-  | 'QB'
-  | 'RB'
-  | 'WR'
-  | 'TE'
-  | 'FLEX'
-  | 'SFLX'
-  | 'DST'
-  | 'CPT'
-  | 'UTIL' // Showdown
-  | string
+export type Slot = 'QB' | 'RB' | 'WR' | 'TE' | 'FLEX' | 'SFLX' | 'DST' | 'CPT' | 'UTIL' | string
 
 export type ExportPlayer = {
   id?: string | number
@@ -24,7 +14,7 @@ export type ExportLineup = {
 }
 
 export type ExportOptions = {
-  slotOrder: readonly Slot[] // e.g. ['QB','RB','RB','WR','WR','WR','FLEX','SFLX']
-  filename?: string // default: lineups.csv
-  valueFormatter?: (p?: ExportPlayer) => string // default: "Name (ID)"
+  slotOrder: readonly Slot[]
+  filename?: string
+  valueFormatter?: (p?: ExportPlayer) => string
 }

@@ -24,7 +24,6 @@ export const GET = async (req: NextRequest) => {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // Get all DK contest by sport
   const injuriesResponse = await fetch(
     `https://site.api.espn.com/apis/site/v2/sports/football/${sportParam}/injuries`,
   )

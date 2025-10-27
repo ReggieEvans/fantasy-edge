@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useInfiniteQuery } from '@tanstack/react-query'
 
 type PlayersResponse = {
@@ -8,13 +9,21 @@ type PlayersResponse = {
   hasMore: boolean
 }
 
-export function useSlatePlayers({ slateId, q, position }: { slateId: string; q: string; position: string }) {
+export function useSlatePlayers({
+  slateId,
+  q,
+  position,
+}: {
+  slateId: string
+  q: string
+  position: string
+}) {
   return useInfiniteQuery({
     queryKey: ['slatePlayers', slateId, q, position],
     queryFn: async ({ pageParam = 1 }): Promise<PlayersResponse> => {
       const params = new URLSearchParams({
         page: String(pageParam),
-        pageSize: '100', // adjust as you like (<=200 as per server cap)
+        pageSize: '100',
       })
       if (q) params.set('q', q)
       const positionParam = position === 'all' ? '' : position

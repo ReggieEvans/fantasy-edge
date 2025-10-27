@@ -1,5 +1,3 @@
-// @desc    Get Available DkSlates
-// @route   GET /api/dkSlates
 import { NextRequest, NextResponse } from 'next/server'
 
 import { DkContestDTO, DkContestsResponseDTO } from '@/features/slate-manager/_dtos/dkContests.dto'
@@ -27,13 +25,11 @@ export const GET = async (req: NextRequest) => {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // Get all DK contest by sport
   const contestsResponse = await fetch(
     `https://www.draftkings.com/lobby/getcontests?sport=${sport}`,
   )
   const contests: DkContestsResponseDTO = await contestsResponse.json()
 
-  // Get all slateIds (groupIds) by gameType
   const groupIdList: number[] = []
   contests['Contests'].forEach((contest: DkContestDTO) => {
     if (!groupIdList.includes(contest['dg']) && contest['gameType'] === gt) {
@@ -41,7 +37,6 @@ export const GET = async (req: NextRequest) => {
     }
   })
 
-  // Get all DK group IDs the user already has
   const { data: existingSlates } = await supabase
     .from('user_slates')
     .select('dk_draft_group_id')
@@ -49,7 +44,6 @@ export const GET = async (req: NextRequest) => {
 
   const existingIds = new Set(existingSlates?.map(s => s.dk_draft_group_id) ?? [])
 
-  //Only fetch slates the user doesn’t already have
   const newGroupIds = groupIdList.filter(id => !existingIds.has(id))
 
   const slates: DkSlateDTO[] = await Promise.all(

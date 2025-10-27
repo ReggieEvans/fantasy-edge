@@ -16,7 +16,6 @@ export function mapDraftablesByPlayer(draftables: any[]): DraftableMap {
     const salary = Number(d.salary ?? 0)
     const position = d.position || null
     const teamAbbreviation = d.teamAbbreviation ?? null
-    // prefer highest salary if duplicates appear for multiple roster slots
     const existing = byName.get(key)
     if (!existing || salary > existing.salary) {
       byName.set(key, { displayName, salary, position, teamAbbreviation })
@@ -31,7 +30,7 @@ export function expectedFromSalary(salaryDollars: number, baselineDollarsPerPoin
 }
 
 export function valueIcon(actual: number, expected: number): '🔥' | '❄️' | '•' {
-  if (actual >= expected * 1.1) return '🔥' // beat expectation by 10%+
-  if (actual <= expected * 0.9) return '❄️' // missed by 10%+
-  return '•' // around expectation
+  if (actual >= expected * 1.1) return '🔥'
+  if (actual <= expected * 0.9) return '❄️'
+  return '•'
 }

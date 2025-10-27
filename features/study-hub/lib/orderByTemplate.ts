@@ -23,9 +23,8 @@ type Player = {
 const SLOT_TEMPLATES: Record<string, Slot[]> = {
   'NFL:CLASSIC': ['QB', 'RB', 'RB', 'WR', 'WR', 'WR', 'TE', 'FLEX', 'DST'],
   'NFL:SHOWDOWN': ['CPT', 'FLEX', 'FLEX', 'FLEX', 'FLEX', 'FLEX'],
-  'CFB:CLASSIC': ['QB', 'RB', 'RB', 'WR', 'WR', 'WR', 'FLEX', 'S-FLEX'], // no DST
+  'CFB:CLASSIC': ['QB', 'RB', 'RB', 'WR', 'WR', 'WR', 'FLEX', 'S-FLEX'],
   'CFB:SHOWDOWN': ['CPT', 'FLEX', 'FLEX', 'FLEX', 'FLEX', 'FLEX'],
-  // add more as needed...
 }
 
 export const getTemplate = (
@@ -36,13 +35,7 @@ export const getTemplate = (
   return SLOT_TEMPLATES[`${sport}:${t}`] ?? []
 }
 
-/**
- * Reorders a lineup to match the slot template.
- * Handles duplicates by consuming one player per slot in order.
- * If a slot is missing, returns `null` placeholder at that index.
- */
 export const orderByTemplate = (lineup: Player[], template: Slot[]): Array<Player | null> => {
-  // bucket players by slot, preserving original order
   const buckets = new Map<Slot, Player[]>()
   for (const p of lineup) {
     const arr = buckets.get(p.slot) ?? []
@@ -50,7 +43,6 @@ export const orderByTemplate = (lineup: Player[], template: Slot[]): Array<Playe
     buckets.set(p.slot, arr)
   }
 
-  // build ordered list by popping from the appropriate bucket
   return template.map(slot => {
     const arr = buckets.get(slot)
     if (!arr || arr.length === 0) return null

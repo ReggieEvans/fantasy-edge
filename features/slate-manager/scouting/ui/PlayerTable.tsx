@@ -63,7 +63,6 @@ export default function PlayerTable({ data, position, showPlayersWithNoStats }: 
 
   const withProjection = data.filter(hasProjection)
 
-  // Return atleast 2 players even if they have no stats
   const filteredData = showPlayersWithNoStats
     ? data
     : withProjection.length >= 2
@@ -149,7 +148,6 @@ export default function PlayerTable({ data, position, showPlayersWithNoStats }: 
       <Table>
         <TableHeader>
           <TableRow className="border-b border-background-secondary">
-            {/* Fixed Target Column */}
             <TableHead
               className="text-[12px] text-muted font-bold sticky min-w-[40px] w-[40px] right-[199px] z-10 ml-4 px-2 text-center rounded-t-md"
               title="Target Player"

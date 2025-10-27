@@ -21,7 +21,6 @@ type ExposureSummaryProps = {
   setExpSearch: (expSearch: string) => void
   playerExposures: PlayerExposure[]
   teamExposures: TeamExposure[]
-  // totalLineups: number
 }
 
 export default function ExposureSummary({
@@ -29,7 +28,6 @@ export default function ExposureSummary({
   setExpSearch,
   playerExposures,
   teamExposures,
-  // totalLineups,
 }: ExposureSummaryProps) {
   return (
     <div className="rounded border border-background-darker px-2 py-4 h-full bg-card">

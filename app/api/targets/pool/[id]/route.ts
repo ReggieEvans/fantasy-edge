@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server"
+import { NextResponse } from 'next/server'
 
-import { createServerSupabaseClient } from "@/libs/supabase/server"
+import { createServerSupabaseClient } from '@/libs/supabase/server'
 
 export const GET = async (_req: Request, { params }: { params: Promise<{ id: string }> }) => {
   const supabase = await createServerSupabaseClient()
@@ -14,7 +14,6 @@ export const GET = async (_req: Request, { params }: { params: Promise<{ id: str
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // 1️⃣ Get user targets
   const { data: userTargets, error: queryError } = await supabase
     .from('user_targeted_players')
     .select('*')
@@ -31,21 +30,17 @@ export const GET = async (_req: Request, { params }: { params: Promise<{ id: str
 
   const playerIds = userTargets.map(t => t.player_id)
 
-  // 2️⃣ Get player info
   const { data: players } = await supabase
     .from('slate_players')
     .select('*')
     .in('player_id', playerIds)
 
-  // 3️⃣ Get team info
   const teamIds = players?.map(p => p.team_id) ?? []
   const { data: teams } = await supabase
-  .from('teams')
-  .select('id, full_name, draftkings_abbreviation')
-  .in('id', teamIds)
+    .from('teams')
+    .select('id, full_name, draftkings_abbreviation')
+    .in('id', teamIds)
 
-
-  // 4️⃣ Combine everything
   const targets = userTargets.map(t => {
     const player = players?.find(p => p.player_id === t.player_id)
     const team = teams?.find(team => team.id === player?.team_id)

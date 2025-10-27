@@ -35,11 +35,10 @@ export function useLineupStudy() {
   const [progress, setProgress] = useState<{ rows: number }>({ rows: 0 })
   const [error, setError] = useState<string | null>(null)
 
-  // refs during parse
   const entriesRef = useRef<ContestEntry[]>([])
   const byUserRef = useRef<Map<string, { count: number; bestRank: number }>>(new Map())
   const fieldCountRef = useRef<Map<string, number>>(new Map())
-  const playerPositionMapRef = useRef<Map<string, string>>(new Map()) // player -> base position (QB/RB/WR/TE/DST)
+  const playerPositionMapRef = useRef<Map<string, string>>(new Map())
 
   const reset = () => {
     entriesRef.current = []
@@ -68,14 +67,12 @@ export function useLineupStudy() {
       chunkSize: 1024 * 50,
       chunk: ({ data }) => {
         for (const r of data as any[]) {
-          // Build player -> base position from the standings "Player" table
           if (r?.Player && r['Roster Position']) {
             const name = normalizeName(String(r.Player))
             const pos = String(r['Roster Position']).toUpperCase().trim()
-            playerPositionMapRef.current.set(name, pos) // QB/RB/WR/TE/DST
+            playerPositionMapRef.current.set(name, pos)
           }
 
-          // Entry rows have Lineup + EntryId
           if (!r?.Lineup || !r?.EntryId) continue
 
           const rank = Number(r.Rank ?? NaN)
@@ -111,7 +108,6 @@ export function useLineupStudy() {
           u.bestRank = Math.min(u.bestRank, rank)
           byUserRef.current.set(username, u)
 
-          // global presence counts
           const seen = new Set(players)
           for (const p of seen)
             fieldCountRef.current.set(p, (fieldCountRef.current.get(p) ?? 0) + 1)
@@ -122,20 +118,17 @@ export function useLineupStudy() {
         const all = entriesRef.current.sort((a, b) => a.rank - b.rank)
         setEntries(all)
 
-        // Users index
         const idx: UsersIndexRow[] = Array.from(byUserRef.current.entries())
           .map(([username, v]) => ({ username, entries: v.count, bestRank: v.bestRank }))
           .sort((a, b) => a.bestRank - b.bestRank)
         setUsersIndex(idx)
 
-        // Global exposure
         const totalEntries = Math.max(1, all.length)
         const global: PlayerExposureGlobal[] = Array.from(fieldCountRef.current.entries())
           .map(([player, c]) => ({ player, entries_with_player: c, field_pct: c / totalEntries }))
           .sort((a, b) => b.entries_with_player - a.entries_with_player)
         setGlobalExposure(global)
 
-        // Usage stats (unbiased views)
         const usageRows = buildUsageRows(all, playerPositionMapRef.current)
         const maxEntries = usageRows.reduce((m, r) => Math.max(m, r.entries), 0)
         setContestMaxEntries(maxEntries)
@@ -169,8 +162,6 @@ export function useLineupStudy() {
     onFile,
   }
 }
-
-/* ---------- helpers ---------- */
 
 function buildUsageRows(entries: ContestEntry[], posMap: Map<string, string>): UsageRow[] {
   const byUser = new Map<string, ContestEntry[]>()

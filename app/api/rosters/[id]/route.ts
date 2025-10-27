@@ -15,7 +15,6 @@ export const PUT = async (req: Request, { params }: { params: Promise<{ id: stri
   const rosterValues: { name: string | undefined; type: RosterType | null | undefined } =
     await req.json()
 
-  // 1) Update rosters table (partial update)
   if (rosterValues.name != null || rosterValues.type != null) {
     const updateFields: Record<string, unknown> = {}
     if (rosterValues.name != null) updateFields.name = rosterValues.name
@@ -28,10 +27,8 @@ export const PUT = async (req: Request, { params }: { params: Promise<{ id: stri
   return NextResponse.json({ success: true })
 }
 
-// ---------------------------------------------------------
 // @desc    Delete a roster (by rosterId)
 // @route   DELETE /rosters/:id
-// ---------------------------------------------------------
 export const DELETE = async (_req: Request, { params }: { params: Promise<{ id: string }> }) => {
   const supabase = await createServerSupabaseClient()
   const { id: rosterId } = await params
@@ -40,14 +37,6 @@ export const DELETE = async (_req: Request, { params }: { params: Promise<{ id: 
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-  // If your FK has ON DELETE CASCADE, you can delete the roster only.
-  // To be safe across schemas, delete children first:
-  //   const { error: delChildrenErr } = await supabase
-  //     .from('roster_players')
-  //     .delete()
-  //     .eq('roster_id', rosterId)
-  //   if (delChildrenErr) return NextResponse.json({ error: delChildrenErr.message }, { status: 500 })
 
   const { error: delRosterErr } = await supabase.from('rosters').delete().eq('id', rosterId)
   if (delRosterErr) return NextResponse.json({ error: delRosterErr.message }, { status: 500 })

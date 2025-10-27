@@ -1,18 +1,17 @@
 type ColorConfig = {
-  thresholds: number[] // e.g. [104, 78, 52, 26]
+  thresholds: number[]
   colors: {
-    positive: string[] // same or fewer buckets than thresholds (excess thresholds collapse to last color)
+    positive: string[]
     neutral: string
-    negative: string[] // same note as positive
+    negative: string[]
   }
-  isReversed?: boolean // negative numbers are “good”
+  isReversed?: boolean
 }
 
 type ColorOverrides = Partial<Pick<ColorConfig, 'thresholds' | 'isReversed' | 'colors'>>
 
 const sortDesc = (arr: number[]) => [...arr].sort((a, b) => b - a)
 
-// Returns a safe index color from an array (clamps to last)
 const pick = (arr: string[], idx: number) =>
   arr[Math.min(idx, arr.length - 1)] ?? arr[arr.length - 1]
 
@@ -23,7 +22,6 @@ export const getColorByValue = (
 ): string => {
   if (value === '-') return config.colors.neutral
 
-  // Apply overrides if provided; otherwise use config defaults
   const thresholds = sortDesc(overrides?.thresholds ?? config.thresholds)
   const isReversed = overrides?.isReversed ?? config.isReversed ?? false
   const colors = overrides?.colors ?? config.colors
@@ -31,7 +29,6 @@ export const getColorByValue = (
   const v = isReversed ? -value : value
   if (v === 0) return colors.neutral
 
-  // Choose bucket index by counting how many thresholds the value exceeds
   const countExceeds = (n: number) => {
     let i = 0
     for (; i < thresholds.length; i++) if (n > thresholds[i]) break
@@ -39,7 +36,7 @@ export const getColorByValue = (
   }
 
   if (v > 0) {
-    const idx = countExceeds(v) // 0 = top bucket
+    const idx = countExceeds(v)
     return pick(colors.positive, idx)
   } else {
     const idx = countExceeds(-v)
@@ -47,7 +44,6 @@ export const getColorByValue = (
   }
 }
 
-// Predefined configurations for different scenarios
 export const rankDiffConfig: ColorConfig = {
   thresholds: [104, 78, 52, 26],
   colors: {
@@ -67,27 +63,25 @@ export const rankDiffConfig: ColorConfig = {
   },
 }
 
-// Configuration for 0-100 scale (e.g., percentages, grades)
 export const pffGradeConfig: ColorConfig = {
   thresholds: [90, 85, 80, 75, 70, 60, 50, 40],
   colors: {
     positive: [
-      'bg-cyan-800/60 text-foreground border border-cyan-700', // 90-100 A+
-      'bg-teal-600/60 text-foreground border border-teal-600', // 90-85
-      'bg-green-700/60 text-foreground border border-green-700', // 85-80
-      'bg-green-500/60 text-foreground border border-green-500', // 80-75
-      'bg-lime-400/60 text-foreground border border-lime-400', // 75-70
-      'bg-yellow-300/60 text-foreground border border-yellow-300', // 70-60
-      'bg-amber-400/60 text-foreground border border-amber-400', // 60-50
-      'bg-orange-400/60 text-foreground border border-orange-400', // 50-40
-      'bg-red-600/60 text-foreground border border-red-600', // below 40
+      'bg-cyan-800/60 text-foreground border border-cyan-700',
+      'bg-teal-600/60 text-foreground border border-teal-600',
+      'bg-green-700/60 text-foreground border border-green-700',
+      'bg-green-500/60 text-foreground border border-green-500',
+      'bg-lime-400/60 text-foreground border border-lime-400',
+      'bg-yellow-300/60 text-foreground border border-yellow-300',
+      'bg-amber-400/60 text-foreground border border-amber-400',
+      'bg-orange-400/60 text-foreground border border-orange-400',
+      'bg-red-600/60 text-foreground border border-red-600',
     ],
-    neutral: 'bg-grade-neutral', // Non-applicable
+    neutral: 'bg-grade-neutral',
     negative: ['bg-grade-9-muted', 'bg-grade-7-muted', 'bg-grade-6-muted', 'bg-grade-neutral'],
   },
 }
 
-// Configuration for 0-100 scale (e.g., percentages, grades)
 export const mktShareConfig: ColorConfig = {
   thresholds: [0.3, 0.24, 0.1, 0],
   colors: {
@@ -97,7 +91,7 @@ export const mktShareConfig: ColorConfig = {
       'bg-lime-800/60 text-foreground border border-lime-700',
       'bg-transparent text-foreground',
     ],
-    neutral: 'bg-grade-neutral', // Non-applicable
+    neutral: 'bg-grade-neutral',
     negative: ['bg-grade-9-muted', 'bg-grade-7-muted', 'bg-grade-6-muted', 'bg-grade-neutral'],
   },
 }
@@ -110,8 +104,8 @@ export const targetsConfig: ColorConfig = {
       'bg-green-800/60 text-foreground border border-green-700',
       'bg-transparent text-foreground',
     ],
-    neutral: 'bg-grade-neutral', // Non-applicable
-    negative: ['bg-grade-9-muted', 'bg-grade-7-muted', 'bg-grade-6-muted', 'bg-grade-neutral'], // Non-applicable
+    neutral: 'bg-grade-neutral',
+    negative: ['bg-grade-9-muted', 'bg-grade-7-muted', 'bg-grade-6-muted', 'bg-grade-neutral'],
   },
 }
 
@@ -123,8 +117,8 @@ export const projValueConfig: ColorConfig = {
       'bg-green-800/60 text-foreground border border-green-700',
       'bg-transparent text-foreground',
     ],
-    neutral: 'bg-grade-neutral', // Non-applicable
-    negative: ['bg-grade-9-muted', 'bg-grade-7-muted', 'bg-grade-6-muted', 'bg-grade-neutral'], // Non-applicable
+    neutral: 'bg-grade-neutral',
+    negative: ['bg-grade-9-muted', 'bg-grade-7-muted', 'bg-grade-6-muted', 'bg-grade-neutral'],
   },
 }
 

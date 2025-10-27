@@ -14,7 +14,6 @@ export function parseEntryName(s: string) {
   }
 }
 
-// e.g. "DST Steelers  FLEX Jameson Williams QB Jared Goff ..."
 export function parseLineupWithPos(line: string) {
   const tokens = (line ?? '').trim().split(/\s+/)
   const out: { name: string; pos: any }[] = []

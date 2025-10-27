@@ -1,46 +1,37 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Matchup } from '@/features/slate-manager/matchups/types/matchup'
 
-// utils/enrichLineups.ts
 type LibPlayer = {
   lineup_position: string
   name: string
   positions?: string[]
   salary: number
-  team: string // abbrev from the library (e.g. "TEX", "NCSU")
-  // ...anything else the library returns; we will keep it
+  team: string
 }
 
 type LibLineup = {
   players: LibPlayer[]
   projection: number
   salary: number
-  // ...anything else the library returns; we will keep it
 }
 
 type EnricherOptions = {
-  /** max diff allowed when matching by salary (default 200) */
   salaryTolerance?: number
-  /** provide optional name aliases: "cj bailey" -> ["christopher j bailey", "c j bailey"] */
   nameAliases?: Record<string, string[]>
-  /** when true, logs match stages for debugging */
   debug?: boolean
 }
-
-/* ---------------- helpers ---------------- */
 
 function normalizeName(s: string) {
   return s
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '') // strip accents
-    .replace(/\./g, '') // drop periods
-    .replace(/'/g, '') // drop apostrophes (O'Neal -> oneal)
-    .replace(/\s+/g, ' ') // collapse spaces
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\./g, '')
+    .replace(/'/g, '')
+    .replace(/\s+/g, ' ')
     .trim()
     .toLowerCase()
 }
 
-/** Build team_id -> abbrev */
 function buildTeamIndex(matchups: Matchup[]) {
   const idx: Record<string | number, string> = {}
   for (const m of matchups) {
@@ -50,7 +41,6 @@ function buildTeamIndex(matchups: Matchup[]) {
   return idx
 }
 
-/** choose closest by salary, with tolerance */
 function pickClosestBySalary<T extends { salary: number | null }>(
   candidates: T[],
   targetSalary: number,
@@ -70,8 +60,6 @@ function pickClosestBySalary<T extends { salary: number | null }>(
   return bestDiff <= tolerance ? best : undefined
 }
 
-/* ---------------- enricher factory ---------------- */
-
 export function makeLineupEnricher(
   players: any[],
   matchups: Matchup[],
@@ -80,7 +68,6 @@ export function makeLineupEnricher(
   const salaryTolerance = opts.salaryTolerance ?? 200
   const teamIndex = buildTeamIndex(matchups)
 
-  // Precompute abbrev & normalized names for your pool
   type Indexed = any & { _abbr: string; _n: string; _pos: string }
   const pool: Indexed[] = players.map(p => ({
     ...p,
@@ -89,8 +76,7 @@ export function makeLineupEnricher(
     _pos: p.position.toUpperCase(),
   }))
 
-  // Multi-indexes for fast matching
-  const byHardKey = new Map<string, Indexed>() // name|abbr|salary|pos
+  const byHardKey = new Map<string, Indexed>()
   const byNameTeamPos = new Map<string, Indexed[]>()
   const byNamePos = new Map<string, Indexed[]>()
   const byName = new Map<string, Indexed[]>()
@@ -111,7 +97,6 @@ export function makeLineupEnricher(
     push(byName, p._n, p)
   }
 
-  // optional alias map
   const aliasMap = opts.nameAliases || {}
 
   function findMatch(lp: LibPlayer): Indexed | undefined {
@@ -119,27 +104,21 @@ export function makeLineupEnricher(
     const n = normalizeName(lp.name)
     const team = lp.team
 
-    // Stage 1: exact hard key
     const k1 = hardKey(n, team, lp.salary, pos)
     let hit = byHardKey.get(k1)
     if (hit) return hit
 
-    // Stage 2: name+team+pos → closest salary within tolerance
     const c2 = byNameTeamPos.get(`${n}|${team}|${pos}`) || []
     hit = pickClosestBySalary(c2, lp.salary, salaryTolerance)
     if (hit) return hit
 
-    // Stage 3: name+pos (team may differ, e.g., data source inconsistency)
     const c3 = byNamePos.get(`${n}|${pos}`) || []
     hit = pickClosestBySalary(c3, lp.salary, salaryTolerance)
     if (hit) return hit
 
-    // Stage 4: name only → closest salary (last resort within pos-agnostic)
     const c4 = byName.get(n) || []
     hit = pickClosestBySalary(c4, lp.salary, salaryTolerance)
     if (hit) return hit
-
-    // Stage 5: aliases (CJ -> Christopher J, etc.)
     const aliases = aliasMap[n] || []
     for (const alt of aliases) {
       const n2 = normalizeName(alt)
@@ -158,19 +137,17 @@ export function makeLineupEnricher(
     let misses = 0,
       total = 0
     const enriched = lineups.map(lu => ({
-      ...lu, // keep all lineup-level fields from library
+      ...lu,
       players: lu.players.map(lp => {
         total++
         const match = findMatch(lp)
         if (!match) {
           misses++
           return lp
-        } // keep library row as-is if no match
-        // ✅ Preserve library columns; add rich data under a namespaced key
+        }
         return {
           ...lp,
-          fe: match, // your full/rich player object nested here
-          // Optional: quick surface some common fields without overwriting library values
+          fe: match,
           fe_draftable_id: match.draftable_id,
           fe_team_id: match.team_id,
           fe_player_id: match.player_id,

@@ -9,13 +9,11 @@ export default function useTargetPoolControls(targets: TargetPool[]) {
   const [sortKey, setSortKey] = useState<SortKey>('target_type')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
 
-  // 1️⃣ filtered targets
   const filteredTargets = useMemo(() => {
     if (!filterPosition) return targets
     return targets.filter(t => t.position === filterPosition)
   }, [filterPosition, targets])
 
-  // 2️⃣ sorted & grouped targets
   const groupedTargets = useMemo(() => {
     const groups: Record<string, TargetPool[]> = {}
 
@@ -45,7 +43,6 @@ export default function useTargetPoolControls(targets: TargetPool[]) {
       groups[groupKey].push(t)
     })
 
-    // Optional: sort groups alphabetically or numerically
     const sortedGroups = Object.entries(groups).sort(([a], [b]) =>
       sortOrder === 'asc' ? a.localeCompare(b) : b.localeCompare(a),
     )

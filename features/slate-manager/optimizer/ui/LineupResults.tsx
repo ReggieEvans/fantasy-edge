@@ -14,7 +14,6 @@ export default function LineupResults({
 }) {
   const hasLineups = Array.isArray(lineups) && lineups.length > 0
 
-  // Error first (so we don't hide it behind empty states)
   if (error) {
     return (
       <div className="rounded border border-background-darker px-2 py-4 h-full bg-card">
@@ -23,7 +22,6 @@ export default function LineupResults({
     )
   }
 
-  // No results / not generated yet
   if (!hasLineups) {
     return (
       <div className="rounded border border-background-darker px-2 py-4 h-full bg-card">
@@ -37,7 +35,6 @@ export default function LineupResults({
     )
   }
 
-  // Render lineups
   return (
     <div className="rounded border border-background-darker px-2 py-4 h-full bg-card">
       <section className="space-y-3">

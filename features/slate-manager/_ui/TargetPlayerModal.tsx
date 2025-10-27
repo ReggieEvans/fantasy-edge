@@ -52,7 +52,7 @@ export default function TargetPlayerModal({
           </div>
         </div>
         <TargetPlayerForm
-          key={(existingTarget?.id ?? 'new') + ':' + (selectedPlayer?.id ?? '')} // force a clean mount per player/mode
+          key={(existingTarget?.id ?? 'new') + ':' + (selectedPlayer?.id ?? '')}
           defaultValues={
             existingTarget
               ? {

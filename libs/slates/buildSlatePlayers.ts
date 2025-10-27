@@ -24,10 +24,8 @@ export async function buildSlatePlayers(
 
     const teamMap = new Map(teams.map(t => [String(t.draftkings_abbreviation).toUpperCase(), t.id]))
 
-    // For Classic: dedup by player_id (keep best row)
-    // For Showdown: keep BOTH captain & utility (key by draftable_id)
     const dedupClassic = new Map<number, any>()
-    const dedupShowdown = new Map<number, any>() // draftable_id -> row
+    const dedupShowdown = new Map<number, any>()
 
     for (const p of players) {
       const teamId = teamMap.get(String(p.teamAbbreviation || '').toUpperCase())
@@ -50,8 +48,8 @@ export async function buildSlatePlayers(
         first_name: p.firstName ?? null,
         last_name: p.lastName ?? null,
         team_id: teamId,
-        position: p.position ?? null, // e.g. "CPT" vs "UTIL" on Showdown
-        salary: p.salary ?? null, // (DK usually multiplies CPT salary)
+        position: p.position ?? null,
+        salary: p.salary ?? null,
         player_image: p.playerImage160 ?? null,
         avg_points: avgPoints,
         is_showdown: isShowdown,
@@ -61,10 +59,8 @@ export async function buildSlatePlayers(
       }
 
       if (isShowdown) {
-        // Keep every distinct draftable (captain + flex) entry
         dedupShowdown.set(row.draftable_id, row)
       } else {
-        // Classic: dedup by player_id (prefer higher salary or non-null position)
         const existing = dedupClassic.get(row.player_id)
         if (!existing) {
           dedupClassic.set(row.player_id, row)

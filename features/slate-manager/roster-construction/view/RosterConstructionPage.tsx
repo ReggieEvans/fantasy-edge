@@ -50,21 +50,17 @@ export default function RosterCreation() {
   const { data: slate, isLoading: isSlateLoading } = useGetSlateQuery(id)
   const [addTarget] = useAddTargetMutation()
 
-  // derive tabs from sport
   const tabs = useMemo(() => {
     const sport = slate?.sport as Sport | undefined
     return sport ? TABS[sport] : []
   }, [slate?.sport])
 
-  // control Tabs value so it updates once sport loads
   const [tabValue, setTabValue] = useState('ALL')
   useEffect(() => {
     if (tabs.length) setTabValue(tabs[0].value)
   }, [tabs])
 
   const rosteredIds = useMemo(() => {
-    // roster: Record<string, TargetPoolType | null>
-    // If a slot can hold arrays, flatten here.
     const vals = Object.values(roster).filter(Boolean) as TargetPoolType[]
     return new Set(vals.map(v => v.player_id))
   }, [roster])
@@ -73,13 +69,11 @@ export default function RosterCreation() {
     if (!userTargets) return
 
     setPlayerPool(prev => {
-      // First load: take server as base minus rostered
       if (!hasInitialized.current) {
         hasInitialized.current = true
         return userTargets.filter(t => !rosteredIds.has(t.player_id))
       }
 
-      // Later loads: append only net-new AND not rostered
       const have = new Set(prev.map(t => t.player_id))
       const additions = userTargets.filter(
         t => !have.has(t.player_id) && !rosteredIds.has(t.player_id),
@@ -95,7 +89,6 @@ export default function RosterCreation() {
 
   const restorePlayerToPool = (player: TargetPoolType) => {
     setPlayerPool(prev => {
-      // if userTargets contains the player and they aren't rostered, re-add while preserving order
       const idSet = new Set(prev.map(p => p.player_id))
       if (rosteredIds.has(player.player_id) || idSet.has(player.player_id)) return prev
 

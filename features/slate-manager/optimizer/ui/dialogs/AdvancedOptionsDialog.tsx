@@ -86,7 +86,6 @@ export default function AdvancedOptionsDialog({
             ))}
           </TabsList>
 
-          {/* General */}
           <TabsContent
             value="general"
             className="mt-0 data-[state=active]:flex data-[state=active]:flex-1 data-[state=active]:min-h-0"
@@ -98,7 +97,6 @@ export default function AdvancedOptionsDialog({
                 </div>
 
                 <div className="flex-1 min-h-0 flex flex-col gap-6 pt-2 pb-12 px-2 overflow-y-auto">
-                  {/* Maximum Repeating Players (implemented as unique players per lineup) */}
                   <div className="border border-background-darker rounded">
                     <div className="flex items-center mb-1 px-2 text-xs bg-background">
                       <Label className="px-2 text-xs bg-background">
@@ -134,7 +132,6 @@ export default function AdvancedOptionsDialog({
                     </div>
                   </div>
 
-                  {/* FLEX specific counts */}
                   <div className="border border-background-darker rounded">
                     <div className="flex items-center mb-1 px-2 text-xs bg-background">
                       <Label className="px-2 text-xs bg-background">
@@ -167,7 +164,6 @@ export default function AdvancedOptionsDialog({
                     </div>
                   </div>
 
-                  {/* Salary Min/Max */}
                   <div className="border border-background-darker rounded">
                     <div className="flex items-center mb-1 px-2 text-xs bg-background">
                       <Label className="flex items-center gap-2 mb-1 px-2 text-xs bg-background">
@@ -218,7 +214,6 @@ export default function AdvancedOptionsDialog({
                     </div>
                   </div>
 
-                  {/* Global Max Exposure */}
                   <div className="border border-background-darker rounded">
                     <div className="flex items-center mb-1 px-2 text-xs bg-background">
                       <Label className="flex items-center gap-2 mb-1 px-2 text-xs bg-background">
@@ -233,7 +228,7 @@ export default function AdvancedOptionsDialog({
                       <Input
                         className="mt-1 w-56 bg-background-secondary border border-background-darker rounded p-2"
                         type="number"
-                        min={0} // set to 1 if you want to disallow 0
+                        min={0}
                         max={100}
                         step={1}
                         value={state.globalMaxExposure ?? ''}
@@ -251,7 +246,6 @@ export default function AdvancedOptionsDialog({
                     </div>
                   </div>
 
-                  {/* Ownership constraints */}
                   <div className="border border-background-darker rounded">
                     <div className="flex items-center mb-1 px-2 text-xs bg-background">
                       <Label className="px-2 text-xs bg-background">
@@ -296,7 +290,6 @@ export default function AdvancedOptionsDialog({
                     </div>
                   </div>
 
-                  {/* Randomness */}
                   <div className="border border-background-darker rounded">
                     <div className="flex items-center mb-1 px-2 text-xs bg-background">
                       <Label className="flex items-center gap-2 mb-1 px-2 text-xs bg-background">
@@ -394,7 +387,6 @@ export default function AdvancedOptionsDialog({
                           <p className="text-xs">Players from each team</p>
                         </div>
 
-                        {/* Away team limits */}
                         <div className="flex justify-around w-full">
                           <div className="flex items-center gap-2">
                             <Input
@@ -427,7 +419,6 @@ export default function AdvancedOptionsDialog({
                             />
                           </div>
 
-                          {/* Home team limits */}
                           <div className="flex items-center gap-2">
                             <Input
                               type="number"
@@ -460,7 +451,6 @@ export default function AdvancedOptionsDialog({
                           </div>
                         </div>
 
-                        {/* Game-level totals + limit opposing */}
                         <div className="flex justify-around w-full pb-2">
                           <div className="flex items-center justify-center gap-2 w-1/2 mt-2">
                             <div className="text-center">
@@ -513,7 +503,7 @@ export default function AdvancedOptionsDialog({
                                 onChange={e =>
                                   dispatchForm({
                                     type: 'SET_LIMIT_OPPOSING',
-                                    teamId: m.id, // or use teamId as needed for your downstream logic
+                                    teamId: m.id,
                                     value: parseNum(e.target.value),
                                   })
                                 }

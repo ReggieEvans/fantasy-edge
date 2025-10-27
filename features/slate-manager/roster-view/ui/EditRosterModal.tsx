@@ -37,7 +37,7 @@ export default function EditRosterModal({
           <DialogTitle className="text-xl text-foreground">Updating Roster</DialogTitle>
         </DialogHeader>
         <RosterForm
-          key={(selectedRoster?.id ?? 'new') + ':' + (selectedRoster?.id ?? '')} // force a clean mount per roster/mode
+          key={(selectedRoster?.id ?? 'new') + ':' + (selectedRoster?.id ?? '')}
           defaultValues={
             selectedRoster
               ? {

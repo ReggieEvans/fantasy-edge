@@ -1,8 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// lib/dk/parse.ts
 import type { CsvParsed, CsvRow, GameType, PlayerFptsRow } from '@/shared/types/study-hub/types'
-
-// --- PUBLIC EXPORTS AT BOTTOM ---
 
 const LOWER = (s: string) => (s ?? '').trim().toLowerCase()
 
@@ -43,7 +40,6 @@ export function parseCsvStandings(csv: string): CsvParsed {
     .filter(l => l.length > 0)
   if (!lines.length) return { rows: [], meta: {}, players: [] }
 
-  // locate entries header (Rank, Entry Id/EntryId, Lineup …)
   let h1 = lines.findIndex(l => {
     const c = splitCsvLine(l)
     return (
@@ -58,11 +54,10 @@ export function parseCsvStandings(csv: string): CsvParsed {
   const iRank = idx1('Rank')
   const iEntryId = idx1('Entry Id') >= 0 ? idx1('Entry Id') : idx1('EntryId')
   const iEntryNm = idx1('Entry Name') >= 0 ? idx1('Entry Name') : idx1('EntryName')
-  const iUser = idx1('Username') // may be -1
+  const iUser = idx1('Username')
   const iPoints = idx1('Points')
   const iLineup = idx1('Lineup')
 
-  // read entry rows until we hit the players table header (Player,…,FPTS)
   const rows: CsvRow[] = []
   let i = h1 + 1
   for (; i < lines.length; i++) {
@@ -82,7 +77,6 @@ export function parseCsvStandings(csv: string): CsvParsed {
     })
   }
 
-  // parse players table if present (supports both "Roster" and "Roster Position")
   const players: PlayerFptsRow[] = []
   if (i < lines.length) {
     const head2 = splitCsvLine(lines[i])
@@ -100,7 +94,6 @@ export function parseCsvStandings(csv: string): CsvParsed {
     for (let j = i + 1; j < lines.length; j++) {
       const cols = splitCsvLine(lines[j])
       if (!cols.length) continue
-      // stop if another header shows up
       if (isHeader(cols, ['rank', 'lineup']) || isHeader(cols, ['player', 'fpts'])) break
       const name = (cols[iPlayer] || '').trim()
       if (!name) continue

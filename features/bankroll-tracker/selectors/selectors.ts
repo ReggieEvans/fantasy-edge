@@ -93,12 +93,12 @@ export function buildChartData(
     daily[r.date][key] = (daily[r.date][key] || 0) + r.profit
   }
 
-  const dates = Object.keys(daily).sort() // "YYYY-MM-DD" sorts lexicographically
+  const dates = Object.keys(daily).sort()
   const running: Record<string, number> = {}
   const rows: Array<Record<string, number | string>> = []
 
   for (const d of dates) {
-    const row: Record<string, number | string> = { date: d } // <-- keep as string
+    const row: Record<string, number | string> = { date: d }
     for (const g of groups) {
       running[g] = (running[g] || 0) + (daily[d][g] || 0)
       row[g] = running[g]

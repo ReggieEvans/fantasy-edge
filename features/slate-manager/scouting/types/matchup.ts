@@ -4,11 +4,9 @@ import { TeamStats } from './stats'
 export interface MatchupDTO {
   matchup: Matchup
 
-  // Rosters
   homeRoster: TeamRoster
   awayRoster: TeamRoster
 
-  // Team stats
   passingDefense: { home: TeamStats; away: TeamStats }
   rushingDefense: { home: TeamStats; away: TeamStats }
   passingRate: { home: TeamStats; away: TeamStats }

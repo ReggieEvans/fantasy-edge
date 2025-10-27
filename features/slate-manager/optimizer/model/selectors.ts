@@ -1,4 +1,3 @@
-// features/optimizer/model/selectors.ts
 import { createSelector } from '@reduxjs/toolkit'
 
 import type { RootState } from '@/store'
@@ -6,9 +5,6 @@ import type { RootState } from '@/store'
 import { Matchup } from '../../matchups/types/matchup'
 import { optimizerApi } from '../api/optimizer.api'
 
-/* =========================
-   Domain types (minimal, extend as needed)
-========================= */
 type PositionCode = 'QB' | 'RB' | 'WR' | 'TE' | 'DST' | 'D/ST' | 'DEF' | 'FLEX' | string
 type ShowdownPosition = 'CPT' | 'CAPTAIN' | 'FLEX' | '' | string
 
@@ -31,7 +27,7 @@ export type PackPlayer = {
 
 export type SlatePack = {
   players: PackPlayer[]
-  matchups: unknown[] // not used here
+  matchups: unknown[]
   positionsArray: string[]
 }
 
@@ -42,21 +38,17 @@ type OptimizerPoolState = {
 }
 
 type OptimizerFiltersState = {
-  position: string // 'ALL' | 'QB' | 'RB' | ... | 'CPT' | 'FLEX'
+  position: string
   search?: string
   hideExcludedInTable?: boolean
 }
 
-/** The row shape your table expects (id required + flags). */
 export type PlayerRow = PackPlayer & {
   id: string
   isExcluded: boolean
   isLocked: boolean
 }
 
-/* =========================
-   Local helpers
-========================= */
 const norm = (v: unknown): string => (v ?? '').toString().trim()
 const normUpper = (v: unknown): string => norm(v).toUpperCase()
 
@@ -72,32 +64,21 @@ const isDst = (p: Pick<PackPlayer, 'position'>): boolean => {
   return pos === 'DST' || pos === 'D/ST' || pos === 'DEF'
 }
 
-/** Build a stable, deterministic id for table rows (no randoms). */
 const rowId = (p: PackPlayer): string => {
   if (p.id != null) return String(p.id)
   if (p.fe_player_id) return p.fe_player_id
   if (p.player_id != null) return String(p.player_id)
   if (p.draftable_id != null) return String(p.draftable_id)
-  // last-resort composite (deterministic)
   const name = p.full_name ?? p.name ?? 'UNK'
   return `${name}|${p.team ?? ''}|${p.position ?? ''}|${p.team_id ?? ''}`
 }
 
-/* =========================
-   Base selectors (typed)
-========================= */
 const selectOptimizerFilters = (s: RootState): OptimizerFiltersState =>
   (s as RootState & { optimizerFilters: OptimizerFiltersState }).optimizerFilters
 
-/* =========================
-   Derived selectors
-========================= */
-
-// Stable empty singletons for defaults
 const EMPTY_IDS = Object.freeze([]) as readonly (string | number)[]
 const EMPTY_PLAYERS = Object.freeze([]) as readonly PackPlayer[]
 const EMPTY_MATCHUPS = Object.freeze([]) as readonly Matchup[]
-/** Get just the players array with a stable fallback (NO wrapper object). */
 const selectSlatePlayers = (slateId: string, gameType: string) => {
   const base = optimizerApi.endpoints.getSlatePack.select({ id: slateId, gameType })
   return (state: RootState): readonly PackPlayer[] => base(state)?.data?.players ?? EMPTY_PLAYERS
@@ -108,7 +89,6 @@ const selectSlateMatchups = (slateId: string, gameType: string) => {
   return (s: RootState): readonly Matchup[] => base(s)?.data?.matchups ?? EMPTY_MATCHUPS
 }
 
-/** Pull arrays directly off the slice; default to stable singletons. */
 const selectExcludedTeamIds = (s: RootState) =>
   (s as RootState & { optimizerPool: OptimizerPoolState }).optimizerPool.excludedTeamIds ??
   EMPTY_IDS
@@ -121,15 +101,14 @@ const selectLockedPlayerIds = (s: RootState) =>
 
 const up = (v: unknown) => (v ?? '').toString().toUpperCase()
 
-/** Server list + pool flags → rows with { id, isExcluded, isLocked }. */
 export const selectPlayersWithFlags = (slateId: string, gameType: string) =>
   createSelector(
     [
-      selectSlatePlayers(slateId, gameType), // players[]
+      selectSlatePlayers(slateId, gameType),
       selectSlateMatchups(slateId, gameType),
-      selectExcludedTeamIds, // ids[]
-      selectExcludedPlayerIds, // ids[]
-      selectLockedPlayerIds, // ids[]
+      selectExcludedTeamIds,
+      selectExcludedPlayerIds,
+      selectLockedPlayerIds,
     ],
     (list, matchups, excludedTeamIds, excludedPlayerIds, lockedPlayerIds) => {
       const totalsByKey: Record<string, { game_total: number | null; team_total: number | null }> =
@@ -153,7 +132,6 @@ export const selectPlayersWithFlags = (slateId: string, gameType: string) =>
         set(aKeyAb, m.away_team_total ?? null)
       }
 
-      // Build Sets inside the result function (this is memoized)
       const excludedTeams = new Set(excludedTeamIds.map(String))
       const excludedPlayers = new Set(excludedPlayerIds.map(String))
       const lockedPlayers = new Set(lockedPlayerIds.map(String))
@@ -184,7 +162,6 @@ export const selectPlayersWithFlags = (slateId: string, gameType: string) =>
     },
   )
 
-/** What the TABLE shows (UI filters applied); optionally hides excluded. */
 export const makeSelectVisiblePlayers = (slateId: string, gameType: string) =>
   createSelector(
     [selectPlayersWithFlags(slateId, gameType), selectOptimizerFilters],
@@ -193,7 +170,6 @@ export const makeSelectVisiblePlayers = (slateId: string, gameType: string) =>
       const uiPos = normUpper(ui.position)
       const showdown = isShowdownGame(gameType)
 
-      // POSITION FILTER
       if (uiPos && uiPos !== 'ALL') {
         if (showdown) {
           if (uiPos === 'CPT') {
@@ -211,20 +187,17 @@ export const makeSelectVisiblePlayers = (slateId: string, gameType: string) =>
         }
       }
 
-      // SEARCH
       const q = norm(ui?.search).toLowerCase()
       if (q) {
         rows = rows.filter(p => (p.full_name ?? p.name ?? '').toLowerCase().includes(q))
       }
 
-      // HIDE EXCLUDED
       if (ui?.hideExcludedInTable) rows = rows.filter(p => !p.isExcluded)
 
       return rows
     },
   )
 
-/** What the OPTIMIZER uses (pool filters ONLY). */
 export const makeSelectEligiblePlayers = (slateId: string, gameType: string) =>
   createSelector([selectPlayersWithFlags(slateId, gameType)], players =>
     players.filter(p => !p.isExcluded),

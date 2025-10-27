@@ -1,6 +1,5 @@
 export type Aggression = 'Low' | 'Balanced' | 'Aggressive'
 
-// --- server payload types ---
 export type TeamMeta = {
   abbrev: string
   colorHexDex?: string
@@ -9,21 +8,20 @@ export type TeamMeta = {
   mediumName?: string
   nickName?: string
   shortName?: string
-  marketPickPercent?: number // 0-100
+  marketPickPercent?: number
 }
 
 export type ApiPick = {
-  // from backend `picks` rows
   team: string
   opp: string
   isHome: boolean
   gameKey: string
   confidence: number
   rank?: number
-  p: number // 0-1 win prob
-  pop: number // 0-1 market pick rate
-  popPct?: number // 0-100 for UI
-  marketPickPercent?: number // 0-100 alias
+  p: number
+  pop: number
+  popPct?: number
+  marketPickPercent?: number
   value: number
   weekly_edge: number
   season_risk: number

@@ -8,7 +8,7 @@ export type CsvRow = {
   entryName: string
   username: string
   points: number
-  prize?: number | null // parsed if present, but authoritative prize from payoutResolver(rank)
+  prize?: number | null
   lineup: string
 }
 
@@ -54,7 +54,7 @@ export type StudyEntry = {
   rank: number
   points: number
   prizeDollars: number
-  roi: number // (won - spend)/spend for this single entry
+  roi: number
   spendCents: number
   wonCents: number
   lineup: Array<{
@@ -114,8 +114,8 @@ export type EnrichedStudyUpload = {
 
 export type PlayerFptsRow = {
   name: string
-  roster?: string | null // e.g., CPT/FLEX/QB/...
-  position?: string | null // e.g., QB/RB/WR/TE/DST
+  roster?: string | null
+  position?: string | null
   draftedPct?: number | null
   fpts: number
 }
@@ -123,7 +123,7 @@ export type PlayerFptsRow = {
 export type CsvParsed = {
   rows: CsvRow[]
   meta: CsvMeta
-  players: PlayerFptsRow[] // <-- NEW
+  players: PlayerFptsRow[]
 }
 
 export type UserExposure = {

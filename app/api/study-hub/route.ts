@@ -1,9 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// app/api/study-hub/upload/route.ts
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 
-// You already use this util in your project
 import { parseLineupWithSlots } from '@/libs/dk/parse'
 
 export const runtime = 'nodejs'
@@ -12,22 +10,6 @@ export type ValueVerdict = 'EXCEEDED' | 'FAILED' | 'NEUTRAL'
 
 type RosterSlot = 'QB' | 'RB' | 'WR' | 'TE' | 'DST' | 'FLEX' | 'S-FLEX' | 'UTIL' | 'CPT'
 
-/**
- * Upload the EXACT DraftKings standings CSV (the one whose header contains BOTH
- * entry columns and player columns, e.g.:
- *   Rank,EntryId,EntryName,TimeRemaining,Points,Lineup,Player,Roster Position,%Drafted,FPTS
- *
- * This route:
- *  - Parses entry rows (Rank/EntryId/EntryName/Points/Lineup)
- *  - Parses player rows from the SAME header (Player/Roster Position/%Drafted/FPTS)
- *  - Detects Showdown via CPT token in any lineup (or via provided hint)
- *  - Fetches contest + draftables to enrich with entry fee, payouts, salaries, images, teams
- *  - Loads team meta (color, alt color, logos) from Supabase by DK abbrev -> team_id -> teams_meta
- *  - Computes per-entry ROI, user totals, global player exposures
- *  - Adds expected points from salary (baseline $/pt), and value verdict icon
- *  - Tags lineup rows with is_stack / is_game_stack
- *  - Optionally appends usernameSummary (Spent/Winnings/ROI) if a username was provided
- */
 export async function POST(req: NextRequest) {
   try {
     const ct = req.headers.get('content-type') || ''
@@ -47,20 +29,17 @@ export async function POST(req: NextRequest) {
     const usernameFilter = asOptString(form.get('username'))?.trim()
 
     const filename = (file as any)?.name || 'upload.csv'
-    const csvText = (await file.text()).replace(/\uFEFF/g, '') // strip BOM if present
+    const csvText = (await file.text()).replace(/\uFEFF/g, '')
 
-    // ---------- Parse CSV (single HEADER with BOTH entry + player columns) ----------
     const parsed = parseCsvSingleHeader(csvText)
     if (!parsed.rows.length) {
       return jsonError('CSV appears empty or not a recognized DraftKings standings export.', 400)
     }
 
-    // Game type (prefer hint; else detect by CPT token in any lineup)
     const gameType: 'classic' | 'showdown' =
       hints.gameType ??
       (parsed.rows.some(r => /\bCPT\b/.test(r.lineup || '')) ? 'showdown' : 'classic')
 
-    // Contest ID from filename
     const contestId = filename.match(/(\d{6,})/)?.[1] || undefined
     if (!contestId)
       return jsonError(
@@ -68,7 +47,6 @@ export async function POST(req: NextRequest) {
         400,
       )
 
-    // ---------- Contest detail (entry fee, payouts, draftGroupId, sport) ----------
     const contestUrl = `https://api.draftkings.com/contests/v1/contests/${contestId}?format=json`
     const contestRes = await fetch(contestUrl, { cache: 'no-store' })
     if (!contestRes.ok) return jsonError(`Contest API failed (${contestRes.status}).`, 502)
@@ -82,7 +60,6 @@ export async function POST(req: NextRequest) {
       numish(detail.draftGroupId ?? detail.DraftGroupId ?? detail.dg) ?? 0
     const payoutResolver = buildPayoutResolver(detail.payoutSummary ?? detail.PayoutSummary ?? [])
 
-    // ---------- Draftables (salary/position/team/image) ----------
     let draftableMap = makeDraftableMap([])
     if (draftGroupId) {
       const dgUrl = `https://api.draftkings.com/draftgroups/v1/draftgroups/${draftGroupId}/draftables`
@@ -95,13 +72,11 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // ---------- Team meta (DK abbr -> teams_meta) via Supabase ----------
     const supabase = createServerSupabase()
     const teamMetaByDkAbbr = await getTeamMetaByDkAbbr(supabase)
 
-    // ---------- Build FPTS map (Player → FPTS) and base position map ----------
     const pointsByName = new Map<string, number>()
-    const playerBase = new Map<string, string>() // normalized player name -> base position (QB/RB/WR/TE/DST)
+    const playerBase = new Map<string, string>()
 
     for (const p of parsed.players) {
       const k = norm(p.name)
@@ -111,7 +86,6 @@ export async function POST(req: NextRequest) {
       const base = ((p.position ?? p.roster) || '').toUpperCase()
       if (['QB', 'RB', 'WR', 'TE', 'DST'].includes(base)) {
         playerBase.set(k, base)
-        // DST alias: allow matching "Steelers" (lineup) to "Steelers D/ST" (players table)
         if (base === 'DST') {
           const baseName = p.name.replace(/\s*(?:D\/?ST|DST)\s*$/i, '').trim()
           if (baseName) {
@@ -122,24 +96,20 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // ---------- Value ($/pt) baseline ----------
     let baseline = Number(
       hints.valueBaseline ?? defaultBaseline({ sport: hints.sport ?? detectedSport, gameType }),
     )
     if (!Number.isFinite(baseline) || baseline <= 0) baseline = 300
 
-    // ---------- Enrich entries ----------
     const entries = parsed.rows.map(r => {
       const prizeDollars = payoutResolver(r.rank)
       const spendCents = Math.round(entryFeeDollars * 100)
       const wonCents = Math.round((prizeDollars ?? 0) * 100)
       const roi = spendCents === 0 ? 0 : (wonCents - spendCents) / spendCents
 
-      // derive username from EntryName: "name (x/y)"
       const deriveUsername = (entryName: string, csvUsername?: string) => {
         const primary = (csvUsername ?? '').trim()
         if (primary) return primary
-        // remove a trailing " (x/y)" only (doesn’t touch other parentheses in the middle)
         return (entryName || '').replace(/\s*\(\s*\d+\s*\/\s*\d+\s*\)\s*$/, '').trim()
       }
       const username = deriveUsername(r.entryName, r.username)
@@ -209,7 +179,6 @@ export async function POST(req: NextRequest) {
         }
       })
 
-      // ---- stack tags (based on QB team(s))
       const qbTeams = new Set(
         lineup
           .filter(p => (p.position ?? '').toUpperCase() === 'QB')
@@ -217,9 +186,8 @@ export async function POST(req: NextRequest) {
           .filter(Boolean) as string[],
       )
 
-      const STACK_ELIGIBLE = new Set(['WR', 'TE', 'RB']) // tweak if you want RB excluded
+      const STACK_ELIGIBLE = new Set(['WR', 'TE', 'RB'])
 
-      // Count eligible teammates by team (exclude QBs, usually exclude DST)
       const teamEligibleCounts = new Map<string, number>()
       for (const p of lineup) {
         const base = (p.position ?? '').toUpperCase()
@@ -230,21 +198,16 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      // Now tag every player (including QBs)
       lineup = lineup.map(p => {
         const base = (p.position ?? '').toUpperCase()
         const isQB = base === 'QB'
         const team = p.teamAbbr
         const opp = p.oppAbbr
 
-        // Non-QB: stacked if they share a team with any QB
-        // QB: stacked if there is at least one eligible teammate on his team
         const is_stack = isQB
           ? !!team && (teamEligibleCounts.get(team) ?? 0) > 0
           : !!team && qbTeams.has(team)
 
-        // Non-QB: game-stack if their opponent is a QB team
-        // QB: game-stack if there is at least one eligible opponent player on the QB's opposing team
         const is_game_stack = isQB
           ? !!opp && (teamEligibleCounts.get(opp) ?? 0) > 0
           : !!opp && qbTeams.has(opp)
@@ -266,7 +229,6 @@ export async function POST(req: NextRequest) {
       }
     })
 
-    // --- Usage stats: per-user distinct pools (overall + by base position)
     type UsageRow = {
       user: string
       entries: number
@@ -366,7 +328,6 @@ export async function POST(req: NextRequest) {
     const usageFull = summarize(usageRows.filter(r => r.entries === contestMaxEntries))
     const usageBuckets = bucketize(usageRows)
 
-    // ---------- Aggregates & exposures ----------
     const byUser = new Map<string, { entries: number; spendCents: number; wonCents: number }>()
     const exposure = new Map<string, number>()
     const cptExp = new Map<string, number>()
@@ -447,7 +408,6 @@ export async function POST(req: NextRequest) {
       }))
       .sort((a, b) => b.entries - a.entries)
 
-    // Optional per-user summary appended (case-insensitive match)
     let usernameSummary: { Username: string; Spent: number; Winnings: number; ROI: number } | null =
       null
     if (usernameFilter) {
@@ -491,8 +451,6 @@ export async function POST(req: NextRequest) {
   }
 }
 
-/* ------------------------------- helpers -------------------------------- */
-
 function jsonError(message: string, status = 400) {
   return NextResponse.json({ error: message }, { status })
 }
@@ -514,8 +472,6 @@ function createServerSupabase() {
   if (!url || !key) console.warn('[study-hub] Missing Supabase env (URL/KEY).')
   return createSupabaseClient(url!, key!)
 }
-
-/* ----------------------- CSV parsing (single header) --------------------- */
 
 type CsvRow = {
   rank: number
@@ -555,7 +511,6 @@ function parseCsvSingleHeader(csv: string): CsvParsed {
     return -1
   }
 
-  // Entry columns
   const iRank = idx('Rank')
   const iEntryId = idx('Entry Id', 'EntryId')
   const iEntryNm = idx('Entry Name', 'EntryName')
@@ -563,13 +518,12 @@ function parseCsvSingleHeader(csv: string): CsvParsed {
   const iPoints = idx('Points')
   const iLineup = idx('Lineup')
 
-  // Player columns
   const iPlayer = idx('Player')
   const iRoster = (() => {
     const a = idx('Roster Position')
     return a >= 0 ? a : idx('Roster')
   })()
-  const iPos = idx('Position') // base position if present
+  const iPos = idx('Position')
   const iPct = idx('%Drafted')
   const iFpts = idx('FPTS')
 
@@ -635,8 +589,6 @@ function splitCsvLine(line: string): string[] {
   return out
 }
 
-/* ----------------------- payouts + draftables + value -------------------- */
-
 function buildPayoutResolver(payoutSummary: any[]) {
   type Tier = { min: number; max: number; value: number }
   const tiers: Tier[] = []
@@ -661,7 +613,6 @@ function buildPayoutResolver(payoutSummary: any[]) {
 
 function extractOppAbbrFromName(name: string | undefined, teamAbbr: string | null): string | null {
   const n = (name || '').toUpperCase()
-  // pull tokens like CLE, BAL, NYJ, LAR, etc.
   const tokens: string[] = n.match(/[A-Z]{2,4}/g) || []
   if (tokens.length < 2) return null
   const me = teamAbbr ? teamAbbr.toUpperCase() : null
@@ -669,7 +620,6 @@ function extractOppAbbrFromName(name: string | undefined, teamAbbr: string | nul
     const other = tokens.find(t => t !== me)
     return other || null
   }
-  // Fallback: assume "AWAY @ HOME"
   return tokens[1] || null
 }
 
@@ -694,11 +644,9 @@ function makeDraftableMap(draftables: any[]) {
     const position = d.position || d.rosterSlot || null
     const teamAbbreviation = d.teamAbbreviation ?? d.teamAbbrev ?? null
 
-    // Opponent derived from competition/competitions name, e.g. "CLE @ BAL"
     const compName: string | undefined = d.competition?.name || d.competitions?.[0]?.name
     const opponentTeamAbbreviation = extractOppAbbrFromName(compName, teamAbbreviation)
 
-    // Prefer larger image, then fall back
     const imageUrl =
       d.playerImage160 || d.playerImage50 || d.altPlayerImage160 || d.altPlayerImage50 || null
 
@@ -743,8 +691,6 @@ function normalizeSlot(raw: string, gameType: 'classic' | 'showdown'): RosterSlo
   return raw as RosterSlot
 }
 
-/* ----------------------- Team meta lookups (Supabase) -------------------- */
-
 type TeamMeta = {
   team_id: number
   abbreviation: string | null
@@ -754,7 +700,6 @@ type TeamMeta = {
 }
 
 async function getTeamMetaByDkAbbr(supabase: ReturnType<typeof createServerSupabase>) {
-  // Step 1: teams(id, draftkings_abbreviation)
   const { data: teamsRows, error: teamsErr } = await supabase
     .from('teams')
     .select('id, draftkings_abbreviation')
@@ -767,7 +712,6 @@ async function getTeamMetaByDkAbbr(supabase: ReturnType<typeof createServerSupab
   const ids = (teamsRows ?? []).map(t => t.id)
   if (!ids.length) return new Map<string, TeamMeta>()
 
-  // Step 2: teams_meta
   const { data: metaRows, error: metaErr } = await supabase
     .from('teams_meta')
     .select('team_id, abbreviation, color, alternate_color, logos')

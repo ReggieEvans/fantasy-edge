@@ -1,6 +1,7 @@
-import { OddsGame } from "@/types/odds"
+import { OddsGame } from '@/types/odds'
 
-export const norm = (s: string | null | undefined) => (s ?? '').toUpperCase().replace(/[^A-Z0-9]/g, '')
+export const norm = (s: string | null | undefined) =>
+  (s ?? '').toUpperCase().replace(/[^A-Z0-9]/g, '')
 
 export function countBySlate(items: { slate_id: string }[]) {
   return items.reduce(
@@ -22,22 +23,19 @@ export function parseAbbrs(description: string) {
   }
 }
 
-export function impliedTotals(total: number, homeSpread: number, awaySpread: number) {
-  // Use the identity: team_total = total/2 - spread/2 (spread is that team’s signed line)
+export function impliedTotals(total: number, homeSpread: number) {
   const home_total = total / 2 - homeSpread / 2
   const away_total = total - home_total
   return { home_total, away_total }
 }
 
-// Pick DraftKings if present; else first book
 export function pickBook(game: OddsGame) {
-  return (
-    game.bookmakers?.find(b => b.key === 'draftkings') ??
-    game.bookmakers?.[0] ??
-    null
-  )
+  return game.bookmakers?.find(b => b.key === 'draftkings') ?? game.bookmakers?.[0] ?? null
 }
 
-export function getMarket(book: NonNullable<ReturnType<typeof pickBook>>, key: 'spreads' | 'totals') {
+export function getMarket(
+  book: NonNullable<ReturnType<typeof pickBook>>,
+  key: 'spreads' | 'totals',
+) {
   return book.markets?.find(m => m.key === key) ?? null
 }

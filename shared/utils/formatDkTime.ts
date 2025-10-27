@@ -1,6 +1,5 @@
 export const formatDateTime = (dateString: string | undefined) => {
   if (!dateString) return ''
-  // Parse as UTC if no Z
   let date: Date
   if (dateString.endsWith('Z')) {
     date = new Date(dateString)
@@ -13,11 +12,17 @@ export const formatDateTime = (dateString: string | undefined) => {
 
   const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
 
-  const day = new Intl.DateTimeFormat('en-US', { weekday: 'long', timeZone: userTimeZone }).format(date)
-  const md = new Intl.DateTimeFormat('en-US', { month: 'numeric', day: 'numeric', timeZone: userTimeZone }).format(date)
+  const day = new Intl.DateTimeFormat('en-US', { weekday: 'long', timeZone: userTimeZone }).format(
+    date,
+  )
+  const md = new Intl.DateTimeFormat('en-US', {
+    month: 'numeric',
+    day: 'numeric',
+    timeZone: userTimeZone,
+  }).format(date)
   const time = new Intl.DateTimeFormat('en-US', {
     hour: 'numeric',
-    minute: '2-digit', // no seconds
+    minute: '2-digit',
     hour12: true,
     timeZone: userTimeZone,
   }).format(date)
